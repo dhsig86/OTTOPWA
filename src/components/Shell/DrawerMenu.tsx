@@ -15,7 +15,8 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { profile, isAuthenticated } = useAuth();
 
-  const handleModuleClick = (modulePath: string, external: boolean) => {
+  const handleRunModule = (modulePath: string, external: boolean, status?: string) => {
+    if (status === 'coming-soon') return;
     onClose();
     if (external) {
       navigate('/modules/webview', { state: { url: modulePath } });
