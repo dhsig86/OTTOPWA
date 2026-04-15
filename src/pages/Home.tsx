@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { OTTO_MODULES } from '../config/modules';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 export const Home: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  // We can filter by profile, or show all if we want them to see what exists
-  // but let's default to filtering by their profile if they have one.
   const [activeFilter, setActiveFilter] = useState<'todos' | 'medico' | 'estudante' | 'paciente'>('todos');
 
   const handleRunModule = (url: string, external: boolean, status: string) => {
@@ -37,6 +36,20 @@ export const Home: React.FC = () => {
     return mod.profiles.includes(activeFilter as any);
   });
 
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+    exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
+  };
+
   return (
     <div className="p-4 space-y-6 pb-20">
       
@@ -46,10 +59,10 @@ export const Home: React.FC = () => {
           <button
             key={f}
             onClick={() => setActiveFilter(f as any)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors duration-300 ${
               activeFilter === f
-                ? 'bg-otto-teal text-white shadow-sm'
-                : 'bg-white border border-otto-border text-otto-muted hover:bg-gray-50'
+                ? 'bg-otto-teal text-white shadow-md'
+                : 'bg-white border border-otto-border/40 text-otto-muted hover:bg-gray-50 hover:shadow-sm'
             }`}
           >
             {f === 'todos' ? 'Meu Perfil' : 
@@ -60,18 +73,31 @@ export const Home: React.FC = () => {
       </div>
 
       {/* Grid de módulos */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+      >
+        <AnimatePresence mode='popLayout'>
         {visibleModules.map(mod => {
           const Icon = mod.icon;
           const isComingSoon = mod.status === 'coming-soon';
 
           return (
-            <button
+            <motion.button
+              layout
+              variants={itemVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              whileHover={!isComingSoon ? { scale: 1.02, y: -2 } : {}}
+              whileTap={!isComingSoon ? { scale: 0.97 } : {}}
               key={mod.id}
               disabled={isComingSoon}
               onClick={() => handleRunModule(mod.url, mod.external, mod.status)}
-              className={`relative bg-white rounded-xl p-4 flex flex-col items-center justify-start text-center border border-otto-border/50 shadow-sm transition-all
-                ${isComingSoon ? 'opacity-60 cursor-not-allowed grayscale-[0.5]' : 'hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm'}
+              className={`relative bg-white rounded-3xl p-5 flex flex-col items-center justify-start text-center border border-white/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all
+                ${isComingSoon ? 'opacity-50 cursor-not-allowed grayscale' : 'hover:shadow-[0_12px_40px_rgb(29,158,117,0.12)]'}
               `}
             >
               {mod.status === 'beta' && (
@@ -93,10 +119,11 @@ export const Home: React.FC = () => {
                   Em Breve
                 </div>
               )}
-            </button>
+            </motion.button>
           );
         })}
-      </div>
+        </AnimatePresence>
+      </motion.div>
 
     </div>
   );

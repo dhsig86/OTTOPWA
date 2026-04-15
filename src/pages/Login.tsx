@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -18,8 +19,13 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-otto-teal-light via-white to-otto-teal/5 flex flex-col items-center justify-center p-4">
+      <motion.div 
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+        className="w-full max-w-sm space-y-8 bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-[0_20px_40px_rgba(29,158,117,0.08)] border border-white/60"
+      >
         
         {/* Header Visual */}
         <div className="text-center space-y-2">
@@ -82,7 +88,7 @@ export const Login: React.FC = () => {
           Ambiente restrito de acesso Antecipado (Beta)
         </p>
 
-      </div>
+      </motion.div>
     </div>
   );
 };
