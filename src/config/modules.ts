@@ -3,20 +3,15 @@ import {
   Syringe,
   Ear,
   Hospital,
-  Microscope,
   FileBadge,
-  SearchCode,
   FolderOpen,
   GraduationCap,
   MessageSquare,
-  Newspaper,
   Mic2,
-  Stethoscope,
   Volume2,
   PlaySquare,
-  Scissors,
-  Moon,
-  MessageCircleQuestion, // For feedback
+  Activity,
+  Star
 } from 'lucide-react';
 
 export interface OttoModule {
@@ -24,234 +19,192 @@ export interface OttoModule {
   name: string
   description: string
   icon: any
-  url: string           // URL externa OU rota interna (/modules/video)
-  external: boolean     // true = iframe, false = componente interno
+  url: string
+  external: boolean
   profiles: ('medico' | 'estudante' | 'paciente')[]
   premium: boolean
   status: 'live' | 'beta' | 'coming-soon'
-  category: 'clinico' | 'educacao' | 'paciente' | 'gestao'
+  category: 'clinico' | 'educacao_paciente'
   tags?: string[]
-  localPath?: string    // Caminho local para integração nativa no futuro
+  localPath?: string
+  iconBg?: string
+  hasIA?: boolean
 }
 
 export const OTTO_MODULES: OttoModule[] = [
+  // FERRAMENTAS CLÍNICAS (clinico)
   {
-    id: 'calc-hub',
-    name: 'OTTO Calc-Hub',
-    description: '20 calculadoras clínicas validadas em ORL',
-    icon: Calculator,
-    url: 'https://otto-calc-hub.vercel.app',
+    id: 'atlas',
+    name: 'Atlas',
+    description: 'OtoAtlas IA',
+    icon: Ear,
+    url: 'https://atlas.drdariohart.com/',
+    external: true,
+    profiles: ['medico', 'estudante', 'paciente'],
+    premium: false,
+    status: 'live',
+    category: 'clinico',
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
+    hasIA: true
+  },
+  {
+    id: 'procod',
+    name: 'CID & TUSS',
+    description: 'Codificação',
+    icon: FileBadge,
+    url: 'https://procod.drdariohart.com/',
     external: true,
     profiles: ['medico', 'estudante'],
     premium: false,
     status: 'live',
     category: 'clinico',
-    tags: ['SNOT-22', 'TNM', 'NOSE', 'Lund-Mackay', 'THI']
-  },
-  {
-    id: 'imune',
-    name: 'OTTO Imune',
-    description: 'Elegibilidade imunobiológicos RSCcPN',
-    icon: Syringe,
-    url: 'https://otto-imune.vercel.app',
-    external: true,
-    profiles: ['medico'],
-    premium: true,
-    status: 'live',
-    category: 'clinico'
-  },
-  {
-    id: 'atlas',
-    name: 'OTTO Atlas',
-    description: 'Atlas de otoscopia + predição IA',
-    icon: Ear,
-    url: 'https://atlas.drdariohart.com/',
-    external: true,
-    profiles: ['medico', 'estudante'],
-    premium: false,
-    status: 'live',
-    category: 'clinico'
+    iconBg: 'bg-[#E6EDFB] text-[#4068B2]'
   },
   {
     id: 'triagem',
-    name: 'OTTO Triagem',
-    description: 'Triagem e suporte à decisão clínica (CDSS)',
+    name: 'Otoscop.IA',
+    description: 'Diagnóstico',
     icon: Hospital,
     url: 'http://triagem.otosig.com/',
     external: true,
     profiles: ['medico'],
     premium: true,
     status: 'live',
-    category: 'clinico'
+    category: 'clinico',
+    iconBg: 'bg-[#E5F5FA] text-[#2C95B5]',
+    hasIA: true
   },
   {
-    id: 'ocr',
-    name: 'OTTO OCR',
-    description: 'Interpretação de laudos médicos (serviço interno)',
-    icon: Microscope,
-    url: 'https://otto-ocr.herokuapp.com',
-    external: true,
-    profiles: ['medico'],
-    premium: true,
-    status: 'live',
-    category: 'clinico'
-  },
-  {
-    id: 'procod',
-    name: 'OTTO ProCod',
-    description: 'Relatório médico, CID e orçamento cirúrgico',
-    icon: FileBadge,
-    url: 'https://procod.drdariohart.com/',
-    external: true,
-    profiles: ['medico'],
-    premium: false,
-    status: 'live',
-    category: 'gestao'
-  },
-  {
-    id: 'cid-tuss',
-    name: 'OTTO CID & TUSS',
-    description: 'Codificação e faturamento médico',
-    icon: SearchCode,
-    url: 'https://otto-cid-tuss.vercel.app',
-    external: true,
-    profiles: ['medico'],
-    premium: false,
-    status: 'live',
-    category: 'gestao'
-  },
-  {
-    id: 'cases',
-    name: 'OTTO Cases',
-    description: 'Relatos de caso médico',
-    icon: FolderOpen,
-    url: 'https://cases.drdariohart.com/',
+    id: 'calc',
+    name: 'Calculadoras',
+    description: '8 ferramentas',
+    icon: Calculator,
+    url: 'https://otto-calc-hub.vercel.app/',
     external: true,
     profiles: ['medico', 'estudante'],
     premium: false,
     status: 'live',
-    category: 'educacao'
+    category: 'clinico',
+    iconBg: 'bg-[#FEF1E2] text-[#E08A27]'
   },
   {
-    id: 'quiz',
-    name: 'OTTO Quiz',
-    description: 'Questões para concurso e fixação ORL',
-    icon: GraduationCap,
-    url: 'https://otto-quiz.vercel.app',
-    external: true,
-    profiles: ['medico', 'estudante'],
-    premium: false,
-    status: 'live',
-    category: 'educacao'
-  },
-  {
-    id: 'ottosig',
-    name: 'OTTOSIG / BOTTOK',
-    description: 'Glossário ORL + chat com literatura ORL',
-    icon: MessageSquare,
-    url: 'https://dhsig86.github.io/minidic/',
+    id: 'imune',
+    name: 'Imunobio.',
+    description: 'Portal completo',
+    icon: Syringe,
+    url: 'https://otto-imune.vercel.app/',
     external: true,
     profiles: ['medico', 'estudante'],
     premium: true,
-    status: 'beta',
-    category: 'educacao'
-  },
-  {
-    id: 'news',
-    name: 'OTTO News',
-    description: 'Novidades científicas em ORL/CCP',
-    icon: Newspaper,
-    url: 'https://otto-news.vercel.app',
-    external: true,
-    profiles: ['medico', 'estudante'],
-    premium: false,
     status: 'live',
-    category: 'educacao'
-  },
-  {
-    id: 'voice',
-    name: 'OTTO Voice',
-    description: 'Gerador de voz para reabilitação',
-    icon: Mic2,
-    url: 'https://otto-voice-one.vercel.app/',
-    external: true,
-    profiles: ['medico', 'paciente'],
-    premium: false,
-    status: 'live',
-    category: 'paciente'
+    category: 'clinico',
+    iconBg: 'bg-[#EEF1FB] text-[#4B68D8]'
   },
   {
     id: 'periop',
-    name: 'Peri-operatório',
-    description: 'Protocolos e orientações cirúrgicas',
-    icon: Stethoscope,
+    name: 'Peri-op.',
+    description: 'Protocolos',
+    icon: Activity,
     url: '/modules/periop',
     external: false,
     profiles: ['medico', 'estudante', 'paciente'],
     premium: false,
-    status: 'live',
-    category: 'paciente'
+    status: 'coming-soon',
+    category: 'clinico',
+    iconBg: 'bg-[#FBEBF3] text-[#D84989]'
+  },
+
+  // EDUCAÇÃO E PACIENTES (educacao_paciente)
+  {
+    id: 'quiz',
+    name: 'OTTO Quiz',
+    description: 'Simulados',
+    icon: GraduationCap,
+    url: '/modules/quiz',
+    external: false,
+    profiles: ['medico', 'estudante'],
+    premium: true,
+    status: 'coming-soon',
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#EDF1FC] text-[#34446C]'
   },
   {
     id: 'zumbido',
-    name: 'Terapia de Zumbido',
-    description: 'Sons terapêuticos para tratamento',
+    name: 'Zumbido',
+    description: 'Terapia sonora',
     icon: Volume2,
     url: '/modules/zumbido',
     external: false,
-    profiles: ['medico', 'paciente'],
+    profiles: ['medico', 'paciente', 'estudante'],
     premium: false,
     status: 'live',
-    category: 'paciente'
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
   },
   {
     id: 'videos',
-    name: 'Canais de Vídeo',
-    description: 'Playlists curadas ORL/CCP no YouTube',
+    name: 'Vídeos',
+    description: 'Canal ORL',
     icon: PlaySquare,
     url: '/modules/videos',
     external: false,
     profiles: ['medico', 'estudante', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'educacao'
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#F2EFFC] text-[#6A47C9]'
   },
-  // Feedback (Novo Requisito)
   {
-    id: 'feedback',
-    name: 'Feedback Beta',
-    description: 'Ofereça sugestões e reporte bugs',
-    icon: MessageCircleQuestion,
-    url: '/modules/feedback',
-    external: false,
+    id: 'voice',
+    name: 'Voz',
+    description: 'Gerador IA',
+    icon: Mic2,
+    url: 'https://otto-voice-one.vercel.app/',
+    external: true,
     profiles: ['medico', 'estudante', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'gestao'
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#FCF5E3] text-[#553018]',
+    hasIA: true
   },
-  // Futuros
   {
-    id: 'otto-op',
-    name: 'OTTO OP',
-    description: 'Guia prático de cirurgias ORL',
-    icon: Scissors,
-    url: '',
+    id: 'cases',
+    name: 'Informações',
+    description: 'Artigos',
+    icon: FolderOpen,
+    url: 'https://cases.drdariohart.com/',
+    external: true,
+    profiles: ['medico', 'estudante', 'paciente'],
+    premium: false,
+    status: 'live',
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
+  },
+  {
+    id: 'premium_access',
+    name: 'Premium',
+    description: 'Acesso total',
+    icon: Star,
+    url: '/modules/premium',
     external: false,
     profiles: ['medico', 'estudante', 'paciente'],
     premium: false,
     status: 'coming-soon',
-    category: 'clinico'
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#FDF6DE] text-[#EF9F27]'
   },
   {
-    id: 'otto-zumb',
-    name: 'OTTO Zumb',
-    description: 'Tratamento de zumbido crônico',
-    icon: Moon,
-    url: '',
-    external: false,
-    profiles: ['medico', 'paciente'],
-    premium: false,
-    status: 'coming-soon',
-    category: 'paciente'
-  },
+    id: 'ottosig',
+    name: 'Glossário',
+    description: 'BOTTOK Chat',
+    icon: MessageSquare,
+    url: 'https://dhsig86.github.io/minidic/',
+    external: true,
+    profiles: ['medico', 'estudante'],
+    premium: true,
+    status: 'live',
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
+  }
 ];

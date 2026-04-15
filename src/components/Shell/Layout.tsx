@@ -8,11 +8,11 @@ export const Layout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-otto-surface flex flex-col pt-16 pb-16">
+    <div className="min-h-screen bg-gray-50 font-sans pb-16">
       <TopBar onMenuClick={() => setIsMenuOpen(true)} />
       <DrawerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <main className="flex-1 w-full max-w-7xl mx-auto overflow-y-auto">
+      <main className="pt-36">
         <Outlet />
       </main>
 
