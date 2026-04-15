@@ -6,7 +6,7 @@ interface TopBarProps {
   onMenuClick: () => void;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ title = 'OTTO', onMenuClick }) => {
+export const TopBar: React.FC<TopBarProps> = ({ title = "HART'S OTTOs", onMenuClick }) => {
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-otto-teal text-white flex items-center justify-between px-4 z-40 shadow-md">
       <div className="flex items-center gap-3">

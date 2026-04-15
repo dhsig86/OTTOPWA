@@ -50,7 +50,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
         }`}
       >
         <div className="bg-otto-teal text-white p-4 flex justify-between items-center">
-          <span className="font-bold text-lg tracking-wide">Menu OTTO</span>
+          <span className="font-bold text-lg tracking-wide">HART'S OTTOs</span>
           <button onClick={onClose} className="p-1 hover:bg-otto-teal-dark rounded-full">
             <X size={24} />
           </button>

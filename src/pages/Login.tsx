@@ -26,7 +26,7 @@ export const Login: React.FC = () => {
           <div className="w-24 h-24 bg-otto-teal rounded-full flex flex-col items-center justify-center mx-auto mb-6 shadow-lg">
              <span className="text-white font-black text-3xl tracking-tighter">O</span>
           </div>
-          <h1 className="text-2xl font-bold text-otto-text tracking-tight">OTTO PWA</h1>
+          <h1 className="text-2xl font-bold text-otto-text tracking-tight">HART'S OTTOs</h1>
           <p className="text-otto-muted text-sm">Seu ecossistema unificado ORL/CCP</p>
         </div>
 

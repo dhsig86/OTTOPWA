@@ -31,6 +31,7 @@ export interface OttoModule {
   status: 'live' | 'beta' | 'coming-soon'
   category: 'clinico' | 'educacao' | 'paciente' | 'gestao'
   tags?: string[]
+  localPath?: string    // Caminho local para integração nativa no futuro
 }
 
 export const OTTO_MODULES: OttoModule[] = [
