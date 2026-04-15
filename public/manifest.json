@@ -1,0 +1,21 @@
+{
+  "name": "OTTO PWA",
+  "short_name": "OTTO",
+  "description": "Ecossistema digital unificado para Otorrinolaringologia (ORL) e Cirurgia de Cabeça e Pescoço (CCP)",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1D9E75",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/vite.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
