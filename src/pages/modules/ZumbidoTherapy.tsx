@@ -1,5 +1,5 @@
 import React from 'react';
-import { Volume2, Play, Pause, Waves } from 'lucide-react';
+import { Volume2, Play, Waves } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const ZumbidoTherapy: React.FC = () => {

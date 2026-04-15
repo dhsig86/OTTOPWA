@@ -1,5 +1,5 @@
 import React from 'react';
-import { Youtube, Search } from 'lucide-react';
+import { PlaySquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const VideoChannels: React.FC = () => {
@@ -9,7 +9,7 @@ export const VideoChannels: React.FC = () => {
     <div className="p-4 space-y-6">
       <div className="bg-white rounded-xl p-6 shadow-sm border border-otto-border text-center space-y-4">
         <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-2">
-          <Youtube size={32} />
+          <PlaySquare size={32} />
         </div>
         <h2 className="text-xl font-bold text-otto-text">Canais Curados ORL/CCP</h2>
         <p className="text-sm text-otto-muted">

@@ -13,7 +13,7 @@ import {
   Mic2,
   Stethoscope,
   Volume2,
-  Youtube,
+  PlaySquare,
   Scissors,
   Moon,
   MessageCircleQuestion, // For feedback
@@ -208,7 +208,7 @@ export const OTTO_MODULES: OttoModule[] = [
     id: 'videos',
     name: 'Canais de Vídeo',
     description: 'Playlists curadas ORL/CCP no YouTube',
-    icon: Youtube,
+    icon: PlaySquare,
     url: '/modules/videos',
     external: false,
     profiles: ['medico', 'estudante', 'paciente'],
