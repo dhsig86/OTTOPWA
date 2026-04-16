@@ -12,7 +12,7 @@ export const Layout: React.FC = () => {
       <TopBar onMenuClick={() => setIsMenuOpen(true)} />
       <DrawerMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       
-      <main className="pt-36">
+      <main className="flex-1">
         <Outlet />
       </main>
 

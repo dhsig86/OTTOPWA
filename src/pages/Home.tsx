@@ -103,7 +103,7 @@ export const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Filtros em Pílulas */}
-      <div className="flex justify-center items-center px-4 py-4 border-b border-gray-100 bg-white sticky top-0 z-30">
+      <div className="flex justify-center items-center px-4 py-4 border-b border-gray-100 bg-white">
         <div className="flex bg-white w-full rounded-full gap-2">
           {['medico', 'estudante', 'paciente'].map((f) => (
             <button

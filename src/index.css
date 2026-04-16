@@ -1,7 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import './styles/tokens.css';
+@import "tailwindcss";
 
-@import "tailwindcss";@layer base {
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --color-otto-teal: #1D9E75;
+  --color-otto-teal-dark: #0A865F;
+  --color-otto-teal-darker: #056143;
+  --color-otto-teal-light: #CDF0E3;
+  --color-otto-teal-mid: #0D9068;
+  --color-otto-amber: #F0A500;
+  --color-otto-text: #2C3E50;
+  --color-otto-muted: #7F8C8D;
+  --color-otto-border: #E8ECEF;
+  --color-otto-surface: #F8FBFB;
+}
+
+@layer base {
   body {
     font-family: 'Inter', sans-serif;
   }

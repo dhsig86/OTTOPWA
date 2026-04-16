@@ -9,7 +9,7 @@ interface TopBarProps {
 export const TopBar: React.FC<TopBarProps> = ({ title = "Hart's OTTOs", onMenuClick }) => {
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 pt-10 bg-[#1D9E75] text-white flex flex-col z-40 shadow-sm">
+      <header className="sticky top-0 left-0 right-0 pt-10 bg-[#1D9E75] text-white flex flex-col z-40 shadow-sm">
         <div className="flex flex-row items-start justify-between px-5 pb-5">
           <div className="flex flex-col">
             <h1 className="text-3xl font-extrabold tracking-tight leading-none">{title}</h1>
