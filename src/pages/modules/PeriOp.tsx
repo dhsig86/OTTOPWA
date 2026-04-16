@@ -5,30 +5,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const PRE_PROTOCOLS = [
   {
-    id: 'jejum',
-    title: 'Instruções Gerais e Jejum',
+    id: 'gerais',
+    title: 'Orientações Gerais Pré-Operatórias',
     iconColor: 'text-[#2b7a78]',
     content: (
       <div className="space-y-4 text-sm text-gray-700">
         <div>
-          <h3 className="font-bold text-[#2b7a78] border-b pb-1 mb-2 flex items-center gap-2"><Clock size={16}/> Jejum Absoluto</h3>
+          <h3 className="font-bold text-[#2b7a78] border-b pb-1 mb-2">Agendamento e Liberação</h3>
           <ul className="list-disc pl-5 space-y-1">
-            <li>O jejum de sólidos (não pode mais comer nada) deve ser iniciado 8 horas antes do horário agendado para a cirurgia.</li>
-            <li><strong className="text-red-600">O desrespeito ao tempo de jejum cancela a cirurgia por risco de morte.</strong></li>
+            <li>A confirmação do agendamento cirúrgico só é realizada após a entrega da senha de liberação do plano de saúde à secretaria.</li>
+            <li>Traga os exames solicitados, especialmente os de imagem (tomografias, ressonâncias).</li>
+            <li>O <strong>Termo de Consentimento</strong> cirúrgico é obrigação legal e deve ser assinado e entregue no dia.</li>
           </ul>
         </div>
         <div>
-          <h3 className="font-bold text-[#2b7a78] border-b pb-1 mb-2">Internação e Documentação</h3>
+          <h3 className="font-bold text-[#2b7a78] border-b pb-1 mb-2 flex items-center gap-2"><Clock size={16}/> Jejum e Internação</h3>
           <ul className="list-disc pl-5 space-y-1">
-            <li>A internação deve ser realizada com 3 horas de antecedência do horário da cirurgia.</li>
-            <li>É obrigatório trazer os exames solicitados no pré-operatório, especialmente os exames de imagem (tomografias e ressonâncias).</li>
-            <li>O termo de consentimento cirúrgico deve ser lido, assinado e entregue no dia da internação.</li>
+            <li>O jejum para sólidos deve ser iniciado <strong>8 horas antes</strong> do horário da cirurgia.</li>
+            <li>A internação deve ser realizada com <strong>2 a 3 horas de antecedência</strong>.</li>
+            <li>O tempo médio de internação é de 24 horas.</li>
           </ul>
         </div>
         <div>
           <h3 className="font-bold text-[#2b7a78] border-b pb-1 mb-2">Cuidados Locais</h3>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Para cirurgias nasais, é sugerida a retirada de barba e bigode previamente à cirurgia para facilitar a fixação de curativos.</li>
+            <li>Para cirurgias nasais: recomenda-se a retirada de bigode e barba previamente ao procedimento.</li>
           </ul>
         </div>
       </div>
@@ -41,34 +42,85 @@ const PRE_PROTOCOLS = [
     content: (
       <div className="space-y-4 text-sm text-gray-700">
         <div>
-          <h3 className="font-bold text-[#2b7a78] border-b pb-1 mb-2">Analgésicos Permitidos</h3>
+          <h3 className="font-bold text-[#2b7a78] border-b pb-1 mb-2">Regras Gerais</h3>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Não utilizar nenhum medicamento novo na semana da cirurgia sem autorização médica.</li>
-            <li>Dipirona e Paracetamol são os únicos analgésicos liberados.</li>
+            <li><strong>Não utilize</strong> medicamento novo na semana da cirurgia sem liberação médica.</li>
+            <li>Analgésicos liberados: <strong>Dipirona</strong> e <strong>Paracetamol</strong>.</li>
+            <li>Mantenha as medicações crônicas conforme Risco Cirúrgico.</li>
+            <li>Informe todas as alergias ao anestesista.</li>
           </ul>
         </div>
         <div className="bg-red-50 border-l-4 border-red-500 p-3 mt-2 rounded-r flex items-start gap-2">
           <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-red-800">
-            <strong>Anticoagulantes (Atenção Extrema):</strong> Medicações que alteram a coagulação (AAS/Aspirina, Ginkgo Biloba, Clopidogrel, Warfarina, etc.) devem ser suspensas com 7 a 10 dias de antecedência, conforme avaliação do risco cirúrgico.
-          </p>
-        </div>
-        <div className="bg-orange-50 border-l-4 border-orange-400 p-3 mt-2 rounded-r flex items-start gap-2">
-          <AlertTriangle size={18} className="text-orange-500 shrink-0 mt-0.5" />
-          <div className="text-xs text-orange-900 leading-tight space-y-1">
-            <strong>Emagrecimento / Diabetes (Risco de Broncoaspiração - GLP1):</strong><br/>
-            Medicações que retardam o esvaziamento gástrico (Ozempic, Mounjaro, Wegovy, Saxenda, Trulicity, Victroza) <strong>DEVEM</strong> ser suspensas:<br/>
-            - <strong>Semanal:</strong> Suspender 7 dias antes.<br/>
-            - <strong>Diária:</strong> Suspender no dia.
+          <div className="text-xs text-red-800 leading-tight space-y-1">
+            <strong>Anticoagulantes e Anti-inflamatórios (Atenção):</strong><br/>
+            Devido ao risco de sangramento, suspender <strong>7 dias antes</strong>: AAS/Aspirina, Clopidogrel, Warfarina, Ginkgo Biloba, Ibuprofeno, Naproxeno e Diclofenaco.
           </div>
         </div>
-        <p className="text-xs text-gray-500 italic mt-2">As demais medicações de uso crônico (pressão, tireoide, etc.) devem seguir estritamente a orientação dada pelo cardiologista no Risco Cirúrgico.</p>
+        <div className="bg-orange-50 border-l-4 border-orange-500 p-3 mt-2 rounded-r flex items-start gap-2">
+          <AlertTriangle size={18} className="text-orange-600 shrink-0 mt-0.5" />
+          <div className="text-xs text-orange-900 leading-tight space-y-1">
+            <strong>ALERTA ANESTÉSICO — Análogos de GLP-1 (Ozempic, Mounjaro, Wegovy, Saxenda):</strong><br/>
+            Essas medicações retardam o esvaziamento gástrico e aumentam agressivamente o risco de <strong>broncoaspiração</strong>.<br/>
+            - <strong>Doses semanais:</strong> Suspender de 7 a 10 dias antes.<br/>
+            - <strong>Doses diárias:</strong> Suspender no dia da cirurgia.
+          </div>
+        </div>
       </div>
     )
   }
 ];
 
+const EPISTAXE_ALERT = (
+  <div className="bg-red-50 border-l-4 border-red-600 p-3 mt-3 rounded-r flex flex-col gap-1">
+    <div className="flex items-start gap-2 mb-1">
+      <AlertTriangle size={16} className="text-red-600 shrink-0 mt-0.5" />
+      <strong className="text-xs text-red-800 uppercase tracking-wide">Alerta Especial (Epistaxe/Hematemese)</strong>
+    </div>
+    <div className="text-[11px] text-red-900 leading-tight ml-6">
+      <strong>Epistaxe</strong> (sangramento ativo nasal grave) ou <strong>Hematemese</strong> (vômito de sangue vivo volumoso) são urgências.
+      <br/>• Sente-se inclinado para frente. <strong>Não deite a cabeça para trás.</strong>
+      <br/>• Avise a equipe cirúrgica na hora.
+      <br/>• Se não ceder em 10-15 min, corra à emergência hospitalar mais próxima. Não tome remédios por conta própria.
+    </div>
+  </div>
+);
+
 const POST_PROTOCOLS = [
+  {
+    id: 'adeno',
+    title: 'Adenoidectomia / Amigdalectomia / Uvulo.',
+    content: (
+      <div className="space-y-4 text-sm text-gray-700">
+        <div>
+          <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Dieta e Alimentação</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Alimentação branda, líquida/pastosa e fria por <strong>7 a 10 dias</strong>.</li>
+            <li>Após o 7º dia, a consistência deve aumentar progressivamente (líquido → pastoso → sólido).</li>
+            <li><strong className="text-red-600">Proibido:</strong> Alimentos quentes (café/chá) e de difícil mastigação (biscoito, pipoca, batata frita, carne em pedaços).</li>
+            <li><strong>Recomendado:</strong> Sopas/caldos de liquidificador, sucos, frutas amassadas, purês, gelatina, sorvetes e leite/iogurte.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Repouso e Esforço</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Primeiras 24h:</strong> Repouso absoluto (pedir ajuda para andar; tonturas são comuns).</li>
+            <li><strong>2º ao 7º dia:</strong> Repouso domiciliar. Evite baixar a cabeça de forma brusca.</li>
+            <li><strong>15 a 30 dias:</strong> Esforço físico e esportes <strong>proibidos</strong>.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Sintomas Esperados</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Dor de garganta, febre baixa, dor de ouvido (reflexo) e cefaleia.</li>
+            <li><strong>Placas brancas na garganta:</strong> É cicatrização normal, NÃO as remova.</li>
+            <li>Pequenos vômitos escuros na primeira noite (restos de sangue da cirurgia - "borra de café").</li>
+          </ul>
+        </div>
+        {EPISTAXE_ALERT}
+      </div>
+    )
+  },
   {
     id: 'fess',
     title: 'Cirurgia Endoscópica Nasossinusal (FESS)',
@@ -83,17 +135,27 @@ const POST_PROTOCOLS = [
         <div>
           <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Cuidados Pós-Operatórios</h3>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Lavagem Nasal:</strong> É o fator mais importante para o sucesso da cirurgia. Iniciar a partir do 2º dia, lavando as narinas a cada 2 horas com no mínimo 80mL de soro.</li>
-            <li>Compressas frias na face ajudam a evitar sangramentos.</li>
-            <li>Evitar esforços físicos intensos e exposição ao sol nas primeiras 48 a 72 horas.</li>
-            <li><strong className="text-red-500">É expressamente proibido assoar o nariz.</strong></li>
+            <li><strong>Lavagem Nasal:</strong> O fator de ouro do sucesso cirúrgico. Comece no 2º dia, a cada 2h (mínimo de 80mL/lavagem).</li>
+            <li>Compressas frias na face ajudam a conter inchaço e sangramento leve esperado.</li>
+            <li><strong className="text-red-500">Proibido assoar o nariz</strong> e evitar sol / esportes intensos nos primeiros 20 dias.</li>
           </ul>
         </div>
-        <div className="bg-orange-50 border-l-4 border-orange-400 p-3 mt-2 rounded-r flex items-start gap-2">
-          <Info size={18} className="text-orange-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-orange-900">
-            <strong>Retornos:</strong> As limpezas em consultório são fundamentais para remover crostas e evitar sinéquias (aderências). Não falte às consultas semanais.
-          </p>
+        {EPISTAXE_ALERT}
+      </div>
+    )
+  },
+  {
+    id: 'laringe',
+    title: 'Micro-cirurgia de Laringe / Fono',
+    content: (
+      <div className="space-y-4 text-sm text-gray-700">
+        <div>
+          <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Repouso Vocal</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Absoluto nos 7 primeiros dias:</strong> não falar nada, nem sussurrar.</li>
+            <li>Evitar ambientes poluídos, ar-condicionado e pigarrear.</li>
+            <li><strong className="text-red-600">Proibido fumar.</strong></li>
+          </ul>
         </div>
       </div>
     )
@@ -107,58 +169,59 @@ const POST_PROTOCOLS = [
           <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Dieta e Cuidados Iniciais</h3>
           <ul className="list-disc pl-5 space-y-1">
             <li>A dieta é livre, devendo-se apenas evitar alimentos muito quentes.</li>
-            <li>O curativo com algodão serve apenas para conter secreções. Caso o ouvido esteja seco, deixe-o exposto para ventilar.</li>
+            <li>O curativo com algodão serve apenas para conter secreções. Cesse quando secar ao longo da semana.</li>
           </ul>
         </div>
         <div>
           <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Cuidados com a Água (Banho)</h3>
           <ul className="list-disc pl-5 space-y-1">
             <li>O primeiro banho deve ser tomado apenas no dia seguinte à cirurgia.</li>
-            <li><strong className="text-red-600">É expressamente proibido molhar o ouvido operado.</strong></li>
+            <li><strong className="text-red-600">É expressamente proibido molhar o ouvido operado. Pode surdar-se ou destruir o enxerto!</strong></li>
             <li>Durante o banho, utilize um chumaço de algodão embebido em óleo (ex: amêndoas ou Johnson) para vedar a entrada.</li>
-            <li>Lave o rosto e os cabelos com extremo cuidado.</li>
-            <li>Após 30 minutos do banho, retire o algodão oleoso para o ouvido ventilar.</li>
           </ul>
         </div>
       </div>
     )
   },
-  // Re-injetando os úteis do último bloco só para não perder o material rico prévio
   {
-    id: 'adeno',
-    title: 'Adenoamigdalectomia',
+    id: 'tireoide',
+    title: 'Tireoidectomia / Cérvico-Facial',
     content: (
       <div className="space-y-4 text-sm text-gray-700">
         <div>
           <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Dieta e Repouso</h3>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Alimentação branda (líquida/pastosa) e fria por 7 a 10 dias.</li>
-            <li><strong className="text-red-600">Proibido:</strong> Alimentos quentes ou de difícil mastigação.</li>
-            <li>Gelo, sorvete e líquidos gelados à vontade.</li>
-            <li>Repouso absoluto nas primeiras 24h e domiciliar até o 7º dia.</li>
+            <li>Dieta livre, mas prefira não forçar muito a mandíbula nos primeiros 2 dias para não tracionar incisões cervicais.</li>
+            <li>Proibida atividade física de força por 30 a 45 dias.</li>
           </ul>
         </div>
-        <div className="bg-red-50 border-l-4 border-red-500 p-3 mt-2 rounded-r flex items-start gap-2">
-          <AlertTriangle size={18} className="text-red-500 shrink-0 mt-0.5" />
-          <p className="text-xs text-red-800">
-            <strong>Atenção:</strong> Comunicar a equipe imediatamente em caso de febre alta ou vômito de sangue vivo volumoso.
-          </p>
+        <div>
+          <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Atenção Especial (Cálcio)</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Se houver formigamento no rosto, boca ou extremidades (Sinal de Hipocalcemia), usar rigorosamente o cálcio prescrito pelo cirurgião ou ir à emergência caso refratário.</li>
+          </ul>
         </div>
       </div>
     )
   },
   {
-    id: 'laringe',
-    title: 'Micro-cirurgia de Laringe',
+    id: 'traqueo-ped',
+    title: 'Traqueostomia Pediátrica',
     content: (
       <div className="space-y-4 text-sm text-gray-700">
         <div>
-          <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Repouso Vocal</h3>
+          <h3 className="font-bold text-[#1D9E75] border-b pb-1 mb-2">Cuidados Diários na Alta</h3>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Absoluto nos 7 primeiros dias:</strong> não falar nada, nem sussurrar.</li>
-            <li>Evitar ambientes poluídos, ar-condicionado e pigarrear.</li>
-            <li><strong className="text-red-600">Proibido fumar.</strong></li>
+            <li><strong>Limpeza:</strong> Usar luvas limpas. Limpar cânulas 4x ao dia.</li>
+            <li><strong>Vias de banho:</strong> Criança só pode receber banho apoiada com adulto estritamente travando a via aérea de mergulhar ou aspirar sabão!</li>
+            <li>Aspirar regularmente toda secreção com sonda que não transponha o tamanho da traqueostomia original.</li>
           </ul>
+        </div>
+        <div className="bg-red-50 border-l-4 border-red-600 p-3 mt-2 rounded-r">
+          <p className="text-xs text-red-900 leading-tight">
+            <strong>Acidentes (Decanulação Pediátrica):</strong><br/>
+            Se a cânula sair do pescocinho: Deite a criança rapidamente, estique o pescoço sobre os ombros, lubrifique levemente outra cânula limpa e reinsira o mais rápido possível evitando falso trajeto. Corra em qualquer angústia respiratória ao PS Infantil.
+          </p>
         </div>
       </div>
     )
