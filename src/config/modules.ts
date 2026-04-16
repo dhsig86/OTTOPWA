@@ -187,15 +187,15 @@ export const OTTO_MODULES: OttoModule[] = [
   },
   {
     id: 'cases',
-    name: 'Informações',
-    description: 'Artigos',
+    name: 'OTTO Cases',
+    description: 'Relatos de Caso',
     icon: FolderOpen,
     url: 'https://cases.drdariohart.com/',
     external: true,
-    profiles: ['medico', 'estudante', 'paciente'],
+    profiles: ['medico', 'estudante'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'clinico',
     iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
   },
   {
