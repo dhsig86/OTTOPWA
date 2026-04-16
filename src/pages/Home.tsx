@@ -105,10 +105,10 @@ export const Home: React.FC = () => {
       {/* Filtros em Pílulas */}
       <div className="flex justify-center items-center px-4 py-4 border-b border-gray-100 bg-white">
         <div className="flex bg-white w-full rounded-full gap-2">
-          {['medico', 'estudante', 'paciente'].map((f) => (
+          {(['medico', 'estudante', 'paciente'] as const).map((f) => (
             <button
               key={f}
-              onClick={() => setActiveFilter(f as any)}
+              onClick={() => setActiveFilter(f)}
               className={`flex-1 py-1.5 px-2 rounded-full text-sm font-bold transition-all ${
                 activeFilter === f
                   ? f === 'medico' 

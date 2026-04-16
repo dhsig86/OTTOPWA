@@ -15,11 +15,13 @@ import {
   ClipboardList
 } from 'lucide-react';
 
+import type { LucideIcon } from 'lucide-react';
+
 export interface OttoModule {
   id: string
   name: string
   description: string
-  icon: any
+  icon: LucideIcon
   url: string
   external: boolean
   profiles: ('medico' | 'estudante' | 'paciente')[]

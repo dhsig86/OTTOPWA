@@ -16,14 +16,27 @@ export const VideoChannels: React.FC = () => {
           Vídeos educativos e científicos selecionados para a prática clínica e estudantes.
         </p>
         
-        {/* Mock for now */}
-        <div className="pt-4 border-t border-otto-border/50 text-left space-y-3">
-          {[1,2,3].map(i => (
-            <div key={i} className="flex gap-3 items-center bg-gray-50 p-2 rounded-lg">
-              <div className="w-24 h-16 bg-gray-300 rounded animate-pulse shrink-0"></div>
-              <div className="flex-1 space-y-2">
-                 <div className="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
-                 <div className="h-3 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+        <div className="pt-4 border-t border-gray-200 text-left space-y-4">
+          {[
+            { id: '1b1iLYiT848', title: 'Otoscopia Normal vs Patológica', channel: 'Educação ORL' },
+            { id: 'kO2bNnsWlg4', title: 'Anatomia da Laringe', channel: 'Medicina Resumida' },
+            { id: '6b6tPqD10M0', title: 'Exame Físico ORL Completo', channel: 'Clínica Médica' }
+          ].map(v => (
+            <div key={v.id} className="flex flex-col gap-2 items-start bg-gray-50 p-3 rounded-xl border border-gray-100">
+              <div className="w-full aspect-video bg-gray-200 rounded-lg overflow-hidden shadow-sm">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src={`https://www.youtube.com/embed/${v.id}`} 
+                  title={v.title} 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              </div>
+              <div className="flex-1 px-1">
+                 <div className="text-sm font-bold text-gray-800 leading-tight">{v.title}</div>
+                 <div className="text-xs text-gray-500">{v.channel}</div>
               </div>
             </div>
           ))}

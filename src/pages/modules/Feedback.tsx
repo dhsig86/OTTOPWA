@@ -5,9 +5,6 @@ import { useNavigate } from 'react-router-dom';
 export const Feedback: React.FC = () => {
   const navigate = useNavigate();
 
-  // Você pode trocar esse link por um Typeform, Google Forms ou plataforma de feedback futuramente.
-  const feedbackLink = "https://forms.google.com/";
-
   return (
     <div className="p-4 space-y-6">
       <div className="bg-white rounded-xl p-6 shadow-sm border border-otto-border text-center space-y-4">
@@ -20,15 +17,13 @@ export const Feedback: React.FC = () => {
           Nos ajude a melhorar o OTTO PWA! Como esse é um ambiente restrito (Beta), suas sugestões, críticas e relatos de erros são essenciais para polirmos a plataforma.
         </p>
         
-        <a 
-          href={feedbackLink} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="mt-6 flex items-center justify-center gap-2 px-6 py-3 bg-otto-teal text-white font-medium rounded-lg hover:bg-otto-teal-dark active:scale-95 transition-all w-full"
+        <button 
+          onClick={() => navigate('/modules/webview', { state: { url: 'https://tally.so/r/nPbxxk' } })} 
+          className="mt-6 flex items-center justify-center gap-2 px-6 py-3 bg-[#1D9E75] text-white font-bold rounded-xl hover:bg-[#0A865F] active:scale-95 transition-all w-full shadow-md"
         >
           <span>Abrir Formulário de Feedback</span>
           <ExternalLink size={18} />
-        </a>
+        </button>
 
         <button 
           onClick={() => navigate(-1)}

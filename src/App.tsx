@@ -14,6 +14,7 @@ import { Feedback } from './pages/modules/Feedback';
 import { Search } from './pages/Search';
 import { Notifications } from './pages/Notifications';
 import { Profile } from './pages/Profile';
+import { NotFound } from './pages/NotFound';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -38,9 +39,11 @@ function AppRoutes() {
         <Route path="modules/videos" element={<VideoChannels />} />
         <Route path="modules/zumbido" element={<ZumbidoTherapy />} />
         <Route path="modules/feedback" element={<Feedback />} />
+        
+        <Route path="*" element={<NotFound />} />
       </Route>
       
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
