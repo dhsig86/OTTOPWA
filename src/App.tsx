@@ -11,6 +11,7 @@ import { ModuleFrame } from './components/ModuleFrame';
 import { VideoChannels } from './pages/modules/VideoChannels';
 import { ZumbidoTherapy } from './pages/modules/ZumbidoTherapy';
 import { Feedback } from './pages/modules/Feedback';
+import { PeriOp } from './pages/modules/PeriOp';
 import { Search } from './pages/Search';
 import { Notifications } from './pages/Notifications';
 import { Profile } from './pages/Profile';
@@ -39,6 +40,7 @@ function AppRoutes() {
         <Route path="modules/videos" element={<VideoChannels />} />
         <Route path="modules/zumbido" element={<ZumbidoTherapy />} />
         <Route path="modules/feedback" element={<Feedback />} />
+        <Route path="modules/periop" element={<PeriOp />} />
         
         <Route path="*" element={<NotFound />} />
       </Route>

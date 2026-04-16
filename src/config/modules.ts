@@ -126,7 +126,7 @@ export const OTTO_MODULES: OttoModule[] = [
     external: false,
     profiles: ['medico', 'estudante', 'paciente'],
     premium: false,
-    status: 'coming-soon',
+    status: 'live',
     category: 'clinico',
     iconBg: 'bg-[#FBEBF3] text-[#D84989]'
   },
