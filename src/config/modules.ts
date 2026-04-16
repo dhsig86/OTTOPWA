@@ -11,7 +11,8 @@ import {
   Volume2,
   PlaySquare,
   Activity,
-  Star
+  Star,
+  ClipboardList
 } from 'lucide-react';
 
 export interface OttoModule {
@@ -61,17 +62,31 @@ export const OTTO_MODULES: OttoModule[] = [
     iconBg: 'bg-[#E6EDFB] text-[#4068B2]'
   },
   {
-    id: 'triagem',
+    id: 'otoscopia',
     name: 'Otoscop.IA',
     description: 'Diagnóstico',
     icon: Hospital,
-    url: 'http://triagem.otosig.com/',
+    url: 'https://otoscopia.drdariohart.com/',
     external: true,
     profiles: ['medico'],
     premium: true,
     status: 'live',
     category: 'clinico',
     iconBg: 'bg-[#E5F5FA] text-[#2C95B5]',
+    hasIA: true
+  },
+  {
+    id: 'triagem',
+    name: 'Triagem OS',
+    description: 'Protocolo de admissão clínica (Requer HTTPS)',
+    url: 'http://triagem.otosig.com/',
+    icon: ClipboardList,
+    external: true,
+    profiles: ['medico'],
+    premium: true,
+    status: 'coming-soon',
+    category: 'clinico',
+    iconBg: 'bg-[#FAEEDA] text-[#D58C20]',
     hasIA: true
   },
   {

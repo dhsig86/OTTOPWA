@@ -11,6 +11,9 @@ import { ModuleFrame } from './components/ModuleFrame';
 import { VideoChannels } from './pages/modules/VideoChannels';
 import { ZumbidoTherapy } from './pages/modules/ZumbidoTherapy';
 import { Feedback } from './pages/modules/Feedback';
+import { Search } from './pages/Search';
+import { Notifications } from './pages/Notifications';
+import { Profile } from './pages/Profile';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -24,6 +27,11 @@ function AppRoutes() {
       
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Home />} />
+        
+        {/* Navigation Routes */}
+        <Route path="search" element={<Search />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="profile" element={<Profile />} />
         
         {/* Dynamic & Mock Modules */}
         <Route path="modules/webview" element={<ModuleFrame />} />

@@ -56,34 +56,32 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed top-0 left-0 bottom-0 w-[85%] max-w-sm bg-white/95 backdrop-blur-2xl z-50 flex flex-col shadow-[20px_0_40px_rgba(0,0,0,0.1)] border-r border-white"
           >
-            <div className="bg-gradient-to-r from-otto-teal-dark to-otto-teal text-white p-4 flex justify-between items-center shadow-md">
-              <span className="font-extrabold text-lg tracking-wide">HART'S OTTOs</span>
+            <div className="bg-gradient-to-r from-[#0A865F] to-[#1D9E75] text-white p-4 flex justify-between items-center shadow-md">
+              <span className="font-extrabold text-lg tracking-wide">HART'S OTTO</span>
               <button onClick={onClose} className="p-1.5 hover:bg-white/20 rounded-full transition-colors">
                 <X size={20} />
               </button>
             </div>
 
             {isAuthenticated && (
-              <div className="p-4 border-b border-otto-border/50 bg-white shadow-sm z-10 relative">
+              <div className="p-4 border-b border-gray-200 bg-white shadow-sm z-10 relative">
                 <ProfileBadge />
               </div>
             )}
 
             <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-hide">
               <div className="space-y-6">
-                {['clinico', 'educacao', 'paciente', 'gestao'].map((category) => {
-                  const categoryModules = OTTO_MODULES.filter(m => m.category === category);
+                {[
+                  { id: 'clinico', label: 'Ferramentas Clínicas' },
+                  { id: 'educacao_paciente', label: 'Educação & Pacientes' }
+                ].map((category) => {
+                  const categoryModules = OTTO_MODULES.filter(m => m.category === category.id);
                   if (categoryModules.length === 0) return null;
-                  
-                  const categoryTitle = 
-                    category === 'clinico' ? 'Uso Clínico' :
-                    category === 'educacao' ? 'Educação / Ensino' :
-                    category === 'paciente' ? 'Pacientes' : 'Gestão / Feedback';
 
                   return (
-                    <div key={category}>
-                      <h3 className="uppercase text-[10px] font-bold text-otto-muted mb-3 tracking-[0.15em] ml-1">
-                        {categoryTitle}
+                    <div key={category.id}>
+                      <h3 className="uppercase text-[10px] font-bold text-gray-400 mb-3 tracking-[0.15em] ml-1">
+                        {category.label}
                       </h3>
                       <div className="space-y-2">
                         {categoryModules.map(mod => {

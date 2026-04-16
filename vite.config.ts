@@ -10,7 +10,19 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      manifest: false // We will use public/manifest.json
+      manifest: false, // We will use public/manifest.json
+      includeAssets: ['icons/*.png', 'offline.html'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        navigateFallback: '/offline.html',
+        navigateFallbackAllowlist: [/^(?!\/modules\/webview)/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+            handler: 'CacheFirst',
+          }
+        ]
+      }
     })
   ],
 })

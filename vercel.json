@@ -1,8 +1,30 @@
 {
-  "rewrites": [
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "headers": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-src https://atlas.drdariohart.com https://procod.drdariohart.com https://otto-calc-hub.vercel.app https://otto-imune.vercel.app https://otto-voice-one.vercel.app https://cases.drdariohart.com https://dhsig86.github.io https://tally.so localhost:* http://triagem.otosig.com; img-src 'self' data: https:; connect-src 'self' https:;"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "header", "key": "x-forwarded-proto", "value": "http" }],
+      "destination": "https://otto.drdariohart.com/$1",
+      "permanent": true
     }
   ]
 }
