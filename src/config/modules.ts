@@ -199,6 +199,19 @@ export const OTTO_MODULES: OttoModule[] = [
     iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
   },
   {
+    id: 'info',
+    name: 'Informações',
+    description: 'Artigos',
+    icon: FolderOpen,
+    url: '/modules/info',
+    external: false,
+    profiles: ['medico', 'estudante', 'paciente'],
+    premium: false,
+    status: 'coming-soon',
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
+  },
+  {
     id: 'premium_access',
     name: 'Premium',
     description: 'Acesso total',
