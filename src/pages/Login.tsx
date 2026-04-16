@@ -27,13 +27,11 @@ export const Login: React.FC = () => {
         className="w-full max-w-sm space-y-8 bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-white/60"
       >
         
-        {/* Header Visual */}
         <div className="text-center space-y-2">
           <div className="w-24 h-24 bg-[#1D9E75] rounded-full flex flex-col items-center justify-center mx-auto mb-6 shadow-lg">
              <span className="text-white font-black text-3xl tracking-tighter">O</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">HART'S OTTOs</h1>
-          <p className="text-gray-500 text-sm">Seu ecossistema unificado ORL/CCP</p>
+          <h1 className="text-2xl font-bold text-gray-800 tracking-tight">HART'S OTTO</h1>
         </div>
 
         {/* Login Form */}
