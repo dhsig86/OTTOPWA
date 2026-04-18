@@ -12,7 +12,9 @@ import {
   PlaySquare,
   Activity,
   Star,
-  ClipboardList
+  ClipboardList,
+  Brain,
+  ClipboardCheck
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -32,10 +34,25 @@ export interface OttoModule {
   localPath?: string
   iconBg?: string
   hasIA?: boolean
+  iframeBlocked?: boolean
 }
 
 export const OTTO_MODULES: OttoModule[] = [
   // FERRAMENTAS CLÍNICAS (clinico)
+  {
+    id: 'bottok',
+    name: 'BOTTOK',
+    description: 'OtoConsult IA',
+    icon: Brain,
+    url: 'https://bottok-orcin.vercel.app/',
+    external: true,
+    profiles: ['medico', 'estudante'],
+    premium: true,
+    status: 'live',
+    category: 'clinico',
+    iconBg: 'bg-black text-[#00FF41]',
+    hasIA: true
+  },
   {
     id: 'atlas',
     name: 'Atlas',
@@ -68,7 +85,7 @@ export const OTTO_MODULES: OttoModule[] = [
     name: 'Otoscop.IA',
     description: 'Diagnóstico',
     icon: Hospital,
-    url: 'https://otoscopia.drdariohart.com/',
+    url: 'https://ottos-plum.vercel.app/?tab=ia&embed=true',
     external: true,
     profiles: ['medico'],
     premium: true,
@@ -80,13 +97,13 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'triagem',
     name: 'Triagem OS',
-    description: 'Protocolo de admissão clínica (Requer HTTPS)',
-    url: 'http://triagem.otosig.com/',
+    description: 'Protocolo de admissão clínica',
+    url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/',
     icon: ClipboardList,
     external: true,
-    profiles: ['medico'],
-    premium: true,
-    status: 'coming-soon',
+    profiles: ['medico', 'paciente', 'estudante'],
+    premium: false,
+    status: 'live',
     category: 'clinico',
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]',
     hasIA: true
@@ -141,9 +158,22 @@ export const OTTO_MODULES: OttoModule[] = [
     external: false,
     profiles: ['medico', 'estudante'],
     premium: true,
-    status: 'coming-soon',
+    status: 'beta',
     category: 'educacao_paciente',
     iconBg: 'bg-[#EDF1FC] text-[#34446C]'
+  },
+  {
+    id: 'ottotests',
+    name: 'OTTO Tests',
+    description: 'Avaliação Acadêmica',
+    icon: ClipboardCheck,
+    url: 'https://test-pg-bice.vercel.app/',
+    external: true,
+    profiles: ['medico', 'estudante'],
+    premium: true,
+    status: 'live',
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#FEEBF3] text-[#DE3A7B]'
   },
   {
     id: 'zumbido',
@@ -207,7 +237,7 @@ export const OTTO_MODULES: OttoModule[] = [
     external: false,
     profiles: ['medico', 'estudante', 'paciente'],
     premium: false,
-    status: 'coming-soon',
+    status: 'beta',
     category: 'educacao_paciente',
     iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
   },
@@ -220,21 +250,22 @@ export const OTTO_MODULES: OttoModule[] = [
     external: false,
     profiles: ['medico', 'estudante', 'paciente'],
     premium: false,
-    status: 'coming-soon',
+    status: 'beta',
     category: 'educacao_paciente',
     iconBg: 'bg-[#FDF6DE] text-[#EF9F27]'
   },
   {
     id: 'ottosig',
-    name: 'Glossário',
-    description: 'BOTTOK Chat',
+    name: 'OTTO DIC',
+    description: 'Mini glossário',
     icon: MessageSquare,
     url: 'https://dhsig86.github.io/minidic/',
     external: true,
-    profiles: ['medico', 'estudante'],
-    premium: true,
+    profiles: ['medico', 'estudante', 'paciente'],
+    premium: false,
     status: 'live',
     category: 'educacao_paciente',
-    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
+    iframeBlocked: true
   }
 ];

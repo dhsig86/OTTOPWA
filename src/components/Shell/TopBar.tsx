@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu, Search } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -8,6 +9,7 @@ interface TopBarProps {
 
 export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const { userName, profile } = useAuth();
+  const navigate = useNavigate();
 
   const getProfileLabel = () => {
     switch (profile) {
@@ -31,7 +33,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
       <header className="sticky top-0 left-0 right-0 pt-10 bg-[#1D9E75] text-white flex flex-col z-40 shadow-sm">
         <div className="flex flex-row items-center justify-between px-5 pb-5 w-full relative">
           <div className="flex items-center gap-2 z-10">
-            <button className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
+            <button onClick={() => navigate('/search')} className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
               <Search size={18} />
             </button>
           </div>

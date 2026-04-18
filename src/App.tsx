@@ -12,6 +12,9 @@ import { VideoChannels } from './pages/modules/VideoChannels';
 import { ZumbidoTherapy } from './pages/modules/ZumbidoTherapy';
 import { Feedback } from './pages/modules/Feedback';
 import { PeriOp } from './pages/modules/PeriOp';
+import { QuizPage } from './pages/modules/QuizPage';
+import { InfoPage } from './pages/modules/InfoPage';
+import { PremiumPage } from './pages/modules/PremiumPage';
 import { Search } from './pages/Search';
 import { Notifications } from './pages/Notifications';
 import { Profile } from './pages/Profile';
@@ -41,6 +44,9 @@ function AppRoutes() {
         <Route path="modules/zumbido" element={<ZumbidoTherapy />} />
         <Route path="modules/feedback" element={<Feedback />} />
         <Route path="modules/periop" element={<PeriOp />} />
+        <Route path="modules/quiz" element={<QuizPage />} />
+        <Route path="modules/info" element={<InfoPage />} />
+        <Route path="modules/premium" element={<PremiumPage />} />
         
         <Route path="*" element={<NotFound />} />
       </Route>
