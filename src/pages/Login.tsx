@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -9,27 +11,28 @@ export const Login: React.FC = () => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const BETA_WHITELIST: Record<string, { name: string; profile: 'medico' | 'estudante' | 'paciente'; pass: string }> = {
-    'dr.dhsig@gmail.com': { name: 'Dr. Dario Hart', profile: 'medico', pass: '12345678' },
-    'medico@otto.com': { name: 'Médico Teste', profile: 'medico', pass: '12345678' },
-    'estudante@otto.com': { name: 'Residente Teste', profile: 'estudante', pass: '12345678' },
-    'paciente@otto.com': { name: 'Paciente Teste', profile: 'paciente', pass: '12345678' },
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     if (!identifier || !password) return;
     
-    const user = BETA_WHITELIST[identifier.toLowerCase().trim()];
-    if (!user || user.pass !== password) {
-      setErrorMsg('Credenciais inválidas para o acesso restrito (Beta).');
-      return;
+    setIsLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, identifier.trim(), password);
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+      
+      // Defaulting profile as medico for now, until we sync with Firestore.
+      login(user.uid, user.email || 'Médico', 'medico', token);
+      navigate('/');
+    } catch (error: any) {
+      console.error(error);
+      setErrorMsg('Credenciais inválidas. Verifique seu e-mail e senha no Firebase.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    login(crypto.randomUUID(), user.name, user.profile);
-    navigate('/');
   };
 
   return (
@@ -51,9 +54,9 @@ export const Login: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-6">
           
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-800">E-mail ou Celular</label>
+            <label className="text-sm font-medium text-gray-800">E-mail</label>
             <input 
-              type="text" 
+              type="email" 
               placeholder="Ex: dr.dhsig@gmail.com"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
@@ -80,15 +83,16 @@ export const Login: React.FC = () => {
 
           <button 
             type="submit"
-            className="w-full h-12 bg-[#1D9E75] hover:bg-[#0A865F] text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
+            disabled={isLoading}
+            className="w-full h-12 bg-[#1D9E75] hover:bg-[#0A865F] disabled:opacity-50 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
           >
-            Avançar
+            {isLoading ? 'Entrando...' : 'Avançar'}
           </button>
           
         </form>
 
         <p className="text-center text-xs text-gray-400 pt-6">
-          Ambiente restrito de acesso Antecipado (Beta)
+          Autenticação Segura via Firebase
         </p>
 
       </motion.div>

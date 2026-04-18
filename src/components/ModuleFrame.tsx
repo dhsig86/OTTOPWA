@@ -8,7 +8,7 @@ import { OTTO_MODULES } from '../config/modules';
 export const ModuleFrame: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userId, userName, profile } = useAuth();
+  const { userId, userName, profile, firebaseToken } = useAuth();
   const { patientId, doctorId } = usePatient();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [showFallback, setShowFallback] = useState(false);
@@ -52,7 +52,7 @@ export const ModuleFrame: React.FC = () => {
     iframeRef.current?.contentWindow?.postMessage(
       {
         type: 'otto-context',
-        payload: { userId, userName, profile, patientId, doctorId }
+        payload: { userId, userName, profile, patientId, doctorId, firebaseToken }
       },
       safeOrigin
     );
