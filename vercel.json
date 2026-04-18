@@ -6,7 +6,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-src https://atlas.drdariohart.com https://procod.drdariohart.com https://otto-calc-hub.vercel.app https://otto-imune.vercel.app https://otto-voice-one.vercel.app https://cases.drdariohart.com https://dhsig86.github.io https://tally.so localhost:* https://bottok-orcin.vercel.app https://otto-ai-triagem-1fc48c3c292e.herokuapp.com https://test-pg-bice.vercel.app; img-src 'self' data: https:; connect-src 'self' https:;"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-src https://ottos-plum.vercel.app https://atlas.drdariohart.com https://procod.drdariohart.com https://otto-calc-hub.vercel.app https://otto-imune.vercel.app https://otto-voice-one.vercel.app https://cases.drdariohart.com https://dhsig86.github.io https://tally.so localhost:* https://bottok-orcin.vercel.app https://otto-ai-triagem-1fc48c3c292e.herokuapp.com https://test-pg-bice.vercel.app; img-src 'self' data: https:; connect-src 'self' https:;"
         },
         {
           "key": "X-Frame-Options",
