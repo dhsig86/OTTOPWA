@@ -1,5 +1,5 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, LogOut } from 'lucide-react';
 import { OTTO_MODULES } from '../../config/modules';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -13,7 +13,13 @@ interface DrawerMenuProps {
 
 export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { profile, isAuthenticated } = useAuth();
+  const { profile, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    onClose();
+    await logout();
+    navigate('/login');
+  };
 
   const handleRunModule = (modulePath: string, external: boolean, status?: string) => {
     if (status === 'coming-soon') return;
@@ -121,6 +127,18 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
                 })}
               </div>
             </div>
+            
+            {/* Botão de Logout Fixo no Rodapé */}
+            <div className="p-4 border-t border-gray-100 shrink-0">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 p-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all"
+              >
+                <LogOut size={18} />
+                <span className="text-sm font-semibold">Encerrar Sessão</span>
+              </button>
+            </div>
+            
           </motion.div>
         </>
       )}

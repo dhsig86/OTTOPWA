@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 
 type UserProfile = 'medico' | 'estudante' | 'paciente' | null;
 
@@ -34,10 +35,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setFirebaseToken(token);
         setUserId(user.uid);
         
-        // We still use localStorage for the profile type, until Firestore is set up.
-        if (storedProfile) setProfile(storedProfile);
-        if (storedName) setUserName(storedName);
-        else setUserName(user.email || 'Usuário');
+        try {
+          const userRef = doc(db, 'users', user.uid);
+          const snap = await getDoc(userRef);
+          if (snap.exists()) {
+            const data = snap.data();
+            setProfile(data.profile || storedProfile || 'medico');
+            setUserName(data.displayName || user.email || 'Usuário');
+          } else {
+            setProfile(storedProfile || 'medico');
+            setUserName(storedName || user.email || 'Usuário');
+          }
+        } catch (e) {
+          console.warn('Firestore unavailable, using localStorage fallback', e);
+          setProfile(storedProfile || 'medico');
+          setUserName(storedName || user.email || 'Usuário');
+        }
       } else {
         setFirebaseToken(null);
         setUserId(null);
@@ -50,7 +63,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => unsubscribe();
   }, []);
 
-  const login = (id: string, name: string, profileType: UserProfile, token: string) => {
+  const login = async (id: string, name: string, profileType: UserProfile, token: string) => {
     setUserId(id);
     setUserName(name);
     setProfile(profileType);
@@ -58,6 +71,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('otto_user_id', id);
     localStorage.setItem('otto_user_name', name);
     localStorage.setItem('otto_profile', profileType || '');
+    
+    try {
+      const userRef = doc(db, 'users', id);
+      await setDoc(userRef, {
+        displayName: name,
+        profile: profileType,
+        email: name,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+    } catch(e) {
+      console.warn("Failed to save to Firestore", e);
+    }
   };
 
   const logout = async () => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, User } from 'lucide-react';
+import { Home, User, Search } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -9,6 +9,7 @@ export const BottomNav: React.FC = () => {
 
   const navItems = [
     { icon: Home, label: 'Início', path: '/' },
+    { icon: Search, label: 'Buscar', path: '/search' },
     { icon: User, label: 'Perfil', path: '/profile' },
   ];
 
