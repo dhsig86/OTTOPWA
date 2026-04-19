@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, Bell } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -41,6 +41,9 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
             <h1 className="text-2xl font-extrabold tracking-tight leading-none text-center">HART'S OTTO</h1>
           </div>
           <div className="flex items-center gap-2 z-10">
+            <button onClick={() => navigate('/notifications')} className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
+              <Bell size={18} />
+            </button>
             <button onClick={onMenuClick} className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
               <Menu size={18} />
             </button>

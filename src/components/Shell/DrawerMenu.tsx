@@ -27,11 +27,9 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
 
   const getCategoryColor = (category: string) => {
     switch(category) {
-      case 'clinico': return 'bg-otto-teal-light text-otto-teal-dark';
-      case 'educacao': return 'bg-[#E6F1FB] text-blue-800';
-      case 'paciente': return 'bg-[#EEEDFE] text-purple-800';
-      case 'gestao': return 'bg-[#FAEEDA] text-amber-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'clinico':          return 'bg-[#E1F7EE] text-[#0A865F]';
+      case 'educacao_paciente': return 'bg-[#E6EDFB] text-[#4068B2]';
+      default:                  return 'bg-gray-100 text-gray-600';
     }
   };
 

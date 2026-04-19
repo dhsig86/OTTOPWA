@@ -14,7 +14,8 @@ import {
   Star,
   ClipboardList,
   Brain,
-  ClipboardCheck
+  ClipboardCheck,
+  MessageCircleQuestion
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -267,5 +268,18 @@ export const OTTO_MODULES: OttoModule[] = [
     category: 'educacao_paciente',
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
     iframeBlocked: true
+  },
+  {
+    id: 'feedback',
+    name: 'Feedback',
+    description: 'Reporte bugs e sugestões',
+    icon: MessageCircleQuestion,
+    url: '/modules/feedback',
+    external: false,
+    profiles: ['medico', 'estudante', 'paciente'],
+    premium: false,
+    status: 'live',
+    category: 'educacao_paciente',
+    iconBg: 'bg-[#FAEEDA] text-[#D58C20]'
   }
 ];

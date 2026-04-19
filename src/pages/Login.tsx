@@ -8,6 +8,7 @@ import { auth } from '../lib/firebase';
 export const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [selectedProfile, setSelectedProfile] = useState<'medico' | 'estudante' | 'paciente'>('medico');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -25,7 +26,7 @@ export const Login: React.FC = () => {
       const token = await user.getIdToken();
       
       // Defaulting profile as medico for now, until we sync with Firestore.
-      login(user.uid, user.email || 'Médico', 'medico', token);
+      login(user.uid, user.email || 'Usuário', selectedProfile, token);
       navigate('/');
     } catch (error: any) {
       console.error(error);
@@ -52,6 +53,29 @@ export const Login: React.FC = () => {
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
+          <div>
+            <label className="text-sm font-medium text-gray-800 block mb-2">Sou um(a):</label>
+            <div className="flex gap-2 w-full">
+              {(['medico', 'estudante', 'paciente'] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setSelectedProfile(p)}
+                  className={`flex-1 py-2 px-2 rounded-full text-sm font-bold transition-all border ${
+                    selectedProfile === p
+                      ? p === 'medico'
+                        ? 'bg-[#E1F7EE] text-[#1D9E75] border-[#1D9E75]/30'
+                        : p === 'estudante'
+                        ? 'bg-[#E6EDFB] text-[#4068B2] border-[#4068B2]/30'
+                        : 'bg-[#F2EFFC] text-[#6A47C9] border-[#6A47C9]/30'
+                      : 'bg-gray-50 text-gray-400 border-transparent'
+                  }`}
+                >
+                  {p === 'medico' ? 'Médico' : p === 'estudante' ? 'Estudante' : 'Paciente'}
+                </button>
+              ))}
+            </div>
+          </div>
           
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-800">E-mail</label>

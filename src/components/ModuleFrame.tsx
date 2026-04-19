@@ -98,8 +98,8 @@ export const ModuleFrame: React.FC = () => {
           onLoad={handleIframeLoad}
           className="absolute inset-0 w-full h-full border-0 z-10 bg-transparent"
           title="Módulo Externo"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
-          allow="camera; microphone; fullscreen; autoplay"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation allow-modals"
+          allow="camera; microphone; fullscreen; autoplay; clipboard-read; clipboard-write"
         />
       </div>
     </div>
