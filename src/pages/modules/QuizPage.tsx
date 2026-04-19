@@ -32,10 +32,10 @@ export const QuizPage: React.FC = () => {
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center p-8 text-center max-w-sm">
             <GraduationCap size={48} className="text-[#1D9E75] mb-4" />
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Simulador em Manutenção</h2>
-            <p className="text-gray-500 text-sm mb-6">O servidor do OTTO Quiz está indisponível no momento. Tente novamente mais tarde.</p>
-            <button onClick={() => window.open('https://github.com/dhsig86/SIMULOTTO', '_blank')} className="bg-[#1D9E75] text-white px-6 py-3 rounded-xl font-bold">
-              Ver Repositório
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Simulador Bloqueado no Navegador</h2>
+            <p className="text-gray-500 text-sm mb-6">Seu navegador bloqueou o carregamento interno do Quiz. Você pode acessá-lo externamente.</p>
+            <button onClick={() => window.open('https://dhsig86.github.io/SIMULOTTO/', '_blank')} className="bg-[#1D9E75] text-white px-6 py-3 rounded-xl font-bold">
+              Abrir Quiz em Nova Guia
             </button>
           </motion.div>
         )}

@@ -1,33 +1,43 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PatientProvider } from './contexts/PatientContext';
 import { Layout } from './components/Shell/Layout';
 
-// Pages
-import { Home } from './pages/Home';
-import { Login } from './pages/Login';
-import { ModuleFrame } from './components/ModuleFrame';
-import { VideoChannels } from './pages/modules/VideoChannels';
-import { ZumbidoTherapy } from './pages/modules/ZumbidoTherapy';
-import { Feedback } from './pages/modules/Feedback';
-import { PeriOp } from './pages/modules/PeriOp';
-import { QuizPage } from './pages/modules/QuizPage';
-import { InfoPage } from './pages/modules/InfoPage';
-import { PremiumPage } from './pages/modules/PremiumPage';
-import { Search } from './pages/Search';
-import { Notifications } from './pages/Notifications';
-import { Profile } from './pages/Profile';
-import { NotFound } from './pages/NotFound';
+// Pages (Lazy Loaded)
+const Home           = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
+const Login          = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
+const ModuleFrame    = lazy(() => import('./components/ModuleFrame').then(m => ({ default: m.ModuleFrame })));
+const VideoChannels  = lazy(() => import('./pages/modules/VideoChannels').then(m => ({ default: m.VideoChannels })));
+const ZumbidoTherapy = lazy(() => import('./pages/modules/ZumbidoTherapy').then(m => ({ default: m.ZumbidoTherapy })));
+const Feedback       = lazy(() => import('./pages/modules/Feedback').then(m => ({ default: m.Feedback })));
+const PeriOp         = lazy(() => import('./pages/modules/PeriOp').then(m => ({ default: m.PeriOp })));
+const QuizPage       = lazy(() => import('./pages/modules/QuizPage').then(m => ({ default: m.QuizPage })));
+const InfoPage       = lazy(() => import('./pages/modules/InfoPage').then(m => ({ default: m.InfoPage })));
+const PremiumPage    = lazy(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
+const Search         = lazy(() => import('./pages/Search').then(m => ({ default: m.Search })));
+const Notifications  = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
+const Profile        = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
+const NotFound       = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+
+import { ErrorBoundary } from './components/ErrorBoundary';
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full min-h-[40vh]">
+    <div className="w-8 h-8 rounded-full border-4 border-[#1D9E75] border-t-transparent animate-spin" />
+  </div>
+);
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 function AppRoutes() {
   return (
-    <Routes>
+    <ErrorBoundary>
+      <Suspense fallback={<PageLoader />}>
+      <Routes>
       <Route path="/login" element={<Login />} />
       
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
@@ -53,6 +63,8 @@ function AppRoutes() {
       
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </Suspense>
+    </ErrorBoundary>
   );
 }
 
