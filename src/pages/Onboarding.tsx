@@ -169,7 +169,7 @@ export const Onboarding: React.FC = () => {
             </div>
             <div>
               <h4 className="font-bold text-gray-800 mb-1">Conteúdo Científico</h4>
-              <p className="text-sm text-gray-500 leading-relaxed">Artigos lapidados por especialistas em Otorrino da HCFMUSP, tudo com base em evidências modernas.</p>
+              <p className="text-sm text-gray-500 leading-relaxed">Conhecimento baseado nos rigorosos *guidelines* das maiores academias globais (ABORL-CCF, AAO-HNS) e referências de ponta mundiais (ENT Hospital of Fudan University).</p>
             </div>
           </div>
 
