@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
 export const Login: React.FC = () => {
@@ -13,6 +13,7 @@ export const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +22,12 @@ export const Login: React.FC = () => {
     
     setIsLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, identifier.trim(), password);
+      let userCredential;
+      if (isRegistering) {
+        userCredential = await createUserWithEmailAndPassword(auth, identifier.trim(), password);
+      } else {
+        userCredential = await signInWithEmailAndPassword(auth, identifier.trim(), password);
+      }
       const user = userCredential.user;
       const token = await user.getIdToken();
       
@@ -30,7 +36,9 @@ export const Login: React.FC = () => {
       navigate('/');
     } catch (error: any) {
       console.error(error);
-      setErrorMsg('Credenciais inválidas. Verifique seu e-mail e senha no Firebase.');
+      setErrorMsg(isRegistering 
+        ? 'Erro ao criar conta. Verifique o e-mail ou tente senha mais forte.' 
+        : 'Credenciais inválidas. Verifique seu e-mail e senha no Firebase.');
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +118,18 @@ export const Login: React.FC = () => {
             disabled={isLoading}
             className="w-full h-12 bg-[#1D9E75] hover:bg-[#0A865F] disabled:opacity-50 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
           >
-            {isLoading ? 'Entrando...' : 'Avançar'}
+            {isLoading ? 'Carregando...' : (isRegistering ? 'Criar Conta' : 'Avançar')}
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegistering(!isRegistering);
+              setErrorMsg('');
+            }}
+            className="w-full text-center text-sm text-gray-500 hover:text-[#1D9E75] font-semibold mt-4 transition-colors"
+          >
+            {isRegistering ? 'Já tem uma conta? Entrar agora.' : 'Não possui acesso? Criar Conta.'}
           </button>
           
         </form>

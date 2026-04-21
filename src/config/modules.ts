@@ -15,7 +15,8 @@ import {
   ClipboardList,
   Brain,
   ClipboardCheck,
-  MessageCircleQuestion
+  MessageCircleQuestion,
+  ScanText
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -51,7 +52,7 @@ export const OTTO_MODULES: OttoModule[] = [
     premium: true,
     status: 'live',
     category: 'clinico',
-    iconBg: 'bg-black text-[#00FF41]',
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
     hasIA: true
   },
   {
@@ -134,6 +135,20 @@ export const OTTO_MODULES: OttoModule[] = [
     status: 'live',
     category: 'clinico',
     iconBg: 'bg-[#EEF1FB] text-[#4B68D8]'
+  },
+  {
+    id: 'ocr',
+    name: 'OTTO OCR',
+    description: 'Extrator de Laudos',
+    icon: ScanText,
+    url: 'https://ocr.drdariohart.com/',
+    external: true,
+    profiles: ['medico', 'estudante'],
+    premium: true,
+    status: 'live',
+    category: 'clinico',
+    iconBg: 'bg-[#CDF0E3] text-[#0A865F]',
+    hasIA: true
   },
   {
     id: 'periop',
