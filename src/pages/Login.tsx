@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
 export const Login: React.FC = () => {
@@ -14,6 +14,7 @@ export const Login: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +40,26 @@ export const Login: React.FC = () => {
       setErrorMsg(isRegistering 
         ? 'Erro ao criar conta. Verifique o e-mail ou tente senha mais forte.' 
         : 'Credenciais inválidas. Verifique seu e-mail e senha no Firebase.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setErrorMsg('');
+    setResetMessage('');
+    if (!identifier) {
+      setErrorMsg('Digite seu e-mail acima para redefinir a senha.');
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, identifier.trim());
+      setResetMessage('E-mail de redefinição enviado! Verifique sua caixa de entrada.');
+    } catch (error: any) {
+      console.error(error);
+      setErrorMsg('Erro ao enviar e-mail. Verifique se o endereço está correto e se o usuário existe.');
     } finally {
       setIsLoading(false);
     }
@@ -113,6 +134,23 @@ export const Login: React.FC = () => {
             <p className="text-red-500 text-xs font-semibold text-center">{errorMsg}</p>
           )}
 
+          {resetMessage && (
+            <p className="text-[#1D9E75] text-xs font-semibold text-center">{resetMessage}</p>
+          )}
+
+          {!isRegistering && (
+            <div className="flex justify-end -mt-2">
+              <button
+                type="button"
+                onClick={handleResetPassword}
+                disabled={isLoading}
+                className="text-xs text-gray-500 hover:text-[#1D9E75] font-semibold transition-colors"
+              >
+                Esqueci minha senha
+              </button>
+            </div>
+          )}
+
           <button 
             type="submit"
             disabled={isLoading}
@@ -126,6 +164,7 @@ export const Login: React.FC = () => {
             onClick={() => {
               setIsRegistering(!isRegistering);
               setErrorMsg('');
+              setResetMessage('');
             }}
             className="w-full text-center text-sm text-gray-500 hover:text-[#1D9E75] font-semibold mt-4 transition-colors"
           >

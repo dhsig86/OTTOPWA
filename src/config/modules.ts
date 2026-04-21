@@ -92,7 +92,7 @@ export const OTTO_MODULES: OttoModule[] = [
     icon: Hospital,
     url: 'https://ottos-plum.vercel.app/?tab=ia&embed=true',
     external: true,
-    profiles: ['medico'],
+    profiles: ['medico', 'estudante', 'paciente'],
     premium: true,
     status: 'live',
     category: 'clinico',
@@ -301,6 +301,21 @@ export const OTTO_MODULES: OttoModule[] = [
     tags: ['glossario', 'dicionario', 'termos', 'definicao', 'vocabulario'],
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
     iframeBlocked: true
+  },
+  {
+    id: 'whisper',
+    name: 'OTTO Whisper',
+    description: 'Escrivão Médico IA',
+    icon: Mic2,
+    url: 'https://otto-whisper.netlify.app',
+    external: true,
+    profiles: ['medico'],
+    premium: true,
+    status: 'beta',
+    category: 'clinico',
+    tags: ['transcricao', 'ditado', 'consulta', 'prontuario', 'ia', 'voz', 'audio'],
+    iconBg: 'bg-[#FDE8E8] text-[#C53030]',
+    hasIA: true
   },
   {
     id: 'feedback',
