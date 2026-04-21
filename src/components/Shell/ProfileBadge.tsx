@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { User, ShieldCheck } from 'lucide-react';
 
 export const ProfileBadge: React.FC = () => {
-  const { profile, userName } = useAuth();
+  const { profile, userName, isPremium } = useAuth();
   
   const getProfileInfo = () => {
     switch(profile) {
@@ -27,12 +27,12 @@ export const ProfileBadge: React.FC = () => {
         </h4>
         <div className="flex items-center gap-1.5 mt-0.5">
           <span className={`text-[10px] uppercase font-bold tracking-wider ${info.text} ${info.bg} px-1.5 py-0.5 rounded`}>
-            {info.label}
+             {info.label}
           </span>
-          {profile === 'medico' && (
-            <span className="flex items-center gap-0.5 text-[10px] uppercase font-bold tracking-wider text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
-              <ShieldCheck size={10} />
-              Premium
+          {isPremium && (
+            <span className="flex items-center gap-0.5 text-[10px] uppercase font-bold tracking-wider text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded shadow-sm">
+              <ShieldCheck size={10} className="text-amber-600" />
+              OTTO PRO
             </span>
           )}
         </div>

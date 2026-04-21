@@ -9,11 +9,14 @@ interface AuthContextType {
   userId: string | null;
   userName: string | null;
   profile: UserProfile;
+  isPremium: boolean;
+  subscriptionPlan: string | null;
   firebaseToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (id: string, userName: string, profileType: UserProfile, token: string) => void;
   logout: () => void;
+  updatePremiumStatus: (isPremium: boolean, plan: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +25,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [profile, setProfile] = useState<UserProfile>(null);
+  const [isPremium, setIsPremium] = useState<boolean>(false);
+  const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
   const [firebaseToken, setFirebaseToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,20 +47,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const data = snap.data();
             setProfile(data.profile || storedProfile || 'medico');
             setUserName(data.displayName || user.email || 'Usuário');
+            setIsPremium(!!data.premiumActive);
+            setSubscriptionPlan(data.subscriptionPlan || null);
           } else {
             setProfile(storedProfile || 'medico');
             setUserName(storedName || user.email || 'Usuário');
+            setIsPremium(false);
+            setSubscriptionPlan(null);
           }
         } catch (e) {
           console.warn('Firestore unavailable, using localStorage fallback', e);
           setProfile(storedProfile || 'medico');
           setUserName(storedName || user.email || 'Usuário');
+          setIsPremium(false);
+          setSubscriptionPlan(null);
         }
       } else {
         setFirebaseToken(null);
         setUserId(null);
         setProfile(null);
         setUserName(null);
+        setIsPremium(false);
+        setSubscriptionPlan(null);
       }
       setIsLoading(false);
     });
@@ -95,13 +108,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUserName(null);
     setProfile(null);
     setFirebaseToken(null);
+    setIsPremium(false);
+    setSubscriptionPlan(null);
     localStorage.removeItem('otto_user_id');
     localStorage.removeItem('otto_user_name');
     localStorage.removeItem('otto_profile');
   };
 
+  const updatePremiumStatus = (status: boolean, plan: string) => {
+    setIsPremium(status);
+    setSubscriptionPlan(plan);
+  };
+
   return (
-    <AuthContext.Provider value={{ userId, userName, profile, firebaseToken, isAuthenticated: !!userId, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ userId, userName, profile, isPremium, subscriptionPlan, firebaseToken, isAuthenticated: !!userId, isLoading, login, logout, updatePremiumStatus }}>
       {children}
     </AuthContext.Provider>
   );
