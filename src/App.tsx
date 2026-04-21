@@ -30,7 +30,8 @@ const PageLoader = () => (
 );
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return <PageLoader />;
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 };
 

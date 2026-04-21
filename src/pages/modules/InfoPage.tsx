@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileText, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ARTICLES = [
   { id: 1, title: 'Atualização no Guideline de Rinossinusite 2024', date: '10 Abr 2026', category: 'Clínica' },
@@ -11,6 +11,7 @@ const ARTICLES = [
 
 export const InfoPage: React.FC = () => {
   const navigate = useNavigate();
+  const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
@@ -33,7 +34,7 @@ export const InfoPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => alert(`O artigo "${art.title}" estará disponível em breve.`)}
+            onClick={() => setSelectedTitle(art.title)}
           >
             <div className="flex-1 pr-4">
               <div className="flex items-center gap-2 mb-2">
@@ -48,6 +49,20 @@ export const InfoPage: React.FC = () => {
           </motion.div>
         ))}
       </div>
+      
+      <AnimatePresence>
+        {selectedTitle && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-20 left-0 right-0 mx-4 bg-[#1D9E75] text-white p-4 rounded-2xl shadow-xl flex items-center justify-between gap-3 z-50"
+          >
+            <p className="text-sm font-medium flex-1">"{selectedTitle}" estará disponível em breve.</p>
+            <button onClick={() => setSelectedTitle(null)} className="text-white/80 hover:text-white font-bold text-lg leading-none">✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

@@ -8,7 +8,7 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
-  const { userName, profile } = useAuth();
+  const { userName, profile, isPremium } = useAuth();
   const navigate = useNavigate();
 
   const getProfileLabel = () => {
@@ -65,9 +65,18 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
           </div>
           
           {/* Badge Premium */}
-          <button className="bg-[#EF9F27] hover:bg-[#D58C20] text-white px-3 py-1 rounded-full text-xs font-bold transition-all shadow-sm shrink-0">
-            Premium
-          </button>
+          {isPremium ? (
+            <span className="bg-[#EF9F27] text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm shrink-0 flex items-center gap-1">
+              ⭐ OTTO PRO
+            </span>
+          ) : (
+            <button
+              onClick={() => navigate('/modules/premium')}
+              className="bg-[#EF9F27] hover:bg-[#D58C20] text-white px-3 py-1 rounded-full text-xs font-bold transition-all shadow-sm shrink-0"
+            >
+              Seja Premium
+            </button>
+          )}
         </div>
       </header>
     </>

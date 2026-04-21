@@ -1,3 +1,14 @@
+/**
+ * PatientContext — RESERVADO FASE 2
+ *
+ * patientId e doctorId são passados via postMessage para módulos externos (ModuleFrame).
+ * Na fase BETA atual, setPatientData() não é chamado — os IDs são sempre null.
+ *
+ * Fase 2: integrar com prontuário eletrônico (HIS/EMR) para identificar
+ * o paciente em consulta e passar contexto aos módulos clínicos.
+ *
+ * TODO: implementar seletor de paciente ativo no shell antes de abrir módulos clínicos.
+ */
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface PatientContextType {

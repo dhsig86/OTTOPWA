@@ -1,18 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 
 export const Profile: React.FC = () => {
-  const { userName, profile, logout } = useAuth();
+  const { userName, profile, isPremium, logout } = useAuth();
   const navigate = useNavigate();
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
 
   const handleLogout = () => {
-    if (window.confirm("Deseja realmente sair da sua sessão?")) {
-      logout();
-      navigate('/login');
-    }
+    logout();
+    navigate('/login');
   };
 
   const getInitials = (name: string) => {
@@ -45,17 +44,39 @@ export const Profile: React.FC = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-800">{userName || 'Usuário Beta'}</h2>
           <p className="text-gray-500 font-medium mt-1">{getProfileLabel()}</p>
-          <span className="inline-block mt-3 px-3 py-1 bg-[#EF9F27] text-white text-xs font-bold rounded-full shadow-sm">CONTA PREMIUM BETA</span>
+          {isPremium && (
+            <span className="inline-block mt-3 px-3 py-1 bg-[#EF9F27] text-white text-xs font-bold rounded-full shadow-sm">OTTO PRO</span>
+          )}
         </div>
 
         <div className="pt-8">
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 h-12 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
-          >
-            <LogOut size={18} />
-            Encerrar Sessão
-          </button>
+          {!confirmingLogout ? (
+            <button 
+              onClick={() => setConfirmingLogout(true)}
+              className="w-full flex items-center justify-center gap-2 h-12 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors"
+            >
+              <LogOut size={18} />
+              Encerrar Sessão
+            </button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-center text-gray-600 font-medium mb-3">Confirma a saída da sua sessão?</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirmingLogout(false)}
+                  className="flex-1 h-11 bg-gray-100 text-gray-600 font-bold rounded-xl active:scale-95 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex-1 h-11 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl active:scale-95 transition-all"
+                >
+                  Sair
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

@@ -22,12 +22,15 @@ export const BottomNav: React.FC = () => {
             whileTap={{ scale: 0.9 }}
             key={item.label}
             onClick={() => navigate(item.path)}
-            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors duration-300 ${
+            className={`flex flex-col items-center justify-center w-full h-full space-y-0.5 transition-colors duration-300 ${
               isActive ? 'text-[#1D9E75]' : 'text-gray-400 hover:text-[#1D9E75]'
             }`}
           >
-            <item.icon size={24} className={isActive ? 'fill-current' : ''} />
+            <item.icon size={22} strokeWidth={isActive ? 2.5 : 1.8} />
             <span className="text-[10px] font-medium">{item.label}</span>
+            {isActive && (
+              <div className="w-1 h-1 rounded-full bg-[#1D9E75] mt-0.5" />
+            )}
           </motion.button>
         );
       })}
