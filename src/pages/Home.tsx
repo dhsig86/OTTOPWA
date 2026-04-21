@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OTTO_MODULES } from '../config/modules';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,12 @@ export const Home: React.FC = () => {
   const navigate = useNavigate();
   // Se usuário tem profile, esse é o padrao dele, senão usa 'medico'
   const [activeFilter, setActiveFilter] = useState<'medico' | 'estudante' | 'paciente'>(profile || 'medico');
+
+  useEffect(() => {
+    if (!localStorage.getItem('otto_onboarding_completed')) {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [navigate]);
 
   const handleRunModule = (url: string, external: boolean, status: string) => {
     if (status === 'coming-soon') return;

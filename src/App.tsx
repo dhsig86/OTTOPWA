@@ -17,6 +17,7 @@ const InfoPage       = lazy(() => import('./pages/modules/InfoPage').then(m => (
 const PremiumPage    = lazy(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
 const Search         = lazy(() => import('./pages/Search').then(m => ({ default: m.Search })));
 const Notifications  = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
+const Onboarding     = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
 const Profile        = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
 const NotFound       = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
@@ -39,6 +40,7 @@ function AppRoutes() {
       <Suspense fallback={<PageLoader />}>
       <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
       
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index element={<Home />} />
