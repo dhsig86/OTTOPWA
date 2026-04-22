@@ -7,6 +7,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   GoogleAuthProvider,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
 } from 'firebase/auth';
@@ -38,7 +39,7 @@ const firebaseError = (code: string, isRegistering: boolean): string => {
 };
 
 export const Login: React.FC = () => {
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [selectedProfile, setSelectedProfile] = useState<'medico' | 'estudante' | 'paciente'>('medico');
   const [identifier, setIdentifier] = useState('');
@@ -47,6 +48,14 @@ export const Login: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
+
+  // ✅ CORREÇÃO PRINCIPAL: se o Firebase autenticar via redirect (onAuthStateChanged),
+  // o Login precisa detectar e redirecionar — independente do getRedirectResult.
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   // Captura o resultado do signInWithRedirect quando o Google redireciona de volta
   useEffect(() => {
@@ -118,12 +127,41 @@ export const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     setErrorMsg('');
-    // Salva o perfil selecionado para recuperar após o redirect
+    setIsLoading(true);
     localStorage.setItem('otto_google_login_profile', selectedProfile);
     const provider = new GoogleAuthProvider();
-    // signInWithRedirect é mais confiável que signInWithPopup em PWA/iOS
-    await signInWithRedirect(auth, provider);
-    // Após o redirect, o resultado é capturado no useEffect acima
+
+    try {
+      // Estratégia 1: popup (mais rápido, funciona bem em desktop e Android)
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const token = await user.getIdToken();
+      localStorage.removeItem('otto_google_login_profile');
+      login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
+      navigate('/');
+    } catch (popupError: any) {
+      // Se popup foi bloqueado (iOS PWA, Safari, configuração do browser)
+      // → cai para redirect como fallback
+      if (
+        popupError.code === 'auth/popup-blocked' ||
+        popupError.code === 'auth/popup-closed-by-user' ||
+        popupError.code === 'auth/cancelled-popup-request'
+      ) {
+        try {
+          // signInWithRedirect navega a página — o resultado é capturado no useEffect
+          await signInWithRedirect(auth, provider);
+        } catch (redirectError: any) {
+          console.error('Google redirect error:', redirectError);
+          setErrorMsg(firebaseError(redirectError.code || '', false));
+          setIsLoading(false);
+        }
+      } else {
+        // Qualquer outro erro (domínio não autorizado, provider desabilitado, etc.)
+        console.error('Google popup error:', popupError);
+        setErrorMsg(firebaseError(popupError.code || '', false));
+        setIsLoading(false);
+      }
+    }
   };
 
   return (
