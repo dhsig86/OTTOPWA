@@ -1,9 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+} from 'firebase/auth';
 import { auth } from '../lib/firebase';
+
+// Tradução dos códigos de erro Firebase → Português
+const firebaseError = (code: string, isRegistering: boolean): string => {
+  const map: Record<string, string> = {
+    'auth/user-not-found':             'E-mail não cadastrado. Crie uma conta primeiro.',
+    'auth/wrong-password':             'Senha incorreta. Tente novamente.',
+    'auth/invalid-credential':         'E-mail ou senha inválidos.',
+    'auth/invalid-email':              'E-mail inválido.',
+    'auth/user-disabled':              'Esta conta foi desabilitada. Contate o administrador.',
+    'auth/email-already-in-use':       'Este e-mail já está cadastrado. Faça login.',
+    'auth/weak-password':              'Senha muito fraca. Use pelo menos 6 caracteres.',
+    'auth/operation-not-allowed':      'Este método de login não está habilitado. Contate o administrador.',
+    'auth/admin-restricted-operation': 'Cadastro de novos usuários está desabilitado no momento.',
+    'auth/network-request-failed':     'Falha de rede. Verifique sua conexão.',
+    'auth/too-many-requests':          'Muitas tentativas. Aguarde alguns minutos.',
+    'auth/popup-blocked':              'Popup bloqueado. Tente novamente.',
+    'auth/popup-closed-by-user':       'Login cancelado.',
+    'auth/cancelled-popup-request':    'Login cancelado.',
+    'auth/unauthorized-domain':        'Domínio não autorizado no Firebase. Contate o administrador.',
+    'auth/requires-recent-login':      'Por segurança, faça login novamente.',
+  };
+  return map[code] || (isRegistering
+    ? `Erro ao criar conta. (${code})`
+    : `Falha no login. (${code})`);
+};
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -16,11 +48,34 @@ export const Login: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
 
+  // Captura o resultado do signInWithRedirect quando o Google redireciona de volta
+  useEffect(() => {
+    const storedProfile = (localStorage.getItem('otto_google_login_profile') as 'medico' | 'estudante' | 'paciente') || 'medico';
+    setIsLoading(true);
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result?.user) {
+          const user = result.user;
+          const token = await user.getIdToken();
+          login(user.uid, user.displayName || user.email || 'Usuário', storedProfile, token);
+          localStorage.removeItem('otto_google_login_profile');
+          navigate('/');
+        }
+      })
+      .catch((error: any) => {
+        console.error('Google redirect error:', error);
+        if (error.code && error.code !== 'auth/no-auth-event') {
+          setErrorMsg(firebaseError(error.code, false));
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     if (!identifier || !password) return;
-    
+
     setIsLoading(true);
     try {
       let userCredential;
@@ -31,15 +86,11 @@ export const Login: React.FC = () => {
       }
       const user = userCredential.user;
       const token = await user.getIdToken();
-      
-      // Defaulting profile as medico for now, until we sync with Firestore.
       login(user.uid, user.email || 'Usuário', selectedProfile, token);
       navigate('/');
     } catch (error: any) {
-      console.error(error);
-      setErrorMsg(isRegistering 
-        ? 'Erro ao criar conta. Verifique o e-mail ou tente senha mais forte.' 
-        : 'Credenciais inválidas. Verifique seu e-mail e senha no Firebase.');
+      console.error('Email auth error:', error);
+      setErrorMsg(firebaseError(error.code || '', isRegistering));
     } finally {
       setIsLoading(false);
     }
@@ -52,14 +103,14 @@ export const Login: React.FC = () => {
       setErrorMsg('Digite seu e-mail acima para redefinir a senha.');
       return;
     }
-    
+
     setIsLoading(true);
     try {
       await sendPasswordResetEmail(auth, identifier.trim());
       setResetMessage('E-mail de redefinição enviado! Verifique sua caixa de entrada.');
     } catch (error: any) {
-      console.error(error);
-      setErrorMsg('Erro ao enviar e-mail. Verifique se o endereço está correto e se o usuário existe.');
+      console.error('Reset password error:', error);
+      setErrorMsg(firebaseError(error.code || '', false));
     } finally {
       setIsLoading(false);
     }
@@ -67,22 +118,12 @@ export const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     setErrorMsg('');
-    setIsLoading(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const token = await user.getIdToken();
-      
-      // Defaulting profile as medico for now, could be enhanced to select profile on first login
-      login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
-      navigate('/');
-    } catch (error: any) {
-      console.error(error);
-      setErrorMsg('Erro ao fazer login com Google.');
-    } finally {
-      setIsLoading(false);
-    }
+    // Salva o perfil selecionado para recuperar após o redirect
+    localStorage.setItem('otto_google_login_profile', selectedProfile);
+    const provider = new GoogleAuthProvider();
+    // signInWithRedirect é mais confiável que signInWithPopup em PWA/iOS
+    await signInWithRedirect(auth, provider);
+    // Após o redirect, o resultado é capturado no useEffect acima
   };
 
   return (
