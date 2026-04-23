@@ -15,9 +15,10 @@ export const PremiumPage: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const plans = [
-    { id: 'estudante', title: 'Estudante/Residente', price: 'R$ 20/mês', rawPrice: 20, features: ['Acesso básico IA', 'Casos Clínicos', 'Laudos Simples'], delay: 0.1 },
-    { id: 'medico', title: 'Médico Individual', price: 'R$ 50/mês', rawPrice: 50, features: ['Acesso completo', 'BOTTOK Ilimitado', 'Calculadoras VIP', 'OTTO OCR Premium'], isPopular: true, delay: 0.2 },
-    { id: 'clinica', title: 'Clínica (Até 15 Médicos)', price: 'R$ 350/mês', rawPrice: 350, features: ['Gestão de time', 'Integração de Prontuário', 'Brand personalizável'], delay: 0.3 }
+    { id: 'estudante',    title: 'Estudante / Residente',     price: 'R$ 20/mês',  rawPrice: 20,  features: ['Calculadoras clínicas', 'Quiz & Simulados', 'OTTO Tests'], delay: 0.1 },
+    { id: 'profissional', title: 'Prof. de Saúde',            price: 'R$ 30/mês',  rawPrice: 30,  features: ['Calculadoras + VoiSS/VHI', 'Atlas ORL', 'OTTO Voice', 'Triagem'], delay: 0.15 },
+    { id: 'medico',       title: 'Médico Individual',         price: 'R$ 50/mês',  rawPrice: 50,  features: ['Acesso completo', 'BOTTOK Ilimitado', 'OTTO OCR Premium', 'Whisper IA'], isPopular: true, delay: 0.2 },
+    { id: 'clinica',      title: 'Clínica (Até 15 Médicos)',  price: 'R$ 350/mês', rawPrice: 350, features: ['Gestão de time', 'Integração de Prontuário', 'Brand personalizável'], delay: 0.3 }
   ];
 
   const handleSubscribe = async () => {

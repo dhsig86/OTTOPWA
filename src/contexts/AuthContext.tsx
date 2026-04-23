@@ -3,7 +3,7 @@ import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
-type UserProfile = 'medico' | 'estudante' | 'paciente' | null;
+type UserProfile = 'medico' | 'estudante' | 'profissional' | 'paciente' | null;
 
 interface AuthContextType {
   userId: string | null;
@@ -14,9 +14,11 @@ interface AuthContextType {
   firebaseToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  profileCompleted: boolean;
   login: (id: string, userName: string, profileType: UserProfile, token: string) => void;
   logout: () => void;
   updatePremiumStatus: (isPremium: boolean, plan: string) => void;
+  markProfileCompleted: (name: string, profileType: UserProfile) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
   const [firebaseToken, setFirebaseToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileCompleted, setProfileCompleted] = useState(false);
 
   useEffect(() => {
     const storedName = localStorage.getItem('otto_user_name');
@@ -49,11 +52,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setUserName(data.displayName || user.email || 'Usuário');
             setIsPremium(!!data.premiumActive);
             setSubscriptionPlan(data.subscriptionPlan || null);
+            setProfileCompleted(!!data.profileCompleted);
           } else {
             setProfile(storedProfile || 'medico');
             setUserName(storedName || user.email || 'Usuário');
             setIsPremium(false);
             setSubscriptionPlan(null);
+            setProfileCompleted(false);
           }
         } catch (e) {
           console.warn('Firestore unavailable, using localStorage fallback', e);
@@ -61,6 +66,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setUserName(storedName || user.email || 'Usuário');
           setIsPremium(false);
           setSubscriptionPlan(null);
+          setProfileCompleted(false);
         }
       } else {
         setFirebaseToken(null);
@@ -69,6 +75,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUserName(null);
         setIsPremium(false);
         setSubscriptionPlan(null);
+        setProfileCompleted(false);
       }
       setIsLoading(false);
     });
@@ -120,8 +127,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSubscriptionPlan(plan);
   };
 
+  const markProfileCompleted = (name: string, profileType: UserProfile) => {
+    setProfileCompleted(true);
+    setUserName(name);
+    setProfile(profileType);
+    localStorage.setItem('otto_user_name', name);
+    localStorage.setItem('otto_profile', profileType || '');
+  };
+
   return (
-    <AuthContext.Provider value={{ userId, userName, profile, isPremium, subscriptionPlan, firebaseToken, isAuthenticated: !!userId, isLoading, login, logout, updatePremiumStatus }}>
+    <AuthContext.Provider value={{ userId, userName, profile, isPremium, subscriptionPlan, firebaseToken, isAuthenticated: !!userId, isLoading, profileCompleted, login, logout, updatePremiumStatus, markProfileCompleted }}>
       {children}
     </AuthContext.Provider>
   );

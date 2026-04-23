@@ -7,10 +7,11 @@ export const ProfileBadge: React.FC = () => {
   
   const getProfileInfo = () => {
     switch(profile) {
-      case 'medico': return { label: 'Médico (ORL/CCP)', bg: 'bg-otto-teal', text: 'text-white' };
-      case 'estudante': return { label: 'Estudante/Residente', bg: 'bg-blue-600', text: 'text-white' };
-      case 'paciente': return { label: 'Paciente', bg: 'bg-purple-600', text: 'text-white' };
-      default: return { label: 'Visitante', bg: 'bg-gray-400', text: 'text-white' };
+      case 'medico':       return { label: 'Médico (ORL/CCP)',    bg: 'bg-otto-teal',  text: 'text-white' };
+      case 'estudante':    return { label: 'Estudante',           bg: 'bg-blue-600',   text: 'text-white' };
+      case 'profissional': return { label: 'Prof. de Saúde',      bg: 'bg-teal-700',   text: 'text-white' };
+      case 'paciente':     return { label: 'Paciente',            bg: 'bg-purple-600', text: 'text-white' };
+      default:             return { label: 'Visitante',           bg: 'bg-gray-400',   text: 'text-white' };
     }
   };
 

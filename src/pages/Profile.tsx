@@ -23,10 +23,11 @@ export const Profile: React.FC = () => {
 
   const getProfileLabel = () => {
     switch (profile) {
-      case 'medico': return 'Médico Otorrinolaringologista';
-      case 'estudante': return 'Residente / Acadêmico';
-      case 'paciente': return 'Paciente';
-      default: return 'Usuário Convidado';
+      case 'medico':       return 'Médico Otorrinolaringologista';
+      case 'estudante':    return 'Estudante / Residente';
+      case 'profissional': return 'Profissional de Saúde';
+      case 'paciente':     return 'Paciente';
+      default:             return 'Usuário Convidado';
     }
   };
 

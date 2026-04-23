@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Stethoscope, GraduationCap, Heart, 
+import {
+  Stethoscope, GraduationCap, Heart, Activity,
   Brain, FileText, Ear, ScanText,
-  ClipboardCheck, PlaySquare, BookOpen, Volume2, 
-  MessageSquare, Zap, ShieldCheck, Star 
+  ClipboardCheck, PlaySquare, BookOpen, Volume2,
+  MessageSquare, Zap, ShieldCheck, Star
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -13,7 +13,7 @@ export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [step, setStep] = useState(1);
-  const [tempProfile, setTempProfile] = useState<'medico' | 'estudante' | 'paciente'>(
+  const [tempProfile, setTempProfile] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>(
     (profile as any) || 'medico'
   );
 
@@ -72,7 +72,20 @@ export const Onboarding: React.FC = () => {
             </div>
           </button>
 
-          <button 
+          <button
+            onClick={() => setTempProfile('profissional')}
+            className={`w-full flex items-center p-4 rounded-2xl border-2 text-left transition-all ${tempProfile === 'profissional' ? 'border-[#0F766E] bg-[#E0F5F0]' : 'border-gray-100 bg-white'}`}
+          >
+            <div className={`p-3 rounded-full mr-4 ${tempProfile === 'profissional' ? 'bg-[#0F766E] text-white' : 'bg-gray-100 text-gray-500'}`}>
+              <Activity size={24} />
+            </div>
+            <div>
+              <h3 className={`font-bold ${tempProfile === 'profissional' ? 'text-[#0F766E]' : 'text-gray-800'}`}>Prof. de Saúde</h3>
+              <p className="text-xs text-gray-500 mt-1">Enfermeiros, fonoaudiólogos, fisioterapeutas e outros</p>
+            </div>
+          </button>
+
+          <button
             onClick={() => setTempProfile('paciente')}
             className={`w-full flex items-center p-4 rounded-2xl border-2 text-left transition-all ${tempProfile === 'paciente' ? 'border-[#6A47C9] bg-[#F2EFFC]' : 'border-gray-100 bg-white'}`}
           >
@@ -106,6 +119,12 @@ export const Onboarding: React.FC = () => {
         { icon: ClipboardCheck, title: 'OTTO Quiz & Tests', desc: 'Simulados para você gabaritar as provas de ORL.', color: 'text-blue-600 bg-blue-100' },
         { icon: PlaySquare, title: 'Vídeos Educativos', desc: 'Procedimentos e explicações cirúrgicas passo a passo.', color: 'text-teal-600 bg-teal-100' },
         { icon: BookOpen, title: 'Informações Core', desc: 'Acesso rápido à base acadêmica estruturada.', color: 'text-indigo-600 bg-indigo-100' },
+      ];
+    } else if (tempProfile === 'profissional') {
+      highlights = [
+        { icon: Activity, title: 'OTTO Voice / VoiSS', desc: 'Triagem vocal e escalas VHI para fonoaudiólogos e otorrinos.', color: 'text-teal-700 bg-teal-100' },
+        { icon: Ear, title: 'Atlas ORL', desc: 'Base imagiológica para referência clínica rápida em campo.', color: 'text-green-600 bg-green-100' },
+        { icon: ClipboardCheck, title: 'Triagem', desc: 'Protocolos de triagem auditiva e vestibular simplificados.', color: 'text-blue-600 bg-blue-100' },
       ];
     } else {
       highlights = [

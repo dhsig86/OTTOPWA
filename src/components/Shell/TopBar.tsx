@@ -13,10 +13,11 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
 
   const getProfileLabel = () => {
     switch (profile) {
-      case 'medico': return 'Otorrinolaringologista';
-      case 'estudante': return 'Residente / Acadêmico';
-      case 'paciente': return 'Paciente';
-      default: return 'Usuário';
+      case 'medico':       return 'Otorrinolaringologista';
+      case 'estudante':    return 'Estudante / Residente';
+      case 'profissional': return 'Profissional de Saúde';
+      case 'paciente':     return 'Paciente';
+      default:             return 'Usuário';
     }
   };
 

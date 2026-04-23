@@ -17,9 +17,10 @@ const InfoPage       = lazy(() => import('./pages/modules/InfoPage').then(m => (
 const PremiumPage    = lazy(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
 const Search         = lazy(() => import('./pages/Search').then(m => ({ default: m.Search })));
 const Notifications  = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
-const Onboarding     = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
-const Profile        = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
-const NotFound       = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+const Onboarding        = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
+const Profile           = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
+const CompleteProfile   = lazy(() => import('./pages/CompleteProfile').then(m => ({ default: m.CompleteProfile })));
+const NotFound          = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 
@@ -29,10 +30,19 @@ const PageLoader = () => (
   </div>
 );
 
-const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+// Requer autenticação, mas não exige profileCompleted (usado no /complete-profile)
+const AuthRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return <PageLoader />;
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isLoading, profileCompleted } = useAuth();
+  if (isLoading) return <PageLoader />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!profileCompleted) return <Navigate to="/complete-profile" replace />;
+  return <>{children}</>;
 };
 
 function AppRoutes() {
@@ -41,6 +51,7 @@ function AppRoutes() {
       <Suspense fallback={<PageLoader />}>
       <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/complete-profile" element={<AuthRoute><CompleteProfile /></AuthRoute>} />
       <Route path="/onboarding" element={<PrivateRoute><Onboarding /></PrivateRoute>} />
       
       <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>

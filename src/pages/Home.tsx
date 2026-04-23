@@ -8,7 +8,7 @@ export const Home: React.FC = () => {
   const { profile } = useAuth();
   const navigate = useNavigate();
   // Se usuário tem profile, esse é o padrao dele, senão usa 'medico'
-  const [activeFilter, setActiveFilter] = useState<'medico' | 'estudante' | 'paciente'>(profile || 'medico');
+  const [activeFilter, setActiveFilter] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>(profile || 'medico');
 
   useEffect(() => {
     if (!localStorage.getItem('otto_onboarding_completed')) {

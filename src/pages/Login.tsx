@@ -40,7 +40,7 @@ const firebaseError = (code: string, isRegistering: boolean): string => {
 export const Login: React.FC = () => {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [selectedProfile, setSelectedProfile] = useState<'medico' | 'estudante' | 'paciente'>('medico');
+  const [selectedProfile, setSelectedProfile] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>('medico');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -161,23 +161,22 @@ export const Login: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label className="text-sm font-medium text-gray-800 block mb-2">Sou um(a):</label>
-            <div className="flex gap-2 w-full">
-              {(['medico', 'estudante', 'paciente'] as const).map((p) => (
+            <div className="grid grid-cols-2 gap-2 w-full">
+              {([
+                { key: 'medico',       label: 'Médico',          active: 'bg-[#E1F7EE] text-[#1D9E75] border-[#1D9E75]/30' },
+                { key: 'estudante',    label: 'Estudante',       active: 'bg-[#E6EDFB] text-[#4068B2] border-[#4068B2]/30' },
+                { key: 'profissional', label: 'Prof. de Saúde',  active: 'bg-[#E0F5F0] text-[#0F766E] border-[#0F766E]/30' },
+                { key: 'paciente',     label: 'Paciente',        active: 'bg-[#F2EFFC] text-[#6A47C9] border-[#6A47C9]/30' },
+              ] as const).map(({ key, label, active }) => (
                 <button
-                  key={p}
+                  key={key}
                   type="button"
-                  onClick={() => setSelectedProfile(p)}
-                  className={`flex-1 py-2 px-2 rounded-full text-sm font-bold transition-all border ${
-                    selectedProfile === p
-                      ? p === 'medico'
-                        ? 'bg-[#E1F7EE] text-[#1D9E75] border-[#1D9E75]/30'
-                        : p === 'estudante'
-                        ? 'bg-[#E6EDFB] text-[#4068B2] border-[#4068B2]/30'
-                        : 'bg-[#F2EFFC] text-[#6A47C9] border-[#6A47C9]/30'
-                      : 'bg-gray-50 text-gray-400 border-transparent'
+                  onClick={() => setSelectedProfile(key)}
+                  className={`py-2 px-2 rounded-full text-sm font-bold transition-all border ${
+                    selectedProfile === key ? active : 'bg-gray-50 text-gray-400 border-transparent'
                   }`}
                 >
-                  {p === 'medico' ? 'Médico' : p === 'estudante' ? 'Estudante' : 'Paciente'}
+                  {label}
                 </button>
               ))}
             </div>
