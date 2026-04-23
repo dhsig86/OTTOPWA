@@ -166,7 +166,7 @@ export const Login: React.FC = () => {
             <label className="text-sm font-medium text-gray-800">E-mail</label>
             <input 
               type="email" 
-              placeholder="Ex: dr.dhsig@gmail.com"
+              placeholder="Ex: seunome@email.com"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm"

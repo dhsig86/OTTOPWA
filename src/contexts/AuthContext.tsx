@@ -91,13 +91,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('otto_user_id', id);
     localStorage.setItem('otto_user_name', name);
     localStorage.setItem('otto_profile', profileType || '');
-    
+
     try {
       const userRef = doc(db, 'users', id);
+      // Read existing doc first so we can restore profileCompleted immediately,
+      // avoiding the race condition where PrivateRoute sees profileCompleted=false
+      // and sends returning users to /complete-profile on every login.
+      const existing = await getDoc(userRef);
+      const alreadyCompleted = existing.exists() && !!existing.data().profileCompleted;
+      if (alreadyCompleted) {
+        setProfileCompleted(true);
+        const data = existing.data();
+        if (data.displayName) setUserName(data.displayName);
+        if (data.profile)     setProfile(data.profile);
+        if (data.premiumActive !== undefined) setIsPremium(!!data.premiumActive);
+      }
+
       await setDoc(userRef, {
         displayName: name,
         profile: profileType,
-        email: name,
         updatedAt: serverTimestamp(),
       }, { merge: true });
     } catch(e) {
@@ -117,6 +129,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setFirebaseToken(null);
     setIsPremium(false);
     setSubscriptionPlan(null);
+    setProfileCompleted(false);   // fix: was never reset, leaking state to next user
     localStorage.removeItem('otto_user_id');
     localStorage.removeItem('otto_user_name');
     localStorage.removeItem('otto_profile');
