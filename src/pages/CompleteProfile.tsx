@@ -62,7 +62,7 @@ const selectClass = `${inputClass} appearance-none cursor-pointer`;
 
 export const CompleteProfile: React.FC = () => {
   const navigate = useNavigate();
-  const { userId, userName, profile, markProfileCompleted } = useAuth();
+  const { userId, userName, profile, markProfileCompleted, onboardingCompleted } = useAuth();
   const [form, setForm] = useState<FormData>({
     ...INITIAL,
     nomeCompleto: userName || '',
@@ -129,8 +129,9 @@ export const CompleteProfile: React.FC = () => {
       await setDoc(userRef, payload, { merge: true });
       markProfileCompleted(form.nomeCompleto.trim(), form.tipoUsuario as any);
 
-      // Se primeiro acesso → onboarding, senão → home
-      if (!localStorage.getItem('otto_onboarding_completed')) {
+      // Use Firestore-backed onboardingCompleted (not localStorage) so the check
+      // works correctly across different browsers / new devices.
+      if (!onboardingCompleted) {
         navigate('/onboarding', { replace: true });
       } else {
         navigate('/', { replace: true });

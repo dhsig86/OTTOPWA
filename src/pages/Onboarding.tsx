@@ -11,14 +11,15 @@ import { useAuth } from '../contexts/AuthContext';
 
 export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, markOnboardingCompleted } = useAuth();
   const [step, setStep] = useState(1);
   const [tempProfile, setTempProfile] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>(
     (profile as any) || 'medico'
   );
 
-  const finishOnboarding = (action: 'free' | 'premium') => {
-    localStorage.setItem('otto_onboarding_completed', 'true');
+  const finishOnboarding = async (action: 'free' | 'premium') => {
+    // Persist to Firestore + localStorage so new browsers don't repeat onboarding
+    await markOnboardingCompleted();
     if (action === 'premium') {
       navigate('/modules/premium');
     } else {
