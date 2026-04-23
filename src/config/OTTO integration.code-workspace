@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../OTTO OCR"
+		},
+		{
+			"path": "../../../../OTTO WHISPER"
+		},
+		{
+			"path": "../../../../ottoatlas"
+		}
+	],
+	"settings": {}
+}
