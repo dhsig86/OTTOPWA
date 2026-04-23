@@ -7,7 +7,6 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   GoogleAuthProvider,
-  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
 } from 'firebase/auth';
@@ -128,39 +127,18 @@ export const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     setErrorMsg('');
     setIsLoading(true);
+    // Salva perfil para recuperar após o redirect
     localStorage.setItem('otto_google_login_profile', selectedProfile);
     const provider = new GoogleAuthProvider();
-
     try {
-      // Estratégia 1: popup (mais rápido, funciona bem em desktop e Android)
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const token = await user.getIdToken();
-      localStorage.removeItem('otto_google_login_profile');
-      login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
-      navigate('/');
-    } catch (popupError: any) {
-      // Se popup foi bloqueado (iOS PWA, Safari, configuração do browser)
-      // → cai para redirect como fallback
-      if (
-        popupError.code === 'auth/popup-blocked' ||
-        popupError.code === 'auth/popup-closed-by-user' ||
-        popupError.code === 'auth/cancelled-popup-request'
-      ) {
-        try {
-          // signInWithRedirect navega a página — o resultado é capturado no useEffect
-          await signInWithRedirect(auth, provider);
-        } catch (redirectError: any) {
-          console.error('Google redirect error:', redirectError);
-          setErrorMsg(firebaseError(redirectError.code || '', false));
-          setIsLoading(false);
-        }
-      } else {
-        // Qualquer outro erro (domínio não autorizado, provider desabilitado, etc.)
-        console.error('Google popup error:', popupError);
-        setErrorMsg(firebaseError(popupError.code || '', false));
-        setIsLoading(false);
-      }
+      // Usa redirect — mais confiável em PWA e quando COOP bloqueia popups.
+      // O resultado é capturado pelo useEffect de getRedirectResult
+      // e pelo watcher de isAuthenticated logo acima.
+      await signInWithRedirect(auth, provider);
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      setErrorMsg(firebaseError(error.code || '', false));
+      setIsLoading(false);
     }
   };
 
