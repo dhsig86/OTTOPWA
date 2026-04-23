@@ -7,8 +7,7 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
@@ -48,36 +47,12 @@ export const Login: React.FC = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
 
-  // ✅ CORREÇÃO PRINCIPAL: se o Firebase autenticar via redirect (onAuthStateChanged),
-  // o Login precisa detectar e redirecionar — independente do getRedirectResult.
+  // Redireciona automaticamente se já autenticado (ex: sessão ainda ativa)
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       navigate('/', { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
-
-  // Captura o resultado do signInWithRedirect quando o Google redireciona de volta
-  useEffect(() => {
-    const storedProfile = (localStorage.getItem('otto_google_login_profile') as 'medico' | 'estudante' | 'paciente') || 'medico';
-    setIsLoading(true);
-    getRedirectResult(auth)
-      .then(async (result) => {
-        if (result?.user) {
-          const user = result.user;
-          const token = await user.getIdToken();
-          login(user.uid, user.displayName || user.email || 'Usuário', storedProfile, token);
-          localStorage.removeItem('otto_google_login_profile');
-          navigate('/');
-        }
-      })
-      .catch((error: any) => {
-        console.error('Google redirect error:', error);
-        if (error.code && error.code !== 'auth/no-auth-event') {
-          setErrorMsg(firebaseError(error.code, false));
-        }
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,17 +102,22 @@ export const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     setErrorMsg('');
     setIsLoading(true);
-    // Salva perfil para recuperar após o redirect
-    localStorage.setItem('otto_google_login_profile', selectedProfile);
     const provider = new GoogleAuthProvider();
     try {
-      // Usa redirect — mais confiável em PWA e quando COOP bloqueia popups.
-      // O resultado é capturado pelo useEffect de getRedirectResult
-      // e pelo watcher de isAuthenticated logo acima.
-      await signInWithRedirect(auth, provider);
+      // signInWithPopup: resolve imediatamente sem cross-origin redirect.
+      // Funciona porque vercel.json já tem Cross-Origin-Opener-Policy: same-origin-allow-popups.
+      // signInWithRedirect falhava porque authDomain (otto-ecosystem.firebaseapp.com)
+      // é diferente do domínio do app (otto.drdariohart.com), bloqueando a leitura
+      // cross-origin do IndexedDB quando o Google redirecionava de volta.
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const token = await user.getIdToken();
+      login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
+      navigate('/');
     } catch (error: any) {
       console.error('Google login error:', error);
       setErrorMsg(firebaseError(error.code || '', false));
+    } finally {
       setIsLoading(false);
     }
   };
