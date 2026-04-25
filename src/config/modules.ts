@@ -250,7 +250,7 @@ export const OTTO_MODULES: OttoModule[] = [
     name: 'OTTO Cases',
     description: 'Relatos de Caso',
     icon: FolderOpen,
-    url: 'https://cases.drdariohart.com/',
+    url: 'https://otto-cases.vercel.app/',
     external: true,
     profiles: ['medico', 'estudante'],
     premium: false,
@@ -320,4 +320,3 @@ export const OTTO_MODULES: OttoModule[] = [
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]'
   }
 ];
-                                                                                                                                                                                                                                                                             

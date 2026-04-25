@@ -131,3 +131,17 @@ export const Home: React.FC = () => {
               {f === 'medico' ? 'Médico' : 
                f === 'estudante' ? 'Estudante' : 'Paciente'}
             </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Ferramentas Clínicas */}
+      {renderModulesCategory('clinico', 'Ferramentas Clínicas')}
+
+      {/* Educação e Pacientes */}
+      {renderModulesCategory('educacao_paciente', 'Educação e Pacientes')}
+    </div>
+  );
+};
+
+export { Home };

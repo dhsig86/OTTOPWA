@@ -92,6 +92,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(false);
     });
 
+    const updatePremiumStatus = (premium: boolean, plan: string) => {
+    setIsPremium(premium);
+    setSubscriptionPlan(plan);
+  };
+
     return () => unsubscribe();
   }, []);
 
@@ -191,4 +196,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           onboardingCompleted: true,
           updatedAt: serverTimestamp(),
         }, { merge: true });
-    
+      } catch (e) {
+        console.error('markOnboardingCompleted Firestore error:', e);
+      }
+    }
+  };
+
+
+  const updatePremiumStatus = (premium: boolean, plan: string) => {
+    setIsPremium(premium);
+    setSubscriptionPlan(plan);
+  };
+
+  return (
+    <AuthContext.Provider value={{
+      isAuthenticated,
+      isLoading,
+      userId,
+      userName,
+      profile,
+      firebaseToken,
+      isPremium,
+      subscriptionPlan,
+      profileCompleted,
+      onboardingCompleted,
+      login,
+      logout,
+      markProfileCompleted,
+      markOnboardingCompleted,
+      updatePremiumStatus,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};

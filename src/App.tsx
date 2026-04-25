@@ -94,4 +94,4 @@ function App() {
   );
 }
 
-export d
+export default App;
