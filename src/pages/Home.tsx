@@ -5,16 +5,19 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 export const Home: React.FC = () => {
-  const { profile } = useAuth();
+  const { profile, onboardingCompleted } = useAuth();
   const navigate = useNavigate();
   // Se usuário tem profile, esse é o padrao dele, senão usa 'medico'
   const [activeFilter, setActiveFilter] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>(profile || 'medico');
 
   useEffect(() => {
-    if (!localStorage.getItem('otto_onboarding_completed')) {
+    // Verifica contexto E localStorage — contexto é fonte primária (Firestore),
+    // localStorage é fallback para Samsung/outros browsers que limpam storage
+    const localFlag = localStorage.getItem('otto_onboarding_completed') === 'true';
+    if (!onboardingCompleted && !localFlag) {
       navigate('/onboarding', { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, onboardingCompleted]);
 
   const handleRunModule = (url: string, external: boolean, status: string) => {
     if (status === 'coming-soon') return;
@@ -128,14 +131,3 @@ export const Home: React.FC = () => {
               {f === 'medico' ? 'Médico' : 
                f === 'estudante' ? 'Estudante' : 'Paciente'}
             </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="pt-6 pb-24 max-w-lg mx-auto">
-        {renderModulesCategory('clinico', 'Ferramentas Clínicas')}
-        {renderModulesCategory('educacao_paciente', 'Educação & Pacientes')}
-      </div>
-    </div>
-  );
-};

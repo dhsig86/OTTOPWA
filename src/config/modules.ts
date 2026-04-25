@@ -273,20 +273,8 @@ export const OTTO_MODULES: OttoModule[] = [
     tags: ['artigo', 'informacao', 'texto', 'leitura', 'estudo'],
     iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
   },
-  {
-    id: 'premium_access',
-    name: 'Premium',
-    description: 'Acesso total',
-    icon: Star,
-    url: '/modules/premium',
-    external: false,
-    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
-    premium: false,
-    status: 'beta',
-    category: 'educacao_paciente',
-    tags: ['premium', 'assinatura', 'compra', 'upgrade', 'pagamento'],
-    iconBg: 'bg-[#FDF6DE] text-[#EF9F27]'
-  },
+  // Premium desativado para MVP — reativar quando gateway de pagamento estiver pronto
+  // { id: 'premium_access', name: 'Premium', ... }
   {
     id: 'ottosig',
     name: 'OTTO DIC',
@@ -332,3 +320,4 @@ export const OTTO_MODULES: OttoModule[] = [
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]'
   }
 ];
+                                                                                                                                                                                                                                                                             

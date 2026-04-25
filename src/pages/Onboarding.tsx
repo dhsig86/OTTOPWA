@@ -243,17 +243,11 @@ export const Onboarding: React.FC = () => {
       </div>
       
       <div className="mt-8 flex flex-col gap-3">
-        <button 
-          onClick={() => finishOnboarding('free')} 
-          className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold shadow-md active:scale-95 transition-all"
+        <button
+          onClick={() => finishOnboarding('free')}
+          className="w-full py-4 bg-[#1D9E75] text-white rounded-xl font-bold shadow-md active:scale-95 transition-all"
         >
-          Explorar grátis
-        </button>
-        <button 
-          onClick={() => finishOnboarding('premium')} 
-          className="w-full py-4 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl font-bold active:scale-95 transition-all"
-        >
-          Ver planos Premium
+          Começar a usar o OTTO →
         </button>
       </div>
     </motion.div>
@@ -280,3 +274,4 @@ export const Onboarding: React.FC = () => {
     </div>
   );
 };
+                                                                                                                                                                                                                                                                 

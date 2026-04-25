@@ -56,7 +56,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setSubscriptionPlan(d.subscriptionPlan || null);
             setProfileCompleted(!!d.profileCompleted);
             setOnboardingCompleted(!!d.onboardingCompleted);
-            // Sync to localStorage so offline / same-browser flows work too
+            // Sync to localStorage so offline / cross-browser flows work too
+            if (d.profileCompleted) localStorage.setItem('otto_profile_completed', 'true');
             if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
           } else {
             setUserName(storedName || user.email || 'Usuário');
@@ -72,8 +73,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setProfile(storedProfile || 'medico');
           setIsPremium(false);
           setSubscriptionPlan(null);
-          setProfileCompleted(false);
-          setOnboardingCompleted(false);
+          // Fallback: trust localStorage flags set when user first completed profile/onboarding
+          setProfileCompleted(localStorage.getItem('otto_profile_completed') === 'true');
+          setOnboardingCompleted(localStorage.getItem('otto_onboarding_completed') === 'true');
         }
 
         setUserId(user.uid);  // set userId LAST so PrivateRoute sees correct state
@@ -116,6 +118,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setSubscriptionPlan(d.subscriptionPlan || null);
         setProfileCompleted(true);
         setOnboardingCompleted(!!d.onboardingCompleted);
+        localStorage.setItem('otto_profile_completed', 'true');
         if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
         // Do NOT write back to Firestore — avoid overwriting stored profile/name
       } else {
@@ -140,6 +143,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.warn('Firestore read failed in login()', e);
       setUserName(name);
       setProfile(profileType);
+      // Fallback: trust localStorage so returning users aren't sent to complete-profile
+      setProfileCompleted(localStorage.getItem('otto_profile_completed') === 'true');
+      setOnboardingCompleted(localStorage.getItem('otto_onboarding_completed') === 'true');
       setUserId(id);  // still authenticate even on error
     }
   };
@@ -158,6 +164,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('otto_user_id');
     localStorage.removeItem('otto_user_name');
     localStorage.removeItem('otto_profile');
+    localStorage.removeItem('otto_profile_completed');
+    localStorage.removeItem('otto_onboarding_completed');
   };
 
   // ─── markProfileCompleted() ─────────────────────────────────────────────────
@@ -169,6 +177,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setProfile(profileType);
     localStorage.setItem('otto_user_name', name);
     localStorage.setItem('otto_profile', profileType || '');
+    localStorage.setItem('otto_profile_completed', 'true');
   };
 
   // ─── markOnboardingCompleted() ──────────────────────────────────────────────
@@ -182,36 +191,4 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           onboardingCompleted: true,
           updatedAt: serverTimestamp(),
         }, { merge: true });
-      } catch (e) {
-        console.warn('Failed to persist onboardingCompleted to Firestore', e);
-      }
-    }
-  };
-
-  const updatePremiumStatus = (status: boolean, plan: string) => {
-    setIsPremium(status);
-    setSubscriptionPlan(plan);
-  };
-
-  return (
-    <AuthContext.Provider value={{
-      userId, userName, profile, isPremium, subscriptionPlan, firebaseToken,
-      isAuthenticated: !!userId,
-      isLoading,
-      profileCompleted,
-      onboardingCompleted,
-      login, logout,
-      updatePremiumStatus,
-      markProfileCompleted,
-      markOnboardingCompleted,
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
-  return ctx;
-};
+    

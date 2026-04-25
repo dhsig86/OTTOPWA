@@ -70,7 +70,7 @@ function AppRoutes() {
         <Route path="modules/periop" element={<PeriOp />} />
         <Route path="modules/quiz" element={<QuizPage />} />
         <Route path="modules/info" element={<InfoPage />} />
-        <Route path="modules/premium" element={<PremiumPage />} />
+        <Route path="modules/premium" element={<Navigate to="/" replace />} />
         
         <Route path="*" element={<NotFound />} />
       </Route>
@@ -94,4 +94,4 @@ function App() {
   );
 }
 
-export default App;
+export d
