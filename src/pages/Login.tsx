@@ -69,7 +69,9 @@ export const Login: React.FC = () => {
       }
       const user = userCredential.user;
       const token = await user.getIdToken();
-      login(user.uid, user.email || 'Usuário', selectedProfile, token);
+      // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
+      // antes de navegar — evita race condition que redirecionava para /complete-profile
+      await login(user.uid, user.email || 'Usuário', selectedProfile, token);
       navigate('/');
     } catch (error: any) {
       console.error('Email auth error:', error);
@@ -112,7 +114,9 @@ export const Login: React.FC = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const token = await user.getIdToken();
-      login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
+      // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
+      // antes de navegar — evita race condition que redirecionava para /complete-profile
+      await login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
       navigate('/');
     } catch (error: any) {
       console.error('Google login error:', error);
