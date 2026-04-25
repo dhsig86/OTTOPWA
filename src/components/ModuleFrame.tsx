@@ -49,13 +49,21 @@ export const ModuleFrame: React.FC = () => {
       console.warn('URL de destino inválida para postMessage', e);
     }
 
-    iframeRef.current?.contentWindow?.postMessage(
-      {
-        type: 'otto-context',
-        payload: { userId, userName, profile, patientId, doctorId, firebaseToken }
-      },
-      safeOrigin
-    );
+    const payload = {
+      type: 'otto-context',
+      payload: { userId, userName, profile, patientId, doctorId, firebaseToken }
+    };
+
+    // Reenviamos o contexto até 3 vezes com intervalo de 2s.
+    // Isso garante que o Cases receba mesmo que a SPA ainda não tenha montado
+    // o addEventListener('message') no momento exato do onLoad.
+    const send = () => iframeRef.current?.contentWindow?.postMessage(payload, safeOrigin);
+    send();
+    const t1 = setTimeout(send, 2000);
+    const t2 = setTimeout(send, 4000);
+    // Guarda referências para limpeza (cleanup via closure no useEffect abaixo não alcança aqui,
+    // mas o iframe será desmontado naturalmente e os timeouts são curtos)
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   };
 
   return (
