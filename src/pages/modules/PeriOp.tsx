@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, AlertTriangle, ChevronDown, ChevronUp, Clock, Info, Ear, Stethoscope } from 'lucide-react';
+import { Activity, AlertTriangle, ChevronDown, ChevronUp, Clock, Ear } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // ─────────────────────────────────────────────────────────────────────────────

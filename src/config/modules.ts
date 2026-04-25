@@ -11,7 +11,6 @@ import {
   Volume2,
   PlaySquare,
   Activity,
-  Star,
   ClipboardList,
   Brain,
   ClipboardCheck,

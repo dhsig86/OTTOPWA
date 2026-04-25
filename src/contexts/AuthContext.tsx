@@ -25,6 +25,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+};
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [userId, setUserId]                     = useState<string | null>(null);
   const [userName, setUserName]                 = useState<string | null>(null);
@@ -36,7 +42,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [profileCompleted, setProfileCompleted] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
 
-  // ─── Bootstrap: onAuthStateChanged is the single source of truth ───────────
+  const isAuthenticated = !!userId;
+
+  // ─── Bootstrap: onAuthStateChanged ──────────────────────────────────────────
   useEffect(() => {
     const storedName    = localStorage.getItem('otto_user_name');
     const storedProfile = localStorage.getItem('otto_profile') as UserProfile;
@@ -56,7 +64,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setSubscriptionPlan(d.subscriptionPlan || null);
             setProfileCompleted(!!d.profileCompleted);
             setOnboardingCompleted(!!d.onboardingCompleted);
-            // Sync to localStorage so offline / cross-browser flows work too
             if (d.profileCompleted) localStorage.setItem('otto_profile_completed', 'true');
             if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
           } else {
@@ -73,12 +80,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setProfile(storedProfile || 'medico');
           setIsPremium(false);
           setSubscriptionPlan(null);
-          // Fallback: trust localStorage flags set when user first completed profile/onboarding
           setProfileCompleted(localStorage.getItem('otto_profile_completed') === 'true');
           setOnboardingCompleted(localStorage.getItem('otto_onboarding_completed') === 'true');
         }
 
-        setUserId(user.uid);  // set userId LAST so PrivateRoute sees correct state
+        setUserId(user.uid);
       } else {
         setFirebaseToken(null);
         setUserId(null);
@@ -92,72 +98,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsLoading(false);
     });
 
-    const updatePremiumStatus = (premium: boolean, plan: string) => {
-    setIsPremium(premium);
-    setSubscriptionPlan(plan);
-  };
-
     return () => unsubscribe();
   }, []);
 
   // ─── login() ────────────────────────────────────────────────────────────────
-  // Called explicitly from Login.tsx after signInWithPopup / signInWithEmailAndPassword.
-  // onAuthStateChanged also fires, but login() runs first so we need the same
-  // Firestore-read-before-setUserId pattern to avoid PrivateRoute races.
   const login = async (id: string, name: string, profileType: UserProfile, token: string) => {
+    setUserId(id);
+    setUserName(name);
+    setProfile(profileType);
     setFirebaseToken(token);
     localStorage.setItem('otto_user_id', id);
     localStorage.setItem('otto_user_name', name);
     localStorage.setItem('otto_profile', profileType || '');
 
     try {
-      const userRef = doc(db, 'users', id);
-      const existing = await getDoc(userRef);
-
-      if (existing.exists() && existing.data().profileCompleted) {
-        // ── Returning user: restore everything from Firestore (never overwrite) ──
-        const d = existing.data();
-        setUserName(d.displayName || name);
-        setProfile((d.profile as UserProfile) || profileType);
-        setIsPremium(!!d.premiumActive);
-        setSubscriptionPlan(d.subscriptionPlan || null);
-        setProfileCompleted(true);
+      const snap = await getDoc(doc(db, 'users', id));
+      if (snap.exists()) {
+        const d = snap.data();
+        setProfileCompleted(!!d.profileCompleted);
         setOnboardingCompleted(!!d.onboardingCompleted);
-        localStorage.setItem('otto_profile_completed', 'true');
+        setIsPremium(!!d.premiumActive);
+        if (d.profileCompleted) localStorage.setItem('otto_profile_completed', 'true');
         if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
-        // Do NOT write back to Firestore — avoid overwriting stored profile/name
       } else {
-        // ── New user (or incomplete profile): write their selection ──
-        setUserName(name);
-        setProfile(profileType);
-        setIsPremium(false);
-        setSubscriptionPlan(null);
         setProfileCompleted(false);
         setOnboardingCompleted(false);
-        await setDoc(userRef, {
-          displayName: name,
-          profile: profileType,
-          updatedAt: serverTimestamp(),
-        }, { merge: true });
       }
-
-      // ⚠️ setUserId LAST: triggers PrivateRoute re-render only after all state
-      //    above is already committed (React 18 batches the synchronous setters).
-      setUserId(id);
     } catch (e) {
-      console.warn('Firestore read failed in login()', e);
-      setUserName(name);
-      setProfile(profileType);
-      // Fallback: trust localStorage so returning users aren't sent to complete-profile
       setProfileCompleted(localStorage.getItem('otto_profile_completed') === 'true');
       setOnboardingCompleted(localStorage.getItem('otto_onboarding_completed') === 'true');
-      setUserId(id);  // still authenticate even on error
     }
   };
 
   // ─── logout() ───────────────────────────────────────────────────────────────
   const logout = async () => {
-    try { await firebaseSignOut(auth); } catch (e) { console.error('Logout error', e); }
+    await firebaseSignOut(auth);
     setUserId(null);
     setUserName(null);
     setProfile(null);
@@ -174,8 +149,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // ─── markProfileCompleted() ─────────────────────────────────────────────────
-  // Called from CompleteProfile AFTER setDoc already wrote profileCompleted:true
-  // to Firestore, so we only need to update React state here.
   const markProfileCompleted = (name: string, profileType: UserProfile) => {
     setProfileCompleted(true);
     setUserName(name);
@@ -185,8 +158,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('otto_profile_completed', 'true');
   };
 
+  // ─── updatePremiumStatus() ──────────────────────────────────────────────────
+  const updatePremiumStatus = (premium: boolean, plan: string) => {
+    setIsPremium(premium);
+    setSubscriptionPlan(plan);
+  };
+
   // ─── markOnboardingCompleted() ──────────────────────────────────────────────
-  // Persists onboardingCompleted to Firestore so it survives new browsers.
   const markOnboardingCompleted = async () => {
     setOnboardingCompleted(true);
     localStorage.setItem('otto_onboarding_completed', 'true');
@@ -200,12 +178,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.error('markOnboardingCompleted Firestore error:', e);
       }
     }
-  };
-
-
-  const updatePremiumStatus = (premium: boolean, plan: string) => {
-    setIsPremium(premium);
-    setSubscriptionPlan(plan);
   };
 
   return (
@@ -222,9 +194,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       onboardingCompleted,
       login,
       logout,
+      updatePremiumStatus,
       markProfileCompleted,
       markOnboardingCompleted,
-      updatePremiumStatus,
     }}>
       {children}
     </AuthContext.Provider>

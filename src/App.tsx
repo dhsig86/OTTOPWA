@@ -14,7 +14,6 @@ const Feedback       = lazy(() => import('./pages/modules/Feedback').then(m => (
 const PeriOp         = lazy(() => import('./pages/modules/PeriOp').then(m => ({ default: m.PeriOp })));
 const QuizPage       = lazy(() => import('./pages/modules/QuizPage').then(m => ({ default: m.QuizPage })));
 const InfoPage       = lazy(() => import('./pages/modules/InfoPage').then(m => ({ default: m.InfoPage })));
-const PremiumPage    = lazy(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
 const Search         = lazy(() => import('./pages/Search').then(m => ({ default: m.Search })));
 const Notifications  = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
 const Onboarding        = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
