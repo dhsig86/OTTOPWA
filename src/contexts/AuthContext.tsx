@@ -62,10 +62,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setProfile(d.profile || storedProfile || 'medico');
             setIsPremium(!!d.premiumActive);
             setSubscriptionPlan(d.subscriptionPlan || null);
-            setProfileCompleted(!!d.profileCompleted);
-            setOnboardingCompleted(!!d.onboardingCompleted);
-            if (d.profileCompleted) localStorage.setItem('otto_profile_completed', 'true');
-            if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
+            // Trust Firestore OR localStorage — handles case where Firestore write
+            // succeeded but previous session cleared localStorage on logout
+            const pc = !!d.profileCompleted || localStorage.getItem('otto_profile_completed') === 'true';
+            const oc = !!d.onboardingCompleted || localStorage.getItem('otto_onboarding_completed') === 'true';
+            setProfileCompleted(pc);
+            setOnboardingCompleted(oc);
+            if (pc) localStorage.setItem('otto_profile_completed', 'true');
+            if (oc) localStorage.setItem('otto_onboarding_completed', 'true');
           } else {
             setUserName(storedName || user.email || 'Usuário');
             setProfile(storedProfile || 'medico');
@@ -144,8 +148,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('otto_user_id');
     localStorage.removeItem('otto_user_name');
     localStorage.removeItem('otto_profile');
-    localStorage.removeItem('otto_profile_completed');
-    localStorage.removeItem('otto_onboarding_completed');
+    // NOTE: intentionally keep otto_profile_completed and otto_onboarding_completed
+    // so re-login with the same Google account skips these steps immediately
   };
 
   // ─── markProfileCompleted() ─────────────────────────────────────────────────
