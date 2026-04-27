@@ -169,3 +169,53 @@ export const Profile: React.FC = () => {
                   Sair
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+
+        <p className="text-center text-[11px] text-gray-400 pb-2">
+          Autenticação Firebase · Dados protegidos pela LGPD
+        </p>
+      </motion.div>
+
+      {/* Tela de despedida — aparece sobre tudo ao confirmar logout */}
+      {loggingOut && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white"
+        >
+          <motion.div
+            initial={{ scale: 0.85, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.15, duration: 0.4, type: 'spring', stiffness: 200 }}
+            className="flex flex-col items-center gap-5 text-center px-8"
+          >
+            {/* Avatar */}
+            <div className={`w-20 h-20 rounded-full ${profileColors[profile ?? '']?.bg ?? 'bg-gray-100'} ${profileColors[profile ?? '']?.text ?? 'text-gray-500'} flex items-center justify-center text-2xl font-extrabold shadow-sm`}>
+              {getInitials(userName || '')}
+            </div>
+
+            <div>
+              <p className="text-2xl font-extrabold text-gray-800">Até logo! 👋</p>
+              <p className="text-gray-500 text-sm mt-1">
+                {userName ? `Cuide-se, ${userName.split(' ')[0]}.` : 'Até a próxima.'}
+              </p>
+            </div>
+
+            {/* Barra de progresso animada */}
+            <div className="w-40 h-1 bg-gray-100 rounded-full overflow-hidden mt-2">
+              <motion.div
+                initial={{ width: '0%' }}
+                animate={{ width: '100%' }}
+                transition={{ duration: 1.6, ease: 'linear' }}
+                className="h-full bg-[#1D9E75] rounded-full"
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </div>
+  );
+};
