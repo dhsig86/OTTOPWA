@@ -22,6 +22,7 @@ export const Profile: React.FC = () => {
   const { userId, userName, profile, isPremium, logout } = useAuth();
   const navigate = useNavigate();
   const [confirmingLogout, setConfirmingLogout] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [extra, setExtra] = useState<ProfileData>({});
 
   // Load extended profile data from Firestore
@@ -33,8 +34,13 @@ export const Profile: React.FC = () => {
   }, [userId]);
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    setConfirmingLogout(false);
+    setLoggingOut(true);
+    // Navega para login e faz logout após a animação "Até logo" terminar
+    setTimeout(() => {
+      logout();
+      navigate('/login');
+    }, 1800);
   };
 
   const getInitials = (name: string) => {
@@ -163,14 +169,3 @@ export const Profile: React.FC = () => {
                   Sair
                 </button>
               </div>
-            </div>
-          )}
-        </div>
-
-        <p className="text-center text-[11px] text-gray-400 pb-2">
-          Autenticação Firebase · Dados protegidos pela LGPD
-        </p>
-      </motion.div>
-    </div>
-  );
-};
