@@ -147,7 +147,7 @@ export const OTTO_MODULES: OttoModule[] = [
     name: 'OTTO OCR',
     description: 'Extrator de Laudos',
     icon: ScanText,
-    url: 'https://ocr.drdariohart.com/',
+    url: 'https://otto-ocr-web.vercel.app',
     external: true,
     profiles: ['medico', 'estudante'],
     premium: true,
