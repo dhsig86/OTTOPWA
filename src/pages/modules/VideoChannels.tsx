@@ -58,14 +58,21 @@ export const VideoChannels: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Canal Clínico (visível só para profissionais) ── */}
+      {/* ── Canal de Residentes / Profissionais (gate: médico | estudante | profissional) ── */}
       {isPro ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-          {/* Placeholder — URL a definir */}
-          <div className="w-full aspect-video bg-gradient-to-br from-[#E1F7EE] to-[#CDF0E3] flex flex-col items-center justify-center gap-2">
-            <PlaySquare size={36} className="text-[#1D9E75] opacity-60" />
-            <span className="text-xs font-semibold text-[#1D9E75] opacity-80">Canal Clínico — Em Breve</span>
+          {/* Embedded residents playlist */}
+          <div className="w-full aspect-video bg-gray-100">
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/videoseries?list=PL4f19b4zuy8fGhD1nDOG3Lqt6b28t3dYa"
+              title="ORL para Residentes"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
 
           <div className="p-4">
@@ -74,21 +81,24 @@ export const VideoChannels: React.FC = () => {
                 <PlaySquare size={20} className="text-[#1D9E75]" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-gray-800 leading-tight">ORL Clínico — Atualizações</div>
-                <div className="text-xs text-gray-500 mt-0.5">Canal Profissional · Em preparação</div>
+                <div className="text-sm font-bold text-gray-800 leading-tight">ORL para Residentes</div>
+                <div className="text-xs text-gray-500 mt-0.5">Canal Clínico · Formação Médica</div>
                 <p className="text-xs text-gray-600 mt-2 leading-relaxed">
-                  Revisões cirúrgicas, casos clínicos e atualizações científicas em Otorrinolaringologia.
-                  Disponível em breve.
+                  Conteúdo clínico-cirúrgico em Otorrinolaringologia voltado para
+                  residentes e profissionais de saúde em formação.
                 </p>
               </div>
             </div>
 
-            <button
-              disabled
-              className="mt-4 w-full h-10 bg-gray-100 text-gray-400 font-semibold rounded-xl text-sm cursor-not-allowed"
+            <a
+              href="https://youtube.com/playlist?list=PL4f19b4zuy8fGhD1nDOG3Lqt6b28t3dYa"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 w-full flex items-center justify-center gap-2 h-10 bg-[#1D9E75] hover:bg-[#178a65] active:scale-95 text-white font-semibold rounded-xl text-sm transition-all"
             >
-              Em breve
-            </button>
+              <ExternalLink size={14} />
+              Abrir Playlist no YouTube
+            </a>
           </div>
         </div>
       ) : (
