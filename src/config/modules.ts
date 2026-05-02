@@ -15,7 +15,8 @@ import {
   Brain,
   ClipboardCheck,
   MessageCircleQuestion,
-  ScanText
+  ScanText,
+  BookOpen
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -156,6 +157,20 @@ export const OTTO_MODULES: OttoModule[] = [
     tags: ['ocr', 'laudo', 'extrator', 'pdf', 'texto', 'imagem', 'relatorio'],
     iconBg: 'bg-[#CDF0E3] text-[#0A865F]',
     hasIA: true
+  },
+  {
+    id: 'logbook',
+    name: 'OTTO Log',
+    description: 'Logbook Cirúrgico',
+    icon: BookOpen,
+    url: 'https://otto-log.vercel.app/',
+    external: true,
+    profiles: ['medico', 'estudante'],
+    premium: false,
+    status: 'live',
+    category: 'clinico',
+    tags: ['logbook', 'cirurgia', 'registro', 'casuistica', 'procedimento', 'orl'],
+    iconBg: 'bg-[#D1FAE5] text-[#065F46]',
   },
   {
     id: 'periop',
