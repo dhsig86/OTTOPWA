@@ -107,6 +107,7 @@ export const OTTO_MODULES: OttoModule[] = [
     url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/',
     icon: ClipboardList,
     external: true,
+    iframeBlocked: true,
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
