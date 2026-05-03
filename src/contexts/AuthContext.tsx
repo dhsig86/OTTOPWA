@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
+import { onIdTokenChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
@@ -49,7 +49,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const storedName    = localStorage.getItem('otto_user_name');
     const storedProfile = localStorage.getItem('otto_profile') as UserProfile;
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onIdTokenChanged(auth, async (user) => {
       if (user) {
         const token = await user.getIdToken();
         setFirebaseToken(token);

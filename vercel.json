@@ -38,4 +38,8 @@
           "value": "http"
         }
       ],
-      "destination": "https://o
+      "destination": "https://otto.drdariohart.com/$1",
+      "permanent": true
+    }
+  ]
+}

@@ -40,29 +40,42 @@ export const ModuleFrame: React.FC = () => {
     );
   }
 
-  const handleIframeLoad = () => {
-    setIsLoading(false);
-    let safeOrigin = '*';
-    try {
-      safeOrigin = new URL(targetUrl).origin;
-    } catch (e) {
-      console.warn('URL de destino inválida para postMessage', e);
-    }
+  const getSafeOrigin = () => {
+    try { return new URL(targetUrl).origin; } catch { return '*'; }
+  };
 
+  const sendContext = (token = firebaseToken) => {
     const payload = {
       type: 'otto-context',
-      payload: { userId, userName, profile, patientId, doctorId, firebaseToken }
+      payload: { userId, userName, profile, patientId, doctorId, firebaseToken: token }
     };
+    iframeRef.current?.contentWindow?.postMessage(payload, getSafeOrigin());
+  };
 
+  // Responde ao módulo quando ele pede renovação de token (401 recovery)
+  useEffect(() => {
+    const handleRefreshRequest = async (event: MessageEvent) => {
+      if (event.data?.type !== 'otto-request-refresh') return;
+      try {
+        const { auth: firebaseAuth } = await import('../lib/firebase');
+        const freshToken = await firebaseAuth.currentUser?.getIdToken(true) ?? firebaseToken;
+        sendContext(freshToken);
+      } catch {
+        sendContext();
+      }
+    };
+    window.addEventListener('message', handleRefreshRequest);
+    return () => window.removeEventListener('message', handleRefreshRequest);
+  }, [firebaseToken, userId, userName, profile, patientId, doctorId, targetUrl]);
+
+  const handleIframeLoad = () => {
+    setIsLoading(false);
     // Reenviamos o contexto até 3 vezes com intervalo de 2s.
     // Isso garante que o Cases receba mesmo que a SPA ainda não tenha montado
     // o addEventListener('message') no momento exato do onLoad.
-    const send = () => iframeRef.current?.contentWindow?.postMessage(payload, safeOrigin);
-    send();
-    const t1 = setTimeout(send, 2000);
-    const t2 = setTimeout(send, 4000);
-    // Guarda referências para limpeza (cleanup via closure no useEffect abaixo não alcança aqui,
-    // mas o iframe será desmontado naturalmente e os timeouts são curtos)
+    sendContext();
+    const t1 = setTimeout(() => sendContext(), 2000);
+    const t2 = setTimeout(() => sendContext(), 4000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   };
 
