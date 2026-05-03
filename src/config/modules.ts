@@ -13,7 +13,7 @@ import {
   Activity,
   ClipboardList,
   Brain,
-  ClipboardCheck,
+
   MessageCircleQuestion,
   ScanText,
   BookOpen
@@ -190,32 +190,18 @@ export const OTTO_MODULES: OttoModule[] = [
 
   // EDUCAÇÃO E PACIENTES (educacao_paciente)
   {
-    id: 'quiz',
-    name: 'OTTO Quiz',
-    description: 'Simulados',
-    icon: GraduationCap,
-    url: '/modules/quiz',
-    external: false,
-    profiles: ['medico', 'estudante', 'profissional'],
-    premium: true,
-    status: 'beta',
-    category: 'educacao_paciente',
-    tags: ['quiz', 'questoes', 'simulado', 'prova', 'residencia', 'estudo', 'concurso'],
-    iconBg: 'bg-[#EDF1FC] text-[#34446C]'
-  },
-  {
     id: 'ottotests',
-    name: 'OTTO Tests',
-    description: 'Avaliação Acadêmica',
-    icon: ClipboardCheck,
+    name: 'OTTO Acadêmico',
+    description: 'Simulados & Provas',
+    icon: GraduationCap,
     url: 'https://test-pg-bice.vercel.app/',
     external: true,
     profiles: ['medico', 'estudante', 'profissional'],
     premium: true,
     status: 'live',
     category: 'educacao_paciente',
-    tags: ['teste', 'avaliacao', 'academico', 'questao', 'prova', 'residencia'],
-    iconBg: 'bg-[#FEEBF3] text-[#DE3A7B]'
+    tags: ['quiz', 'questoes', 'simulado', 'prova', 'residencia', 'estudo', 'concurso', 'teste', 'avaliacao', 'academico'],
+    iconBg: 'bg-[#EDF1FC] text-[#34446C]'
   },
   {
     id: 'zumbido',

@@ -12,7 +12,7 @@ const VideoChannels  = lazy(() => import('./pages/modules/VideoChannels').then(m
 const ZumbidoTherapy = lazy(() => import('./pages/modules/ZumbidoTherapy').then(m => ({ default: m.ZumbidoTherapy })));
 const Feedback       = lazy(() => import('./pages/modules/Feedback').then(m => ({ default: m.Feedback })));
 const PeriOp         = lazy(() => import('./pages/modules/PeriOp').then(m => ({ default: m.PeriOp })));
-const QuizPage       = lazy(() => import('./pages/modules/QuizPage').then(m => ({ default: m.QuizPage })));
+
 const InfoPage       = lazy(() => import('./pages/modules/InfoPage').then(m => ({ default: m.InfoPage })));
 const Search         = lazy(() => import('./pages/Search').then(m => ({ default: m.Search })));
 const Notifications  = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
@@ -67,7 +67,7 @@ function AppRoutes() {
         <Route path="modules/zumbido" element={<ZumbidoTherapy />} />
         <Route path="modules/feedback" element={<Feedback />} />
         <Route path="modules/periop" element={<PeriOp />} />
-        <Route path="modules/quiz" element={<QuizPage />} />
+
         <Route path="modules/info" element={<InfoPage />} />
         <Route path="modules/premium" element={<Navigate to="/" replace />} />
         
