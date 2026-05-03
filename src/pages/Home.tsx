@@ -3,8 +3,10 @@ import { OTTO_MODULES } from '../config/modules';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { useServiceWarmUp } from '../hooks/useServiceWarmUp';
 
 export const Home: React.FC = () => {
+  useServiceWarmUp();
   const { profile, onboardingCompleted } = useAuth();
   const navigate = useNavigate();
   // Se usuário tem profile, esse é o padrao dele, senão usa 'medico'
