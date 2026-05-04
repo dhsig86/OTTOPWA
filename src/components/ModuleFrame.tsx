@@ -68,6 +68,19 @@ export const ModuleFrame: React.FC = () => {
     return () => window.removeEventListener('message', handleRefreshRequest);
   }, [firebaseToken, userId, userName, profile, patientId, doctorId, targetUrl]);
 
+  // Navega para outro módulo quando um iframe filho solicita via postMessage
+  useEffect(() => {
+    const handleNavigate = (event: MessageEvent) => {
+      if (event.data?.type !== 'otto-navigate') return;
+      const url = event.data?.url;
+      if (typeof url === 'string' && url.startsWith('http')) {
+        navigate('/modules/webview', { state: { url } });
+      }
+    };
+    window.addEventListener('message', handleNavigate);
+    return () => window.removeEventListener('message', handleNavigate);
+  }, [navigate]);
+
   const handleIframeLoad = () => {
     setIsLoading(false);
     // Reenviamos o contexto até 3 vezes com intervalo de 2s.
