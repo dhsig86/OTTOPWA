@@ -90,7 +90,7 @@ export const OTTO_MODULES: OttoModule[] = [
     name: 'Otoscop.IA',
     description: 'Diagnóstico',
     icon: Hospital,
-    url: 'https://ottos-plum.vercel.app/?tab=ia&embed=true',
+    url: 'https://atlas.drdariohart.com/?tab=ia&embed=true',
     external: true,
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: true,
