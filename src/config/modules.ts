@@ -107,7 +107,6 @@ export const OTTO_MODULES: OttoModule[] = [
     url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/',
     icon: ClipboardList,
     external: true,
-    iframeBlocked: true,
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
@@ -116,6 +115,8 @@ export const OTTO_MODULES: OttoModule[] = [
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]',
     hasIA: true
   },
+
+
   {
     id: 'calc',
     name: 'Calculadoras',
@@ -173,6 +174,8 @@ export const OTTO_MODULES: OttoModule[] = [
     tags: ['logbook', 'cirurgia', 'registro', 'casuistica', 'procedimento', 'orl'],
     iconBg: 'bg-[#D1FAE5] text-[#065F46]',
   },
+
+
   {
     id: 'periop',
     name: 'Peri-op.',
