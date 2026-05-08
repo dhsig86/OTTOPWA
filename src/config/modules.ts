@@ -124,7 +124,7 @@ export const OTTO_MODULES: OttoModule[] = [
     icon: Calculator,
     url: 'https://otto-calc-hub.vercel.app/',
     external: true,
-    profiles: ['medico', 'estudante', 'profissional'],
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
     category: 'clinico',
