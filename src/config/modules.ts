@@ -13,11 +13,11 @@ import {
   Activity,
   ClipboardList,
   Brain,
-
   MessageCircleQuestion,
   ScanText,
   BookOpen,
-  Stethoscope
+  Stethoscope,
+  FileText,
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -323,6 +323,21 @@ export const OTTO_MODULES: OttoModule[] = [
     tags: ['transcricao', 'ditado', 'consulta', 'prontuario', 'ia', 'voz', 'audio'],
     iconBg: 'bg-[#FDE8E8] text-[#C53030]',
     hasIA: true
+  },
+  {
+    id: 'protto',
+    name: 'PROTTO',
+    description: 'Prontuário ORL IA',
+    icon: FileText,
+    url: import.meta.env.VITE_PROTTO_URL || 'https://otto-protto.vercel.app',
+    external: true,
+    profiles: ['medico'],
+    premium: true,
+    status: 'beta',
+    category: 'clinico',
+    tags: ['prontuario', 'triagem', 'orl', 'ia', 'protto', 'anamnese', 'deepseek', 'token'],
+    iconBg: 'bg-[#FDE8E8] text-[#B03060]',
+    hasIA: true,
   },
   {
     id: 'feedback',
