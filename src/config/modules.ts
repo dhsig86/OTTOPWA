@@ -16,7 +16,8 @@ import {
 
   MessageCircleQuestion,
   ScanText,
-  BookOpen
+  BookOpen,
+  Stethoscope
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -159,6 +160,20 @@ export const OTTO_MODULES: OttoModule[] = [
     tags: ['ocr', 'laudo', 'extrator', 'pdf', 'texto', 'imagem', 'relatorio'],
     iconBg: 'bg-[#CDF0E3] text-[#0A865F]',
     hasIA: true
+  },
+  {
+    id: 'aerodig',
+    name: 'Aerodigestive',
+    description: 'Hub de via aérea pediátrica',
+    icon: Stethoscope,
+    url: 'https://otto-aerodig.vercel.app/',
+    external: true,
+    profiles: ['medico', 'estudante', 'profissional'],
+    premium: false,
+    status: 'beta',
+    category: 'clinico',
+    tags: ['aerodigestivo', 'via-aerea', 'pediatrico', 'laringe', 'traqueia', 'esofago', 'deglutic', 'fees', 'vfss', 'monnier', 'rutter', 'subglotica', 'fenda', 'laringomalacia', 'eoe', 'traqueostomia', 'canula', 'shiley', 'bivona', 'biesalski', 'jackson'],
+    iconBg: 'bg-[#EFF6FB] text-[#0E7AB8]'
   },
   {
     id: 'logbook',
