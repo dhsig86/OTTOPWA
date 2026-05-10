@@ -22,7 +22,7 @@ const WAKE_ENDPOINTS: { url: string; label: string }[] = [
   },
   // ── Render ───────────────────────────────────────────────────────────────
   {
-    url: 'https://otto-protto-api.onrender.com/health',
+    url: 'https://otto-protto.onrender.com/health',
     label: 'OTTO PROTTO API',
   },
 
