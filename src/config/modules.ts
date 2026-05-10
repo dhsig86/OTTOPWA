@@ -329,7 +329,8 @@ export const OTTO_MODULES: OttoModule[] = [
     name: 'PROTTO',
     description: 'Prontuário ORL IA',
     icon: FileText,
-    url: import.meta.env.VITE_PROTTO_URL || 'https://otto-protto.vercel.app',
+    url: 'https://otto-protto.vercel.app',
+
     external: true,
     profiles: ['medico'],
     premium: true,
