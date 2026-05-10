@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PatientProvider } from './contexts/PatientContext';
@@ -22,6 +22,7 @@ const CompleteProfile   = lazy(() => import('./pages/CompleteProfile').then(m =>
 const NotFound          = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { WarmUpSplash } from './components/WarmUpSplash';
 
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full min-h-[40vh]">
@@ -38,9 +39,26 @@ const AuthRoute = ({ children }: { children: React.ReactNode }) => {
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading, profileCompleted } = useAuth();
+  // Mostra WarmUpSplash uma vez por sessão — dá tempo para Render/Heroku acordarem
+  const [warmUpDone, setWarmUpDone] = useState(() =>
+    sessionStorage.getItem('otto_warmup_done') === '1'
+  );
+
   if (isLoading) return <PageLoader />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!profileCompleted) return <Navigate to="/complete-profile" replace />;
+
+  if (!warmUpDone) {
+    return (
+      <WarmUpSplash
+        onReady={() => {
+          sessionStorage.setItem('otto_warmup_done', '1');
+          setWarmUpDone(true);
+        }}
+      />
+    );
+  }
+
   return <>{children}</>;
 };
 
