@@ -1,0 +1,92 @@
+name: 🔒 OTTO PWA — Security & Tests
+
+# ══════════════════════════════════════════════════════════════════════
+# Dispara APENAS quando arquivos do PWA mudam.
+# Schedule semanal (segunda 07h UTC) para audit de segurança automático.
+# ══════════════════════════════════════════════════════════════════════
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'api/**'
+      - 'public/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'api/**'
+  schedule:
+    - cron: '0 7 * * 1'   # toda segunda às 07h UTC (audita dependências semanalmente)
+  workflow_dispatch:        # botão manual no GitHub Actions UI
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────
+  # JOB 1: Build + Testes (vitest se configurado, senão apenas build)
+  # ──────────────────────────────────────────────────────────────────
+  build-and-test:
+    name: Build + Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 🏗️ Build de produção
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_TRIAGEM_URL: https://otto-ai-triagem-1fc48c3c292e.herokuapp.com
+
+      - name: 🧪 Rodar testes (se vitest configurado)
+        run: |
+          if grep -q '"test"' package.json; then
+            npm test -- --reporter=verbose
+          else
+            echo "⚠️  Nenhum script de test configurado. Adicionar vitest ao projeto."
+          fi
+
+  # ──────────────────────────────────────────────────────────────────
+  # JOB 2: Auditoria de segurança das dependências npm
+  # ──────────────────────────────────────────────────────────────────
+  security-audit:
+    name: 🔒 npm audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+
+      - name: Auditoria de vulnerabilidades (nível HIGH+)
+        run: npm audit --audit-level=high
+        # Falha o job se houver vulnerabilidade HIGH ou CRITICAL
+        # Para ver TODAS: npm audit --audit-level=low
+
+  # ──────────────────────────────────────────────────────────────────
+  # JOB 3: Verificação de rotas Vercel (vercel.json)
+  # ──────────────────────────────────────────────────────────────────
+  validate-config:
+    name: Validar vercel.json
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: ✅ JSON válido
+        run: python -c "import json, sys; json.load(open('vercel.json')); print('vercel.json OK')"
