@@ -140,7 +140,7 @@ export const WarmUpSplash: React.FC<WarmUpSplashProps> = ({ onReady }) => {
 
       {/* Título */}
       <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">
-        OTTO Ecossistema
+        HART's OTTO Ecosystem
       </h1>
       <p className="text-sm mb-8" style={{ color: 'rgba(29,158,117,0.8)' }}>
         Preparando módulos clínicos{dots}

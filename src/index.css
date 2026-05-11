@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", sans-serif;
-  --font-heading: "Outfit", sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-heading: "Sora", sans-serif;
   --color-otto-teal: #1D9E75;
   --color-otto-teal-dark: #0A865F;
   --color-otto-teal-darker: #056143;
@@ -18,12 +18,15 @@
 @layer base {
   body {
     font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
   }
   button, .font-heading {
-    font-family: var(--font-heading);
+    font-family: var(--font-sans);
   }
 }
