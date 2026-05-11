@@ -1,7 +1,7 @@
 {
-  "name": "HART'S OTTO",
+  "name": "HART's OTTOs ECOSYSTEM",
   "short_name": "OTTO",
-  "description": "Ecossistema digital unificado para ORL e CCP",
+  "description": "Plataforma clínica digital em ORL e CCP — triagem com IA, calculadoras validadas, Atlas diagnóstico, logbook cirúrgico e prontuário ORL.",
   "start_url": "/",
   "id": "/",
   "display": "standalone",
@@ -27,15 +27,10 @@
       "purpose": "maskable"
     }
   ],
+  "categories": ["medical", "productivity"],
   "screenshots": [
     {
       "src": "/screenshots/home.png",
-      "sizes": "1024x1024",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/screenshots/search.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "form_factor": "narrow"
