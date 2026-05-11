@@ -139,9 +139,19 @@ export const WarmUpSplash: React.FC<WarmUpSplashProps> = ({ onReady }) => {
       </div>
 
       {/* Título */}
-      <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">
-        HART's OTTO ECOSYSTEM
-      </h1>
+      <div className="text-center mb-1">
+        <span className="block text-xs font-light tracking-[0.35em] uppercase mb-1" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          HART's
+        </span>
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <div className="h-px w-8" style={{ background: 'rgba(29,158,117,0.5)' }} />
+          <span className="text-[10px] tracking-widest" style={{ color: 'rgba(29,158,117,0.6)' }}>✦</span>
+          <div className="h-px w-8" style={{ background: 'rgba(29,158,117,0.5)' }} />
+        </div>
+        <h1 className="text-2xl font-bold text-white tracking-tight">
+          OTTO ECOSYSTEM
+        </h1>
+      </div>
       <p className="text-sm mb-8" style={{ color: 'rgba(29,158,117,0.8)' }}>
         Preparando módulos clínicos{dots}
       </p>
