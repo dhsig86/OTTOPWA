@@ -19,7 +19,8 @@ import {
   Library,
   BookA,
   PenLine,
-  FileSignature
+  FileSignature,
+  FilePen
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -340,6 +341,21 @@ export const OTTO_MODULES: OttoModule[] = [
     category: 'clinico',
     tags: ['prontuario', 'triagem', 'orl', 'ia', 'protto', 'anamnese', 'deepseek', 'token'],
     iconBg: 'bg-[#FDE8E8] text-[#B03060]',
+    hasIA: true,
+  },
+  {
+    id: 'autolaudo',
+    name: 'AUTOLAUDO',
+    description: 'Laudos por IA e Voz',
+    icon: FilePen,
+    url: 'https://otto-laudo-ia.vercel.app',
+    external: true,
+    profiles: ['medico'],
+    premium: true,
+    status: 'beta',
+    category: 'clinico',
+    tags: ['laudo', 'voz', 'videolaringoscopia', 'endoscopia', 'nasal', 'ia', 'ditado', 'otorrino'],
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
     hasIA: true,
   },
   {
