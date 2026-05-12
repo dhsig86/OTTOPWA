@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePatient } from '../contexts/PatientContext';
 import { OTTO_MODULES } from '../config/modules';
+import { trackModuleOpened } from '../lib/analytics';
 
 export const ModuleFrame: React.FC = () => {
   const location = useLocation();
@@ -50,6 +51,16 @@ export const ModuleFrame: React.FC = () => {
       payload: { userId, userName, profile, patientId, doctorId, firebaseToken: token }
     };
     iframeRef.current?.contentWindow?.postMessage(payload, getSafeOrigin());
+
+    // Check for pending text injection
+    const pendingText = sessionStorage.getItem('otto_pending_injection');
+    if (pendingText) {
+      iframeRef.current?.contentWindow?.postMessage({
+        type: 'otto-receive-injection',
+        text: pendingText
+      }, getSafeOrigin());
+      sessionStorage.removeItem('otto_pending_injection');
+    }
   };
 
   // Responde ao módulo quando ele pede renovação de token (401 recovery)
@@ -70,19 +81,39 @@ export const ModuleFrame: React.FC = () => {
 
   // Navega para outro módulo quando um iframe filho solicita via postMessage
   useEffect(() => {
-    const handleNavigate = (event: MessageEvent) => {
-      if (event.data?.type !== 'otto-navigate') return;
-      const url = event.data?.url;
-      if (typeof url === 'string' && url.startsWith('http')) {
-        navigate('/modules/webview', { state: { url } });
+    const handleMessage = (event: MessageEvent) => {
+      // 1. Navegação Simples
+      if (event.data?.type === 'otto-navigate') {
+        const url = event.data?.url;
+        if (typeof url === 'string' && url.startsWith('http')) {
+          navigate('/modules/webview', { state: { url } });
+        }
+      } 
+      // 2. Injeção de Texto no PROTTO (WHISPER -> PWA -> PROTTO)
+      else if (event.data?.type === 'otto-inject-protto') {
+        const text = event.data?.text;
+        if (text) {
+          sessionStorage.setItem('otto_pending_injection', text);
+          const prottoUrl = OTTO_MODULES.find(m => m.id === 'protto')?.url;
+          if (prottoUrl) {
+            navigate('/modules/webview', { state: { url: prottoUrl } });
+          }
+        }
       }
     };
-    window.addEventListener('message', handleNavigate);
-    return () => window.removeEventListener('message', handleNavigate);
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, [navigate]);
 
   const handleIframeLoad = () => {
     setIsLoading(false);
+
+    // PRODUCT-01: Registra abertura de módulo para análise de engajamento
+    const moduleInfo = OTTO_MODULES.find(m => m.url === targetUrl);
+    if (moduleInfo) {
+      trackModuleOpened(moduleInfo.id, moduleInfo.name, profile ?? null);
+    }
+
     // Reenviamos o contexto até 3 vezes com intervalo de 2s.
     // Isso garante que o Cases receba mesmo que a SPA ainda não tenha montado
     // o addEventListener('message') no momento exato do onLoad.

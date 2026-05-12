@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { trackSubscriptionUpgraded } from '../../lib/analytics';
 
 export const PremiumPage: React.FC = () => {
   const navigate = useNavigate();
@@ -38,6 +39,8 @@ export const PremiumPage: React.FC = () => {
         }, { merge: true });
         
         updatePremiumStatus(true, selectedPlan.id);
+        // PRODUCT-01: Conversão free → premium — métrica crítica para investors
+        trackSubscriptionUpgraded(selectedPlan.id, selectedPlan.rawPrice);
         setShowSuccess(true);
         setTimeout(() => {
           navigate(-1);

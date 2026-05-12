@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useServiceWarmUp } from '../hooks/useServiceWarmUp';
+import { trackProfileFilterChanged } from '../lib/analytics';
 
 export const Home: React.FC = () => {
   useServiceWarmUp();
@@ -116,22 +117,25 @@ export const Home: React.FC = () => {
       {/* Filtros em Pílulas */}
       <div className="flex justify-center items-center px-4 py-4 border-b border-gray-100 bg-white">
         <div className="flex bg-white w-full rounded-full gap-2">
-          {(['medico', 'estudante', 'paciente'] as const).map((f) => (
+          {(['medico', 'estudante', 'profissional', 'paciente'] as const).map((f) => (
             <button
               key={f}
-              onClick={() => setActiveFilter(f)}
-              className={`flex-1 py-1.5 px-2 rounded-full text-sm font-bold transition-all ${
+              onClick={() => { setActiveFilter(f); trackProfileFilterChanged(f); }}
+              className={`flex-1 py-1.5 px-1 rounded-full text-xs font-bold transition-all ${
                 activeFilter === f
-                  ? f === 'medico' 
+                  ? f === 'medico'
                       ? 'bg-[#E1F7EE] text-[#1D9E75] ring-1 ring-[#1D9E75]/20'
                       : f === 'estudante'
                       ? 'bg-[#E6EDFB] text-[#4068B2] ring-1 ring-[#4068B2]/20'
+                      : f === 'profissional'
+                      ? 'bg-[#FFF4E6] text-[#D97706] ring-1 ring-[#D97706]/20'
                       : 'bg-[#F2EFFC] text-[#6A47C9] ring-1 ring-[#6A47C9]/20'
                   : 'bg-transparent text-gray-400 hover:bg-gray-50'
               }`}
             >
-              {f === 'medico' ? 'Médico' : 
-               f === 'estudante' ? 'Estudante' : 'Paciente'}
+              {f === 'medico' ? 'Médico' :
+               f === 'estudante' ? 'Estudante' :
+               f === 'profissional' ? 'Profis.' : 'Paciente'}
             </button>
           ))}
         </div>

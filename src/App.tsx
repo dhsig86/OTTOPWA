@@ -20,6 +20,7 @@ const Onboarding        = lazy(() => import('./pages/Onboarding').then(m => ({ d
 const Profile           = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
 const CompleteProfile   = lazy(() => import('./pages/CompleteProfile').then(m => ({ default: m.CompleteProfile })));
 const NotFound          = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+const PremiumPage       = lazy(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { WarmUpSplash } from './components/WarmUpSplash';
@@ -87,7 +88,7 @@ function AppRoutes() {
         <Route path="modules/periop" element={<PeriOp />} />
 
         <Route path="modules/info" element={<InfoPage />} />
-        <Route path="modules/premium" element={<Navigate to="/" replace />} />
+        <Route path="modules/premium" element={<PremiumPage />} />  {/* BUG-04: conectado — não mais redirect silencioso */}
         
         <Route path="*" element={<NotFound />} />
       </Route>

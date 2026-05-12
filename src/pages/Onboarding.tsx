@@ -8,6 +8,7 @@ import {
   MessageSquare, Zap, ShieldCheck, Star
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { trackOnboardingCompleted } from '../lib/analytics';
 
 export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ export const Onboarding: React.FC = () => {
   const finishOnboarding = async (action: 'free' | 'premium') => {
     // Persist to Firestore + localStorage so new browsers don't repeat onboarding
     await markOnboardingCompleted();
+    // PRODUCT-01: Métrica de ativação — qual perfil completou o onboarding
+    trackOnboardingCompleted(tempProfile, action === 'premium');
     if (action === 'premium') {
       navigate('/modules/premium');
     } else {
@@ -265,12 +268,4 @@ export const Onboarding: React.FC = () => {
 
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <AnimatePresence mode="wait">
-          {step === 1 && renderStep1()}
-          {step === 2 && renderStep2()}
-          {step === 3 && renderStep3()}
-          {step === 4 && renderStep4()}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-};
+          {s
