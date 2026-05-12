@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react';
  *  - fired.current garante que só rode UMA vez por sessão
  */
 
-const WAKE_ENDPOINTS: { url: string; label: string }[] = [
+export const WAKE_ENDPOINTS: { url: string; label: string }[] = [
   // ── Heroku ───────────────────────────────────────────────────────────────
   {
     url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/health',
@@ -25,7 +25,6 @@ const WAKE_ENDPOINTS: { url: string; label: string }[] = [
     url: 'https://otto-protto.onrender.com/health',
     label: 'OTTO PROTTO API',
   },
-
   {
     url: 'https://otto-ocr-api.onrender.com/health',
     label: 'OTTO OCR',
@@ -37,24 +36,29 @@ const WAKE_ENDPOINTS: { url: string; label: string }[] = [
   },
 ];
 
+/** Dispara pings fire-and-forget em todos os backends. Seguro para chamar a qualquer momento. */
+export function fireWarmUpPings(): void {
+  const controller = (timeout: number) => {
+    if (typeof AbortSignal?.timeout === 'function') {
+      return { signal: AbortSignal.timeout(timeout) };
+    }
+    return {};
+  };
+
+  WAKE_ENDPOINTS.forEach(({ url, label }) => {
+    fetch(url, { method: 'GET', ...controller(30_000) })
+      .then(() => console.debug(`[WarmUp] ✓ ${label}`))
+      .catch(() => console.debug(`[WarmUp] ⚠ ${label} ainda dormindo`));
+  });
+}
+
+/** Hook React — garante que o warm-up rode apenas UMA vez por sessão (via WarmUpSplash). */
 export function useServiceWarmUp() {
   const fired = useRef(false);
 
   useEffect(() => {
     if (fired.current) return;
     fired.current = true;
-
-    const controller = (timeout: number) => {
-      if (typeof AbortSignal?.timeout === 'function') {
-        return { signal: AbortSignal.timeout(timeout) };
-      }
-      return {};
-    };
-
-    WAKE_ENDPOINTS.forEach(({ url, label }) => {
-      fetch(url, { method: 'GET', ...controller(30_000) })
-        .then(() => console.debug(`[WarmUp] ✓ ${label}`))
-        .catch(() => console.debug(`[WarmUp] ⚠ ${label} ainda dormindo`));
-    });
+    fireWarmUpPings();
   }, []);
 }

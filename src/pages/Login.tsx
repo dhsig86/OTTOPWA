@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { fireWarmUpPings } from '../hooks/useServiceWarmUp';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -72,6 +73,7 @@ export const Login: React.FC = () => {
       // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
       // antes de navegar — evita race condition que redirecionava para /complete-profile
       await login(user.uid, user.email || 'Usuário', selectedProfile, token);
+      fireWarmUpPings(); // acorda backends enquanto navega
       navigate('/');
     } catch (error: any) {
       console.error('Email auth error:', error);
@@ -117,6 +119,7 @@ export const Login: React.FC = () => {
       // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
       // antes de navegar — evita race condition que redirecionava para /complete-profile
       await login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
+      fireWarmUpPings(); // acorda backends enquanto navega
       navigate('/');
     } catch (error: any) {
       console.error('Google login error:', error);
