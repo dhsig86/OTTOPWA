@@ -268,4 +268,12 @@ export const Onboarding: React.FC = () => {
 
       <div className="flex-1 overflow-y-auto px-6 py-8">
         <AnimatePresence mode="wait">
-          {s
+          {step === 1 && renderStep1()}
+          {step === 2 && renderStep2()}
+          {step === 3 && renderStep3()}
+          {step === 4 && renderStep4()}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+};
