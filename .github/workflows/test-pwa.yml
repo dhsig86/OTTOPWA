@@ -19,7 +19,7 @@ on:
       - 'api/**'
   schedule:
     - cron: '0 7 * * 1'   # toda segunda às 07h UTC (audita dependências semanalmente)
-  workflow_dispatch:        # botão manual no GitHub Actions UI
+  workflow_dispatch: {}     # botão manual no GitHub Actions UI
 
 jobs:
   # ──────────────────────────────────────────────────────────────────
