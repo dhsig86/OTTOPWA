@@ -105,6 +105,14 @@ export const ZumbidoTherapy: React.FC = () => {
           </button>
         </div>
 
+        <div className="pt-4 border-t border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2">Exemplo Clínico: Zumbido a 7500 Hz</h3>
+          <audio controls className="w-full h-10" preload="metadata">
+            <source src="/tinnitus-7500hz.mp4" type="video/mp4" />
+            Seu navegador não suporta o elemento de áudio.
+          </audio>
+        </div>
+
         <button 
           onClick={() => navigate(-1)}
           className="mt-6 px-6 py-3 border border-gray-200 text-gray-600 font-medium rounded-lg hover:bg-gray-50 active:scale-95 transition-all w-full"
