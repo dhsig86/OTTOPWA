@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePatient } from '../contexts/PatientContext';
 import { OTTO_MODULES } from '../config/modules';
 import { trackModuleOpened } from '../lib/analytics';
+import { ModuleSplash } from './ModuleSplash';
+import { AnimatePresence } from 'framer-motion';
 
 export const ModuleFrame: React.FC = () => {
   const location = useLocation();
@@ -135,12 +137,15 @@ export const ModuleFrame: React.FC = () => {
         </button>
       </header>
       <div className="flex-1 w-full bg-gray-50 relative flex flex-col items-center justify-center">
-        {isLoading && !showFallback && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 z-20">
-            <Loader2 className="w-8 h-8 text-[#1D9E75] animate-spin mb-4" />
-            <p className="text-sm text-gray-500 font-medium tracking-wide">Conectando módulo...</p>
-          </div>
-        )}
+        <AnimatePresence>
+          {isLoading && !showFallback && (
+            <ModuleSplash 
+              key="splash"
+              moduleId={OTTO_MODULES.find(m => m.url === targetUrl)?.id} 
+              moduleName={OTTO_MODULES.find(m => m.url === targetUrl)?.name} 
+            />
+          )}
+        </AnimatePresence>
         {showFallback && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50 z-0 p-6 text-center space-y-4">
             <p className="text-sm text-gray-500 font-medium max-w-xs">
