@@ -9,7 +9,6 @@ const Home           = lazy(() => import('./pages/Home').then(m => ({ default: m
 const Login          = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
 const ModuleFrame    = lazy(() => import('./components/ModuleFrame').then(m => ({ default: m.ModuleFrame })));
 const VideoChannels  = lazy(() => import('./pages/modules/VideoChannels').then(m => ({ default: m.VideoChannels })));
-const ZumbidoTherapy = lazy(() => import('./pages/modules/ZumbidoTherapy').then(m => ({ default: m.ZumbidoTherapy })));
 const Feedback       = lazy(() => import('./pages/modules/Feedback').then(m => ({ default: m.Feedback })));
 const PeriOp         = lazy(() => import('./pages/modules/PeriOp').then(m => ({ default: m.PeriOp })));
 
@@ -83,7 +82,6 @@ function AppRoutes() {
         {/* Dynamic & Mock Modules */}
         <Route path="modules/webview" element={<ModuleFrame />} />
         <Route path="modules/videos" element={<VideoChannels />} />
-        <Route path="modules/zumbido" element={<ZumbidoTherapy />} />
         <Route path="modules/feedback" element={<Feedback />} />
         <Route path="modules/periop" element={<PeriOp />} />
 
