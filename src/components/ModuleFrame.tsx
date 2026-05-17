@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { usePatient } from '../contexts/PatientContext';
 import { OTTO_MODULES } from '../config/modules';

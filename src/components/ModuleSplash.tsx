@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Brain, ScanSearch, Tags, Aperture, ClipboardList, Ear, Calculator, Syringe,
-  ScanText, Wind, ClipboardSignature, Activity, GraduationCap, AudioWaveform,
-  MonitorPlay, AudioLines, FolderHeart, Library, BookA, PenLine, FileSignature,
-  FilePen, MessageCircleQuestion, Gamepad2, Loader2, HeartPulse
+  Brain, Aperture, ClipboardList, Ear,
+  ScanText, Wind, ClipboardSignature,
+  PenLine, FolderHeart, BookA, FileSignature,
+  FilePen, Gamepad2, Loader2, HeartPulse
 } from 'lucide-react';
 
 interface ModuleSplashProps {
