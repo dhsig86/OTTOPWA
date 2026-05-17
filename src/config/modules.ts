@@ -21,7 +21,8 @@ import {
   PenLine,
   FileSignature,
   FilePen,
-  Ear
+  Ear,
+  Gamepad2
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -225,6 +226,20 @@ export const OTTO_MODULES: OttoModule[] = [
   },
 
   // EDUCAÇÃO E PACIENTES (educacao_paciente)
+  {
+    id: 'games',
+    name: 'OTTO Games',
+    description: 'Jogos da Saúde',
+    icon: Gamepad2,
+    url: 'https://otto-games.vercel.app/',
+    external: true,
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    premium: false,
+    status: 'live',
+    category: 'educacao_paciente',
+    tags: ['jogo', 'game', 'crianca', 'pediatria', 'pos-operatorio', 'amigdala', 'divertido'],
+    iconBg: 'bg-[#E1F7FC] text-[#0284C7]'
+  },
   {
     id: 'ottotests',
     name: 'OTTO Acadêmico',
