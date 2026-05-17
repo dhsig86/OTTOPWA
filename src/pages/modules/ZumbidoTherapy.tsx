@@ -1,125 +1,60 @@
-import React from 'react';
-import { Volume2, Play, Square, Headphones, Activity } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useZumbidoAudioEngine } from '../../hooks/useZumbidoAudioEngine';
-import { AudioVisualizer } from '../../components/AudioVisualizer';
+import { useState } from 'react';
+import { Activity, Radio, Headphones, Info } from 'lucide-react';
+import { WarningModal } from '../../components/zumbido/WarningModal';
+import { TinnitusSynthesizer } from '../../components/zumbido/TinnitusSynthesizer';
+import { SoundTherapy } from '../../components/zumbido/SoundTherapy';
 import './ZumbidoTherapy.css';
 
 export const ZumbidoTherapy: React.FC = () => {
-  const navigate = useNavigate();
-  const {
-    isPlaying,
-    frequency,
-    setFrequency,
-    volume,
-    setVolume,
-    mode,
-    setMode,
-    togglePlay,
-    analyserRef,
-  } = useZumbidoAudioEngine();
-
-  const handleFreqChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFrequency(Number(e.target.value));
-  };
-
-  const adjustFreq = (delta: number) => {
-    setFrequency((prev) => Math.min(12000, Math.max(150, prev + delta)));
-  };
+  const [activeTab, setActiveTab] = useState<'synth' | 'therapy'>('synth');
+  const [showWarning, setShowWarning] = useState(true);
 
   return (
-    <div className="p-4 pb-24 space-y-6 max-w-lg mx-auto">
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 space-y-6">
-        
-        <div className="flex items-start gap-3 bg-[#E1F7EE] border-l-4 border-[#1D9E75] p-4 rounded-lg">
-          <Headphones className="text-[#1D9E75] flex-shrink-0 mt-1" size={24} />
-          <div className="text-sm text-gray-700 leading-relaxed">
-            <strong className="text-[#1D9E75] block mb-1">Atenção:</strong> 
-            Sugere-se o uso com fones de ouvido. O volume global está limitado por segurança (Diretrizes OMS: máx 60%). Mantenha no nível mais baixo em que o zumbido seja mascarado.
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans pb-24">
+      {/* Header Nativo PWA (Opcional, já temos o AppBar do PWA, mas mantemos o titulo da aba) */}
+      <div className="px-4 py-4 flex items-center justify-between bg-white border-b border-slate-200">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-[#E1F7EE] rounded-xl flex items-center justify-center p-2">
+            <Activity className="w-6 h-6 text-[#1D9E75]" />
+          </div>
+          <div>
+            <h1 className="text-xl font-extrabold tracking-tight leading-tight text-slate-800">OTTO Zumbido</h1>
+            <p className="text-[#1D9E75] text-xs font-bold">Terapia Sonora & Sintetizador</p>
           </div>
         </div>
-
-        <div className="flex gap-2">
-          <button 
-            className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg text-sm transition-colors border ${mode === 'pure-tone' ? 'bg-[#1D9E75] text-white border-[#1D9E75] font-semibold' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
-            onClick={() => setMode('pure-tone')}
-          >
-            <Activity size={18} /> Pareamento
-          </button>
-          <button 
-            className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg text-sm transition-colors border ${mode === 'notch-noise' ? 'bg-[#1D9E75] text-white border-[#1D9E75] font-semibold' : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
-            onClick={() => setMode('notch-noise')}
-          >
-            <Activity size={18} /> Terapia (Notch)
-          </button>
-        </div>
-
-        <AudioVisualizer analyserRef={analyserRef} isPlaying={isPlaying} />
-
-        <div className="text-center">
-          <h2 className="text-4xl font-light text-gray-800">{Math.round(frequency)} Hz</h2>
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Frequência Alvo (Blind Spot)</span>
-        </div>
-
-        <div className="space-y-4">
-          <input 
-            type="range" 
-            min="150" 
-            max="12000" 
-            step="1" 
-            value={frequency} 
-            onChange={handleFreqChange}
-            className="zumbido-range"
-          />
-          <div className="flex justify-center gap-2">
-            <button onClick={() => adjustFreq(-10)} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-full text-xs text-gray-600 hover:border-[#1D9E75] hover:text-[#1D9E75] transition-colors">-10 Hz</button>
-            <button onClick={() => adjustFreq(-1)} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-full text-xs text-gray-600 hover:border-[#1D9E75] hover:text-[#1D9E75] transition-colors">-1 Hz</button>
-            <button onClick={() => adjustFreq(1)} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-full text-xs text-gray-600 hover:border-[#1D9E75] hover:text-[#1D9E75] transition-colors">+1 Hz</button>
-            <button onClick={() => adjustFreq(10)} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-full text-xs text-gray-600 hover:border-[#1D9E75] hover:text-[#1D9E75] transition-colors">+10 Hz</button>
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-3 w-1/2">
-            <Volume2 size={20} className="text-gray-400" />
-            <input 
-              type="range" 
-              min="0" 
-              max="1" 
-              step="0.01" 
-              value={volume} 
-              onChange={(e) => setVolume(Number(e.target.value))}
-              className="zumbido-range"
-            />
-          </div>
-
-          <button 
-            onClick={togglePlay}
-            className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all shadow-md active:scale-95 ${isPlaying ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30' : 'bg-[#1D9E75] hover:bg-[#16805E] shadow-[#1D9E75]/30'}`}
-          >
-            {isPlaying ? (
-              <><Square fill="currentColor" size={18} /> Parar</>
-            ) : (
-              <><Play fill="currentColor" size={18} /> Iniciar</>
-            )}
-          </button>
-        </div>
-
-        <div className="pt-4 border-t border-gray-100">
-          <h3 className="text-sm font-semibold text-gray-700 mb-2">Exemplo Clínico: Zumbido a 7500 Hz</h3>
-          <audio controls className="w-full h-10" preload="metadata">
-            <source src="/tinnitus-7500hz.mp4" type="video/mp4" />
-            Seu navegador não suporta o elemento de áudio.
-          </audio>
-        </div>
-
-        <button 
-          onClick={() => navigate(-1)}
-          className="mt-6 px-6 py-3 border border-gray-200 text-gray-600 font-medium rounded-lg hover:bg-gray-50 active:scale-95 transition-all w-full"
-        >
-          Voltar
+        <button onClick={() => setShowWarning(true)} className="p-2 text-slate-400 hover:text-[#1D9E75] transition-colors bg-slate-50 rounded-full" title="Informações de Segurança">
+          <Info className="w-6 h-6" />
         </button>
       </div>
+
+      {/* Main Content */}
+      <main className="flex-1 w-full max-w-lg mx-auto p-4 md:p-6 animate-in fade-in duration-500">
+        {activeTab === 'synth' && <TinnitusSynthesizer />}
+        {activeTab === 'therapy' && <SoundTherapy />}
+      </main>
+
+      {/* Bottom Navigation Específico do Módulo */}
+      <nav className="fixed bottom-[60px] left-0 w-full bg-white border-t border-slate-200 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] z-20 pb-safe">
+        <div className="max-w-lg mx-auto flex">
+          <button 
+            onClick={() => setActiveTab('synth')}
+            className={`flex-1 py-3 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'synth' ? 'text-[#1D9E75]' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            <Radio className={`w-6 h-6 ${activeTab === 'synth' ? 'fill-[#E1F7EE]' : ''}`} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Sintetizador</span>
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab('therapy')}
+            className={`flex-1 py-3 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'therapy' ? 'text-[#1D9E75]' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            <Headphones className={`w-6 h-6 ${activeTab === 'therapy' ? 'fill-[#E1F7EE]' : ''}`} />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Terapia Sonora</span>
+          </button>
+        </div>
+      </nav>
+
+      {showWarning && <WarningModal onClose={() => setShowWarning(false)} />}
     </div>
   );
 };
