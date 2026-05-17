@@ -20,7 +20,8 @@ import {
   BookA,
   PenLine,
   FileSignature,
-  FilePen
+  FilePen,
+  Ear
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -118,6 +119,20 @@ export const OTTO_MODULES: OttoModule[] = [
     tags: ['triagem', 'admissao', 'protocolo', 'ia', 'anamnese', 'cdss'],
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]',
     hasIA: true
+  },
+  {
+    id: 'check',
+    name: 'OTTO Check',
+    description: 'Triagem Auditiva Web',
+    url: 'https://otto-check.vercel.app/',
+    icon: Ear,
+    external: true,
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    premium: false,
+    status: 'beta',
+    category: 'clinico',
+    tags: ['triagem', 'audiometria', 'zumbido', 'tinnitus', 'teste', 'audicao', 'som'],
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
   },
 
 
