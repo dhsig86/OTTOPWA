@@ -172,11 +172,11 @@ export const ModuleSplash: React.FC<ModuleSplashProps> = ({ moduleId = '', modul
   const Icon = config.icon;
   const displayTitle = moduleName ? `Iniciando ${moduleName}...` : config.title;
 
-  // Carrossel de dicas: Muda a cada 4 segundos
+  // Carrossel de dicas: Muda a cada 7 segundos (tempo para leitura confortável)
   useEffect(() => {
     const interval = setInterval(() => {
       setTipIndex((prev) => (prev + 1) % config.tips.length);
-    }, 4000);
+    }, 7000);
     return () => clearInterval(interval);
   }, [config.tips.length]);
 
@@ -211,8 +211,8 @@ export const ModuleSplash: React.FC<ModuleSplashProps> = ({ moduleId = '', modul
         {displayTitle}
       </h2>
       
-      {/* Container fixo para as dicas para não pular layout */}
-      <div className="h-20 w-full max-w-sm relative mt-4">
+      {/* Container fixo para as dicas — h-28 para textos longos */}
+      <div className="h-28 w-full max-w-sm relative mt-4">
         <AnimatePresence mode="wait">
           <motion.p
             key={tipIndex}

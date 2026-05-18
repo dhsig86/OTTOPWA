@@ -16,6 +16,11 @@ export const ModuleFrame: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [showFallback, setShowFallback] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [splashMinDone, setSplashMinDone] = useState(false); // tempo mínimo de leitura
+  const iframeLoadedRef = useRef(false);
+
+  // Tempo mínimo garantido de exibição do splash (ms)
+  const MIN_SPLASH_MS = 8000;
   
   const state = location.state as { url?: string };
   const targetUrl = state?.url;
@@ -30,8 +35,17 @@ export const ModuleFrame: React.FC = () => {
       return;
     }
 
+    // Fallback de segurança após 12s
     const timer = setTimeout(() => setShowFallback(true), 12000);
-    return () => clearTimeout(timer);
+
+    // Tempo mínimo de splash: só libera após MIN_SPLASH_MS
+    const minTimer = setTimeout(() => {
+      setSplashMinDone(true);
+      // Se o iframe já tinha carregado, fecha o splash agora
+      if (iframeLoadedRef.current) setIsLoading(false);
+    }, MIN_SPLASH_MS);
+
+    return () => { clearTimeout(timer); clearTimeout(minTimer); };
   }, [targetUrl, navigate]);
 
   if (!targetUrl) {
@@ -108,9 +122,16 @@ export const ModuleFrame: React.FC = () => {
   }, [navigate]);
 
   const handleIframeLoad = () => {
-    setIsLoading(false);
+    iframeLoadedRef.current = true; // marca que o iframe já carregou
+
+    // Só fecha o splash se o tempo mínimo já passou
+    // Caso contrário, o minTimer vai fechar quando expirar
+    if (splashMinDone) {
+      setIsLoading(false);
+    }
 
     // PRODUCT-01: Registra abertura de módulo para análise de engajamento
+
     const moduleInfo = OTTO_MODULES.find(m => m.url === targetUrl);
     if (moduleInfo) {
       trackModuleOpened(moduleInfo.id, moduleInfo.name, profile ?? null);
