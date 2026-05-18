@@ -259,7 +259,7 @@ export const OTTO_MODULES: OttoModule[] = [
     name: 'Zumbido',
     description: 'Terapia sonora',
     icon: AudioWaveform,
-    url: 'https://otto-check.vercel.app/?tool=therapy',
+    url: 'https://otto-check.vercel.app/?tool=zumbido',
     external: true,
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
