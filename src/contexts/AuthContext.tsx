@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { onIdTokenChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { onIdTokenChanged, signOut as firebaseSignOut, deleteUser } from 'firebase/auth';
+import { doc, setDoc, getDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
 type UserProfile = 'medico' | 'estudante' | 'profissional' | 'paciente' | null;
@@ -8,6 +8,8 @@ type UserProfile = 'medico' | 'estudante' | 'profissional' | 'paciente' | null;
 interface AuthContextType {
   userId: string | null;
   userName: string | null;
+  userEmail: string | null;
+  createdAt: string | null;
   profile: UserProfile;
   isPremium: boolean;
   subscriptionPlan: string | null;
@@ -18,6 +20,7 @@ interface AuthContextType {
   onboardingCompleted: boolean;
   login: (id: string, userName: string, profileType: UserProfile, token: string) => Promise<void>;
   logout: () => void;
+  deleteAccount: () => Promise<void>;
   updatePremiumStatus: (isPremium: boolean, plan: string) => void;
   markProfileCompleted: (name: string, profileType: UserProfile) => void;
   markOnboardingCompleted: () => Promise<void>;
@@ -34,6 +37,8 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [userId, setUserId]                     = useState<string | null>(null);
   const [userName, setUserName]                 = useState<string | null>(null);
+  const [userEmail, setUserEmail]               = useState<string | null>(null);
+  const [createdAt, setCreatedAt]               = useState<string | null>(null);
   const [profile, setProfile]                   = useState<UserProfile>(null);
   const [isPremium, setIsPremium]               = useState<boolean>(false);
   const [subscriptionPlan, setSubscriptionPlan] = useState<string | null>(null);
@@ -53,6 +58,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (user) {
         const token = await user.getIdToken();
         setFirebaseToken(token);
+        setUserEmail(user.email || null);
+        setCreatedAt(user.metadata.creationTime || null);
 
         try {
           const snap = await getDoc(doc(db, 'users', user.uid));
@@ -93,6 +100,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setFirebaseToken(null);
         setUserId(null);
         setUserName(null);
+        setUserEmail(null);
+        setCreatedAt(null);
         setProfile(null);
         setIsPremium(false);
         setSubscriptionPlan(null);
@@ -139,6 +148,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await firebaseSignOut(auth);
     setUserId(null);
     setUserName(null);
+    setUserEmail(null);
+    setCreatedAt(null);
     setProfile(null);
     setFirebaseToken(null);
     setIsPremium(false);
@@ -150,6 +161,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('otto_profile');
     // NOTE: intentionally keep otto_profile_completed and otto_onboarding_completed
     // so re-login with the same Google account skips these steps immediately
+  };
+
+  // ─── deleteAccount() ────────────────────────────────────────────────────────
+  const deleteAccount = async () => {
+    if (!userId) return;
+    try {
+      // 1. Deleta documento Firestore
+      await deleteDoc(doc(db, 'users', userId));
+      // 2. Deleta conta Firebase Auth
+      const user = auth.currentUser;
+      if (user) await deleteUser(user);
+      // 3. Limpa estado local
+      logout();
+      localStorage.removeItem('otto_profile_completed');
+      localStorage.removeItem('otto_onboarding_completed');
+    } catch (e: any) {
+      // Se requer re-autenticação, propaga o erro
+      console.error('deleteAccount error:', e);
+      throw e;
+    }
   };
 
   // ─── markProfileCompleted() ─────────────────────────────────────────────────
@@ -190,6 +221,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       isLoading,
       userId,
       userName,
+      userEmail,
+      createdAt,
       profile,
       firebaseToken,
       isPremium,
@@ -198,6 +231,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       onboardingCompleted,
       login,
       logout,
+      deleteAccount,
       updatePremiumStatus,
       markProfileCompleted,
       markOnboardingCompleted,

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { ChevronDown, User, Mail, Phone, MapPin, Calendar, Stethoscope } from 'lucide-react';
@@ -70,6 +70,38 @@ export const CompleteProfile: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Carrega dados existentes do Firestore (para quando for "Editar Cadastro")
+  useEffect(() => {
+    if (!userId) return;
+    const loadProfile = async () => {
+      try {
+        const snap = await getDoc(doc(db, 'users', userId));
+        if (snap.exists()) {
+          const d = snap.data();
+          setForm(prev => ({
+            ...prev,
+            nomeCompleto: d.displayName || prev.nomeCompleto,
+            email: d.email || prev.email,
+            telefone: d.telefone || prev.telefone,
+            estado: d.estado || prev.estado,
+            cidade: d.cidade || prev.cidade,
+            sexo: d.sexo || prev.sexo,
+            dataNascimento: d.dataNascimento || prev.dataNascimento,
+            tipoUsuario: d.profile || prev.tipoUsuario,
+            crm: d.crm || prev.crm,
+            crmUF: d.crmUF || prev.crmUF,
+            conselho: d.conselho || prev.conselho,
+            registroNumero: d.registroNumero || prev.registroNumero,
+            registroUF: d.registroUF || prev.registroUF,
+          }));
+        }
+      } catch (err) {
+        console.warn('Erro ao carregar dados do Firestore:', err);
+      }
+    };
+    loadProfile();
+  }, [userId]);
 
   const set = (field: keyof FormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Pencil, MapPin, Phone, Stethoscope, BadgeCheck } from 'lucide-react';
+import { LogOut, Pencil, MapPin, Phone, Stethoscope, BadgeCheck, Mail, Calendar, ShieldCheck, Download, Trash2, User } from 'lucide-react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import packageJson from '../../package.json';
 
 interface ProfileData {
   cidade?: string;
@@ -19,10 +20,11 @@ interface ProfileData {
 }
 
 export const Profile: React.FC = () => {
-  const { userId, userName, profile, isPremium, logout } = useAuth();
+  const { userId, userName, userEmail, createdAt, profile, isPremium, subscriptionPlan, logout, deleteAccount } = useAuth();
   const navigate = useNavigate();
   const [confirmingLogout, setConfirmingLogout] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [extra, setExtra] = useState<ProfileData>({});
 
   // Load extended profile data from Firestore
@@ -36,11 +38,48 @@ export const Profile: React.FC = () => {
   const handleLogout = () => {
     setConfirmingLogout(false);
     setLoggingOut(true);
-    // Navega para login e faz logout após a animação "Até logo" terminar
     setTimeout(() => {
       logout();
       navigate('/login');
     }, 1800);
+  };
+
+  const handleDownloadData = () => {
+    const dataToExport = {
+      userAuth: {
+        uid: userId,
+        name: userName,
+        email: userEmail,
+        createdAt: createdAt,
+        profile: profile,
+        isPremium: isPremium,
+        plan: subscriptionPlan
+      },
+      userProfile: extra,
+      exportedAt: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `otto_dados_${userName?.replace(/\s+/g, '_').toLowerCase() || 'usuario'}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setConfirmingDelete(false);
+      setLoggingOut(true); // Reusa a tela de saída
+      await deleteAccount();
+      setTimeout(() => navigate('/login'), 1800);
+    } catch (err: any) {
+      setLoggingOut(false);
+      alert('Não foi possível excluir a conta. Para sua segurança, faça logout, faça login novamente e tente excluir a conta em seguida.');
+    }
   };
 
   const getInitials = (name: string) => {
@@ -133,14 +172,95 @@ export const Profile: React.FC = () => {
           )}
         </div>
 
+        {/* Seção: Minha Conta */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider px-2 flex items-center gap-1.5">
+            <User size={12} />
+            Minha Conta
+          </h3>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50 overflow-hidden">
+            {userEmail && (
+              <div className="flex items-center gap-3 px-4 py-3">
+                <Mail size={15} className="text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-700 truncate">{userEmail}</span>
+              </div>
+            )}
+            {createdAt && (
+              <div className="flex items-center gap-3 px-4 py-3">
+                <Calendar size={15} className="text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-700">
+                  Membro desde {new Date(createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center gap-3 px-4 py-3">
+              <BadgeCheck size={15} className={isPremium ? 'text-[#EF9F27]' : 'text-gray-400'} shrink-0 />
+              <div className="flex flex-col">
+                <span className="text-sm text-gray-700">
+                  Plano: <span className="font-semibold">{isPremium ? 'OTTO PRO' : 'Gratuito'}</span>
+                </span>
+                {subscriptionPlan && <span className="text-xs text-gray-400">{subscriptionPlan}</span>}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Edit profile button */}
         <button
           onClick={() => navigate('/complete-profile')}
           className="w-full flex items-center justify-center gap-2 h-11 bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-700 font-semibold rounded-xl transition-colors text-sm"
         >
           <Pencil size={15} />
-          Editar Cadastro
+          Editar Perfil Clínico
         </button>
+
+        {/* Seção: Privacidade e LGPD */}
+        <div className="space-y-2">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider px-2 flex items-center gap-1.5 mt-4">
+            <ShieldCheck size={12} />
+            Privacidade e Segurança
+          </h3>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50 overflow-hidden">
+            <button
+              onClick={handleDownloadData}
+              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+            >
+              <Download size={15} className="text-blue-500 shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-gray-700">Baixar meus dados</span>
+                <span className="text-xs text-gray-400">Exportar cópia em JSON (LGPD)</span>
+              </div>
+            </button>
+
+            {!confirmingDelete ? (
+              <button
+                onClick={() => setConfirmingDelete(true)}
+                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition-colors text-left"
+              >
+                <Trash2 size={15} className="text-red-500 shrink-0" />
+                <span className="text-sm font-medium text-red-600">Excluir minha conta</span>
+              </button>
+            ) : (
+              <div className="p-4 bg-red-50 space-y-3">
+                <p className="text-xs text-red-600 font-medium">Tem certeza? Esta ação é irreversível e apagará todos os seus dados.</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirmingDelete(false)}
+                    className="flex-1 h-9 bg-white border border-red-200 text-gray-600 font-semibold rounded-lg text-xs"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="flex-1 h-9 bg-red-500 text-white font-bold rounded-lg text-xs hover:bg-red-600"
+                  >
+                    Sim, excluir
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Logout */}
         <div className="pt-1">
@@ -173,9 +293,15 @@ export const Profile: React.FC = () => {
           )}
         </div>
 
-        <p className="text-center text-[11px] text-gray-400 pb-2">
-          Autenticação Firebase · Dados protegidos pela LGPD
-        </p>
+        <div className="text-center pt-4 pb-2">
+          <p className="text-[11px] text-gray-400 flex items-center justify-center gap-1">
+            <ShieldCheck size={10} />
+            Dados protegidos pela LGPD
+          </p>
+          <p className="text-[10px] text-gray-300 mt-1">
+            OTTO Ecosystem v{packageJson.version} · Autenticação Firebase
+          </p>
+        </div>
       </motion.div>
 
       {/* Tela de despedida — aparece sobre tudo ao confirmar logout */}
