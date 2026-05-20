@@ -16,6 +16,25 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('OTTO ErrorBoundary caught:', error, info);
+
+    // Captura falhas de importação de chunks dinâmicos ou incompatibilidade de hash pós-deploy
+    const isChunkError = 
+      error.message?.includes('Failed to fetch dynamically imported module') ||
+      error.name === 'ChunkLoadError' ||
+      error.message?.toLowerCase().includes('chunk') ||
+      error.message?.toLowerCase().includes('mime type');
+
+    if (isChunkError) {
+      console.warn('Falha de chunk estático capturada pelo ErrorBoundary. Recarregando...');
+      const lastReload = sessionStorage.getItem('otto_chunk_reload');
+      const now = Date.now();
+
+      // Evita loops infinitos de recarregamento
+      if (!lastReload || now - parseInt(lastReload, 10) > 15000) {
+        sessionStorage.setItem('otto_chunk_reload', now.toString());
+        window.location.reload();
+      }
+    }
   }
 
   render() {
