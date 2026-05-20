@@ -62,10 +62,11 @@ const selectClass = `${inputClass} appearance-none cursor-pointer`;
 
 export const CompleteProfile: React.FC = () => {
   const navigate = useNavigate();
-  const { userId, userName, profile, markProfileCompleted, onboardingCompleted } = useAuth();
+  const { userId, userName, userEmail, profile, markProfileCompleted, onboardingCompleted } = useAuth();
   const [form, setForm] = useState<FormData>({
     ...INITIAL,
     nomeCompleto: userName || '',
+    email: userEmail || '',
     tipoUsuario: profile || '',
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -95,13 +96,22 @@ export const CompleteProfile: React.FC = () => {
             registroNumero: d.registroNumero || prev.registroNumero,
             registroUF: d.registroUF || prev.registroUF,
           }));
+        } else {
+          // Se o documento no Firestore não existir (primeiro cadastro),
+          // pré-preenche com as credenciais do Firebase Auth assim que disponíveis.
+          setForm(prev => ({
+            ...prev,
+            nomeCompleto: prev.nomeCompleto || userName || '',
+            email: prev.email || userEmail || '',
+            tipoUsuario: prev.tipoUsuario || profile || '',
+          }));
         }
       } catch (err) {
         console.warn('Erro ao carregar dados do Firestore:', err);
       }
     };
     loadProfile();
-  }, [userId]);
+  }, [userId, userName, userEmail, profile]);
 
   const set = (field: keyof FormData) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

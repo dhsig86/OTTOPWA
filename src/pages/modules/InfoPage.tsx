@@ -9,7 +9,6 @@ import {
   ExternalLink, 
   ChevronRight, 
   Bookmark,
-  Share2,
   Calendar,
   Sparkles,
   Search,
@@ -22,7 +21,6 @@ import {
   getDocs, 
   doc, 
   setDoc, 
-  deleteDoc, 
   getDoc,
   query,
   orderBy,
@@ -59,7 +57,7 @@ interface PillData {
 
 export const InfoPage: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { userId } = useAuth();
   
   const [pills, setPills] = useState<PillData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,9 +89,7 @@ export const InfoPage: React.FC = () => {
         
         snap.forEach((doc) => {
           list.push({ id: doc.id, ...doc.data() } as PillData);
-        });
-
-        // Caso o banco esteja vazio, injetar dados mockados de altíssima qualidade
+        })        // Caso o banco esteja vazio, injetar dados mockados de altíssima qualidade
         if (list.length === 0) {
           const mockPills: PillData[] = [
             {
@@ -107,29 +103,29 @@ export const InfoPage: React.FC = () => {
                   titulo: "Intranasal corticosteroids for chronic rhinosinusitis without nasal polyps",
                   revista: "Cochrane Database Syst Rev",
                   ano: "2024",
-                  autores": "Chong LY, et al.",
+                  autores: "Chong LY, et al.",
                   link: "https://pubmed.ncbi.nlm.nih.gov/38318854/"
                 },
                 {
                   titulo: "Nasal Saline Irrigation vs. Topical Steroids in Chronic Rhinosinusitis Management",
-                  revista": "Laryngoscope",
+                  revista: "Laryngoscope",
                   ano: "2023",
-                  autores": "Harvey RJ, et al.",
+                  autores: "Harvey RJ, et al.",
                   link: "https://pubmed.ncbi.nlm.nih.gov/37021145/"
                 }
               ],
-              consenso_cientifico": "A análise crítica das evidências de longo prazo da Cochrane e de ensaios clínicos controlados demonstra que o uso contínuo de corticosteroides intranasais apresenta superioridade estatística e clínica na redução de sintomas obstrutivos e escores SNOT-22 em pacientes com RSC sem pólipos nasais, em comparação com a lavagem salina isolada. No entanto, a terapia combinada (lavagem salina de alto volume antes da mometasona) confere a maior taxa de depuração mucociliar e controle de biofilmes bacterianos nasais.",
-              pratica_clinica": "Recomende a realização de irrigação nasal salina de alto volume (240ml) sempre 10 a 15 minutos ANTES da aplicação do spray de mometasona nasofaringeo (200mcg/dia). Isso remove a barreira mecânica de muco e otimiza a penetração do corticoide nos óstios sinusais reabertos.",
-              quiz_curiosidade": {
-                "pergunta": "Qual a conduta que otimiza a penetração e eficácia do corticoide tópico na rinossinusite crônica?",
-                "alternativas": [
+              consenso_cientifico: "A análise crítica das evidências de longo prazo da Cochrane e de ensaios clínicos controlados demonstra que o uso contínuo de corticosteroides intranasais apresenta superioridade estatística e clínica na redução de sintomas obstrutivos e escores SNOT-22 em pacientes com RSC sem pólipos nasais, em comparação com a lavagem salina isolada. No entanto, a terapia combinada (lavagem salina de alto volume antes da mometasona) confere a maior taxa de depuração mucociliar e controle de biofilmes bacterianos nasais.",
+              pratica_clinica: "Recomende a realização de irrigação nasal salina de alto volume (240ml) sempre 10 a 15 minutos ANTES da aplicação do spray de mometasona nasofaringeo (200mcg/dia). Isso remove a barreira mecânica de muco e otimiza a penetração do corticoide nos óstios sinusais reabertos.",
+              quiz_curiosidade: {
+                pergunta: "Qual a conduta que otimiza a penetração e eficácia do corticoide tópico na rinossinusite crônica?",
+                alternativas: [
                   "Aplicar o spray corticoide com o paciente em posição de Trendelenburg.",
                   "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
                   "Duplicar a dose do spray nasal nos dias de crise obstrutiva intensa.",
                   "Associar corticoide oral nos primeiros 3 dias de tratamento tópico."
                 ],
-                "resposta_correta": "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
-                "explicacao": "A irrigação salina remove as crostas e o muco espesso, limpando a mucosa nasal para que o corticoide tópico seja absorvido de forma direta e homogênea."
+                resposta_correta: "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
+                explicacao: "A irrigação salina remove as crostas e o muco espesso, limpando a mucosa nasal para que o corticoide tópico seja absorvido de forma direta e homogênea."
               }
             },
             {
@@ -140,32 +136,32 @@ export const InfoPage: React.FC = () => {
               especialidade: "Vanguarda ORL",
               artigos: [
                 {
-                  titulo": "Vestibular adaptation and spatial disorientation in long-duration spaceflight",
+                  titulo: "Vestibular adaptation and spatial disorientation in long-duration spaceflight",
                   revista: "npj Microgravity",
                   ano: "2024",
-                  autores": "Hallgren E, et al.",
-                  link": "https://pubmed.ncbi.nlm.nih.gov/38201243/"
+                  autores: "Hallgren E, et al.",
+                  link: "https://pubmed.ncbi.nlm.nih.gov/38201243/"
                 },
                 {
-                  titulo": "3D Printing of Otolith Models for Space Motion Sickness Simulation",
+                  titulo: "3D Printing of Otolith Models for Space Motion Sickness Simulation",
                   revista: "Otology & Neurotology",
                   ano: "2023",
-                  autores": "Snape M, et al.",
+                  autores: "Snape M, et al.",
                   link: "https://pubmed.ncbi.nlm.nih.gov/37199201/"
                 }
               ],
-              consenso_cientifico": "Estudos vestibulares em astronautas da ISS mostram que a ausência de gravidade altera a sinalização dos otólitos (utrículo e sáculo), forçando o cérebro a depender puramente de pistas visuais e proprioceptivas para a auto-orientação espacial. A adaptação vestibular inicial causa a chamada 'Síndrome de Adaptação Espacial' (Space Motion Sickness), com náusea e ilusões visuo-vestibulares, enquanto o retorno à Terra gera instabilidade postural prolongada devido à reconfiguração dos reflexos vestíbulo-oculares.",
-              pratica_clinica": "Na prática terrestre de reabilitação vestibular, utilize exercícios de habituação visual complexos (optocinéticos e realidade virtual) para emular a dependência visual e acelerar a compensação vestibular em pacientes com perda otolítica unilateral crônica.",
-              quiz_curiosidade": {
-                "pergunta": "Qual receptor vestibular sofre a maior alteração de sinalização na ausência de gravidade?",
-                "alternativas": [
+              consenso_cientifico: "Estudos vestibulares em astronautas da ISS mostram que a ausência de gravidade altera a sinalização dos otólitos (utrículo e sáculo), forçando o cérebro a depender puramente de pistas visuais e proprioceptivas para a auto-orientação espacial. A adaptação vestibular inicial causa a chamada 'Síndrome de Adaptação Espacial' (Space Motion Sickness), com náusea e ilusões visuo-vestibulares, enquanto o retorno à Terra gera instabilidade postural prolongada devido à reconfiguração dos reflexos vestíbulo-oculares.",
+              pratica_clinica: "Na prática terrestre de reabilitação vestibular, utilize exercícios de habituação visual complexos (optocinéticos e realidade virtual) para emular a dependência visual e acelerar a compensação vestibular em pacientes com perda otolítica unilateral crônica.",
+              quiz_curiosidade: {
+                pergunta: "Qual receptor vestibular sofre a maior alteração de sinalização na ausência de gravidade?",
+                alternativas: [
                   "Canais semicirculares horizontais.",
                   "Órgãos otolíticos (utrículo e sáculo).",
                   "Cúpula do canal semicircular superior.",
                   "Nervo vestibular coclear proximal."
                 ],
-                "resposta_correta": "Órgãos otolíticos (utrículo e sáculo).",
-                "explicacao": "Os otólitos dependem da força da gravidade sobre a membrana otolítica para defletir os cílios das células sensoriais. Em microgravidade, essa deflexão basal desaparece."
+                resposta_correta: "Órgãos otolíticos (utrículo e sáculo).",
+                explicacao: "Os otólitos dependem da força da gravidade sobre a membrana otolítica para defletir os cílios das células sensoriais. Em microgravidade, essa deflexão basal desaparece."
               }
             }
           ];
@@ -177,14 +173,14 @@ export const InfoPage: React.FC = () => {
         }
 
         // 2. Carregar favoritos e leituras do médico logado
-        if (user) {
-          const favRef = doc(db, 'users', user.uid, 'favoritos_news', 'list');
+        if (userId) {
+          const favRef = doc(db, 'users', userId, 'favoritos_news', 'list');
           const favSnap = await getDoc(favRef);
           if (favSnap.exists()) {
             setFavorites(favSnap.data().ids || []);
           }
 
-          const readRef = doc(db, 'users', user.uid, 'leituras_news', 'list');
+          const readRef = doc(db, 'users', userId, 'leituras_news', 'list');
           const readSnap = await getDoc(readRef);
           if (readSnap.exists()) {
             setReadPills(readSnap.data().ids || []);
@@ -198,11 +194,11 @@ export const InfoPage: React.FC = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, [userId]);
 
   // Manipular favoritos
   const toggleFavorite = async (pillId: string) => {
-    if (!user) return;
+    if (!userId) return;
     
     let updated: string[];
     if (favorites.includes(pillId)) {
@@ -213,7 +209,7 @@ export const InfoPage: React.FC = () => {
     
     setFavorites(updated);
     try {
-      await setDoc(doc(db, 'users', user.uid, 'favoritos_news', 'list'), { ids: updated });
+      await setDoc(doc(db, 'users', userId, 'favoritos_news', 'list'), { ids: updated });
     } catch (e) {
       console.error("Erro ao salvar favorito:", e);
     }
@@ -221,7 +217,7 @@ export const InfoPage: React.FC = () => {
 
   // Marcar como lido (gamificação)
   const toggleRead = async (pillId: string) => {
-    if (!user) return;
+    if (!userId) return;
 
     let updated: string[];
     if (readPills.includes(pillId)) {
@@ -232,7 +228,7 @@ export const InfoPage: React.FC = () => {
 
     setReadPills(updated);
     try {
-      await setDoc(doc(db, 'users', user.uid, 'leituras_news', 'list'), { ids: updated });
+      await setDoc(doc(db, 'users', userId, 'leituras_news', 'list'), { ids: updated });
     } catch (e) {
       console.error("Erro ao salvar leitura concluída:", e);
     }
@@ -247,7 +243,6 @@ export const InfoPage: React.FC = () => {
 
   // Estatísticas do Dashboard
   const totalLidos = readPills.length;
-  const streakSemanas = Math.min(Math.ceil(totalLidos / 2), 4); // gamificação fictícia
 
   // Selecionar outra pílula no histórico
   const selectPill = (pill: PillData) => {

@@ -14,9 +14,7 @@ export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
   const { profile, markOnboardingCompleted } = useAuth();
   const [step, setStep] = useState(1);
-  const [tempProfile, setTempProfile] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>(
-    (profile as any) || 'medico'
-  );
+  const tempProfile: 'medico' | 'estudante' | 'profissional' | 'paciente' = (profile as any) || 'medico';
 
   const finishOnboarding = async (action: 'free' | 'premium') => {
     // Persist to Firestore + localStorage so new browsers don't repeat onboarding
@@ -50,61 +48,41 @@ export const Onboarding: React.FC = () => {
         <p className="text-gray-500 text-center mb-8 px-4">Sua plataforma completa de Otorrinolaringologia</p>
 
         <div className="space-y-3">
-          <button 
-            onClick={() => setTempProfile('medico')}
-            className={`w-full flex items-center p-4 rounded-2xl border-2 text-left transition-all ${tempProfile === 'medico' ? 'border-[#1D9E75] bg-[#E1F7EE]' : 'border-gray-100 bg-white'}`}
-          >
-            <div className={`p-3 rounded-full mr-4 ${tempProfile === 'medico' ? 'bg-[#1D9E75] text-white' : 'bg-gray-100 text-gray-500'}`}>
-              <Stethoscope size={24} />
+          {/* Mostra apenas o perfil ativo do usuário, confirmado no cadastro */}
+          <div className={`w-full flex items-center p-5 rounded-2xl border-2 text-left bg-white shadow-sm ${
+            tempProfile === 'medico' ? 'border-[#1D9E75]' :
+            tempProfile === 'estudante' ? 'border-[#4068B2]' :
+            tempProfile === 'profissional' ? 'border-[#0F766E]' : 'border-[#6A47C9]'
+          }`}>
+            <div className={`p-3 rounded-full mr-4 text-white shrink-0 ${
+              tempProfile === 'medico' ? 'bg-[#1D9E75]' :
+              tempProfile === 'estudante' ? 'bg-[#4068B2]' :
+              tempProfile === 'profissional' ? 'bg-[#0F766E]' : 'bg-[#6A47C9]'
+            }`}>
+              {tempProfile === 'medico' && <Stethoscope size={24} />}
+              {tempProfile === 'estudante' && <GraduationCap size={24} />}
+              {tempProfile === 'profissional' && <Activity size={24} />}
+              {tempProfile === 'paciente' && <Heart size={24} />}
             </div>
             <div>
-              <h3 className={`font-bold ${tempProfile === 'medico' ? 'text-[#1D9E75]' : 'text-gray-800'}`}>Médico</h3>
-              <p className="text-xs text-gray-500 mt-1">Ferramentas clínicas, IA diagnóstica e protocolos cirúrgicos</p>
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none block">Perfil Confirmado</span>
+              <h3 className="font-extrabold text-lg text-gray-800 mt-1">
+                {tempProfile === 'medico' ? 'Médico' :
+                 tempProfile === 'estudante' ? 'Estudante / Residente' :
+                 tempProfile === 'profissional' ? 'Prof. de Saúde' : 'Paciente'}
+              </h3>
+              <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                {tempProfile === 'medico' && 'Acesso total a ferramentas clínicas, IA diagnóstica e laudos cirúrgicos.'}
+                {tempProfile === 'estudante' && 'Acesso a simulados, quizzes educativos e base de residência.'}
+                {tempProfile === 'profissional' && 'Ferramentas de triagem vocal, escalas VHI e referência rápida.'}
+                {tempProfile === 'paciente' && 'Recursos de terapia sonora para zumbido e cartilhas de saúde.'}
+              </p>
             </div>
-          </button>
-
-          <button 
-            onClick={() => setTempProfile('estudante')}
-            className={`w-full flex items-center p-4 rounded-2xl border-2 text-left transition-all ${tempProfile === 'estudante' ? 'border-[#4068B2] bg-[#E6EDFB]' : 'border-gray-100 bg-white'}`}
-          >
-            <div className={`p-3 rounded-full mr-4 ${tempProfile === 'estudante' ? 'bg-[#4068B2] text-white' : 'bg-gray-100 text-gray-500'}`}>
-              <GraduationCap size={24} />
-            </div>
-            <div>
-              <h3 className={`font-bold ${tempProfile === 'estudante' ? 'text-[#4068B2]' : 'text-gray-800'}`}>Estudante</h3>
-              <p className="text-xs text-gray-500 mt-1">Simulados, quizzes e avaliações para residência</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setTempProfile('profissional')}
-            className={`w-full flex items-center p-4 rounded-2xl border-2 text-left transition-all ${tempProfile === 'profissional' ? 'border-[#0F766E] bg-[#E0F5F0]' : 'border-gray-100 bg-white'}`}
-          >
-            <div className={`p-3 rounded-full mr-4 ${tempProfile === 'profissional' ? 'bg-[#0F766E] text-white' : 'bg-gray-100 text-gray-500'}`}>
-              <Activity size={24} />
-            </div>
-            <div>
-              <h3 className={`font-bold ${tempProfile === 'profissional' ? 'text-[#0F766E]' : 'text-gray-800'}`}>Prof. de Saúde</h3>
-              <p className="text-xs text-gray-500 mt-1">Enfermeiros, fonoaudiólogos, fisioterapeutas e outros</p>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setTempProfile('paciente')}
-            className={`w-full flex items-center p-4 rounded-2xl border-2 text-left transition-all ${tempProfile === 'paciente' ? 'border-[#6A47C9] bg-[#F2EFFC]' : 'border-gray-100 bg-white'}`}
-          >
-            <div className={`p-3 rounded-full mr-4 ${tempProfile === 'paciente' ? 'bg-[#6A47C9] text-white' : 'bg-gray-100 text-gray-500'}`}>
-              <Heart size={24} />
-            </div>
-            <div>
-              <h3 className={`font-bold ${tempProfile === 'paciente' ? 'text-[#6A47C9]' : 'text-gray-800'}`}>Paciente</h3>
-              <p className="text-xs text-gray-500 mt-1">Terapia sonora, informações e orientações de saúde</p>
-            </div>
-          </button>
+          </div>
         </div>
       </div>
       <button onClick={nextStep} className="w-full mt-8 py-4 bg-gray-900 text-white rounded-xl font-bold shadow-md active:scale-95 transition-all">
-        Escolher meu perfil →
+        Conhecer minhas ferramentas →
       </button>
     </motion.div>
   );
