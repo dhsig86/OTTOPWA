@@ -318,10 +318,10 @@ export const OTTO_MODULES: OttoModule[] = [
     icon: Library,
     url: '/modules/info',
     external: false,
-    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    profiles: ['medico', 'estudante', 'profissional'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'clinico',
     tags: ['artigo', 'informacao', 'texto', 'leitura', 'estudo', 'update', 'pilulas', 'quiz', 'curiosidades', 'ciencia', 'vanguarda'],
     iconBg: 'bg-[#EEEDFC] text-[#5649B4]',
     hasIA: true

@@ -57,7 +57,7 @@ interface PillData {
 
 export const InfoPage: React.FC = () => {
   const navigate = useNavigate();
-  const { userId } = useAuth();
+  const { userId, profile } = useAuth();
   
   const [pills, setPills] = useState<PillData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +79,81 @@ export const InfoPage: React.FC = () => {
 
   // Carregar dados
   useEffect(() => {
+    const mockPills: PillData[] = [
+      {
+        id: "mock_pill_1",
+        tema: "Eficácia da Mometasona vs. Lavagem Salina na Rinossinusite Crônica",
+        data_exibicao: new Date().toISOString().split('T')[0],
+        tempo_leitura_min: 5,
+        especialidade: "Rinologia",
+        artigos: [
+          {
+            titulo: "Intranasal corticosteroids for chronic rhinosinusitis without nasal polyps",
+            revista: "Cochrane Database Syst Rev",
+            ano: "2024",
+            autores: "Chong LY, et al.",
+            link: "https://pubmed.ncbi.nlm.nih.gov/38318854/"
+          },
+          {
+            titulo: "Nasal Saline Irrigation vs. Topical Steroids in Chronic Rhinosinusitis Management",
+            revista: "Laryngoscope",
+            ano: "2023",
+            autores: "Harvey RJ, et al.",
+            link: "https://pubmed.ncbi.nlm.nih.gov/37021145/"
+          }
+        ],
+        consenso_cientifico: "A análise crítica das evidências de longo prazo da Cochrane e de ensaios clínicos controlados demonstra que o uso contínuo de corticosteroides intranasais apresenta superioridade estatística e clínica na redução de sintomas obstrutivos e escores SNOT-22 em pacientes com RSC sem pólipos nasais, em comparação com a lavagem salina isolada. No entanto, a terapia combinada (lavagem salina de alto volume antes da mometasona) confere a maior taxa de depuração mucociliar e controle de biofilmes bacterianos nasais.",
+        pratica_clinica: "Recomende a realização de irrigação nasal salina de alto volume (240ml) sempre 10 a 15 minutos ANTES da aplicação do spray de mometasona nasofaringeo (200mcg/dia). Isso remove a barreira mecânica de muco e otimiza a penetração do corticoide nos óstios sinusais reabertos.",
+        quiz_curiosidade: {
+          pergunta: "Qual a conduta que otimiza a penetração e eficácia do corticoide tópico na rinossinusite crônica?",
+          alternativas: [
+            "Aplicar o spray corticoide com o paciente em posição de Trendelenburg.",
+            "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
+            "Duplicar a dose do spray nasal nos dias de crise obstrutiva intensa.",
+            "Associar corticoide oral nos primeiros 3 dias de tratamento tópico."
+          ],
+          resposta_correta: "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
+          explicacao: "A irrigação salina remove as crostas e o muco espesso, limpando a mucosa nasal para que o corticoide tópico seja absorvido de forma direta e homogênea."
+        }
+      },
+      {
+        id: "mock_pill_2",
+        tema: "Efeitos da Microgravidade na Função Vestibular e Orientação Espacial",
+        data_exibicao: "2026-05-18",
+        tempo_leitura_min: 7,
+        especialidade: "Vanguarda ORL",
+        artigos: [
+          {
+            titulo: "Vestibular adaptation and spatial disorientation in long-duration spaceflight",
+            revista: "npj Microgravity",
+            ano: "2024",
+            autores: "Hallgren E, et al.",
+            link: "https://pubmed.ncbi.nlm.nih.gov/38201243/"
+          },
+          {
+            titulo: "3D Printing of Otolith Models for Space Motion Sickness Simulation",
+            revista: "Otology & Neurotology",
+            ano: "2023",
+            autores: "Snape M, et al.",
+            link: "https://pubmed.ncbi.nlm.nih.gov/37199201/"
+          }
+        ],
+        consenso_cientifico: "Estudos vestibulares em astronautas da ISS mostram que a ausência de gravidade altera a sinalização dos otólitos (utrículo e sáculo), forçando o cérebro a depender puramente de pistas visuais e proprioceptivas para a auto-orientação espacial. A adaptação vestibular inicial causa a chamada 'Síndrome de Adaptação Espacial' (Space Motion Sickness), com náusea e ilusões visuo-vestibulares, enquanto o retorno à Terra gera instabilidade postural prolongada devido à reconfiguração dos reflexos vestíbulo-oculares.",
+        pratica_clinica: "Na prática terrestre de reabilitação vestibular, utilize exercícios de habituação visual complexos (optocinéticos e realidade virtual) para emular a dependência visual e acelerar a compensação vestibular em pacientes com perda otolítica unilateral crônica.",
+        quiz_curiosidade: {
+          pergunta: "Qual receptor vestibular sofre a maior alteração de sinalização na ausência de gravidade?",
+          alternativas: [
+            "Canais semicirculares horizontais.",
+            "Órgãos otolíticos (utrículo e sáculo).",
+            "Cúpula do canal semicircular superior.",
+            "Nervo vestibular coclear proximal."
+          ],
+          resposta_correta: "Órgãos otolíticos (utrículo e sáculo).",
+          explicacao: "Os otólitos dependem da força da gravidade sobre a membrana otolítica para defletir os cílios das células sensoriais. Em microgravidade, essa deflexão basal desaparece."
+        }
+      }
+    ];
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -89,82 +164,10 @@ export const InfoPage: React.FC = () => {
         
         snap.forEach((doc) => {
           list.push({ id: doc.id, ...doc.data() } as PillData);
-        })        // Caso o banco esteja vazio, injetar dados mockados de altíssima qualidade
+        });
+
+        // Caso o banco esteja vazio, injetar dados mockados de altíssima qualidade
         if (list.length === 0) {
-          const mockPills: PillData[] = [
-            {
-              id: "mock_pill_1",
-              tema: "Eficácia da Mometasona vs. Lavagem Salina na Rinossinusite Crônica",
-              data_exibicao: new Date().toISOString().split('T')[0],
-              tempo_leitura_min: 5,
-              especialidade: "Rinologia",
-              artigos: [
-                {
-                  titulo: "Intranasal corticosteroids for chronic rhinosinusitis without nasal polyps",
-                  revista: "Cochrane Database Syst Rev",
-                  ano: "2024",
-                  autores: "Chong LY, et al.",
-                  link: "https://pubmed.ncbi.nlm.nih.gov/38318854/"
-                },
-                {
-                  titulo: "Nasal Saline Irrigation vs. Topical Steroids in Chronic Rhinosinusitis Management",
-                  revista: "Laryngoscope",
-                  ano: "2023",
-                  autores: "Harvey RJ, et al.",
-                  link: "https://pubmed.ncbi.nlm.nih.gov/37021145/"
-                }
-              ],
-              consenso_cientifico: "A análise crítica das evidências de longo prazo da Cochrane e de ensaios clínicos controlados demonstra que o uso contínuo de corticosteroides intranasais apresenta superioridade estatística e clínica na redução de sintomas obstrutivos e escores SNOT-22 em pacientes com RSC sem pólipos nasais, em comparação com a lavagem salina isolada. No entanto, a terapia combinada (lavagem salina de alto volume antes da mometasona) confere a maior taxa de depuração mucociliar e controle de biofilmes bacterianos nasais.",
-              pratica_clinica: "Recomende a realização de irrigação nasal salina de alto volume (240ml) sempre 10 a 15 minutos ANTES da aplicação do spray de mometasona nasofaringeo (200mcg/dia). Isso remove a barreira mecânica de muco e otimiza a penetração do corticoide nos óstios sinusais reabertos.",
-              quiz_curiosidade: {
-                pergunta: "Qual a conduta que otimiza a penetração e eficácia do corticoide tópico na rinossinusite crônica?",
-                alternativas: [
-                  "Aplicar o spray corticoide com o paciente em posição de Trendelenburg.",
-                  "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
-                  "Duplicar a dose do spray nasal nos dias de crise obstrutiva intensa.",
-                  "Associar corticoide oral nos primeiros 3 dias de tratamento tópico."
-                ],
-                resposta_correta: "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
-                explicacao: "A irrigação salina remove as crostas e o muco espesso, limpando a mucosa nasal para que o corticoide tópico seja absorvido de forma direta e homogênea."
-              }
-            },
-            {
-              id: "mock_pill_2",
-              tema: "Efeitos da Microgravidade na Função Vestibular e Orientação Espacial",
-              data_exibicao: "2026-05-18",
-              tempo_leitura_min: 7,
-              especialidade: "Vanguarda ORL",
-              artigos: [
-                {
-                  titulo: "Vestibular adaptation and spatial disorientation in long-duration spaceflight",
-                  revista: "npj Microgravity",
-                  ano: "2024",
-                  autores: "Hallgren E, et al.",
-                  link: "https://pubmed.ncbi.nlm.nih.gov/38201243/"
-                },
-                {
-                  titulo: "3D Printing of Otolith Models for Space Motion Sickness Simulation",
-                  revista: "Otology & Neurotology",
-                  ano: "2023",
-                  autores: "Snape M, et al.",
-                  link: "https://pubmed.ncbi.nlm.nih.gov/37199201/"
-                }
-              ],
-              consenso_cientifico: "Estudos vestibulares em astronautas da ISS mostram que a ausência de gravidade altera a sinalização dos otólitos (utrículo e sáculo), forçando o cérebro a depender puramente de pistas visuais e proprioceptivas para a auto-orientação espacial. A adaptação vestibular inicial causa a chamada 'Síndrome de Adaptação Espacial' (Space Motion Sickness), com náusea e ilusões visuo-vestibulares, enquanto o retorno à Terra gera instabilidade postural prolongada devido à reconfiguração dos reflexos vestíbulo-oculares.",
-              pratica_clinica: "Na prática terrestre de reabilitação vestibular, utilize exercícios de habituação visual complexos (optocinéticos e realidade virtual) para emular a dependência visual e acelerar a compensação vestibular em pacientes com perda otolítica unilateral crônica.",
-              quiz_curiosidade: {
-                pergunta: "Qual receptor vestibular sofre a maior alteração de sinalização na ausência de gravidade?",
-                alternativas: [
-                  "Canais semicirculares horizontais.",
-                  "Órgãos otolíticos (utrículo e sáculo).",
-                  "Cúpula do canal semicircular superior.",
-                  "Nervo vestibular coclear proximal."
-                ],
-                resposta_correta: "Órgãos otolíticos (utrículo e sáculo).",
-                explicacao: "Os otólitos dependem da força da gravidade sobre a membrana otolítica para defletir os cílios das células sensoriais. Em microgravidade, essa deflexão basal desaparece."
-              }
-            }
-          ];
           setPills(mockPills);
           setActivePill(mockPills[0]);
         } else {
@@ -187,7 +190,10 @@ export const InfoPage: React.FC = () => {
           }
         }
       } catch (err) {
-        console.error("Erro ao carregar dados do OTTO Update:", err);
+        console.error("Erro ao carregar dados do OTTO Update, carregando fallback clínico:", err);
+        // Em caso de erro de rede/Firestore (permissão/índice), carrega obrigatoriamente os mocks clínicos
+        setPills(mockPills);
+        setActivePill(mockPills[0]);
       } finally {
         setLoading(false);
       }
@@ -253,8 +259,25 @@ export const InfoPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (profile === 'paciente') {
+    return (
+      <div className="fixed inset-0 z-50 bg-gray-900 flex flex-col items-center justify-center p-6 text-center text-white">
+        <h2 className="text-xl font-bold mb-2">Acesso Restrito</h2>
+        <p className="text-sm text-gray-400 max-w-sm mb-6">
+          Este módulo contém informações científicas e pílulas de vanguarda clínica voltadas exclusivamente a médicos, estudantes e profissionais de saúde.
+        </p>
+        <button 
+          onClick={() => navigate('/')} 
+          className="px-6 py-2.5 bg-[#1D9E75] hover:bg-[#0A865F] text-white rounded-full font-semibold transition-colors shadow-lg"
+        >
+          Voltar para o Início
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100 pb-20 selection:bg-indigo-500 selection:text-white">
+    <div className="fixed inset-0 z-45 bg-gray-900 flex flex-col overflow-y-auto pb-10 text-gray-100 selection:bg-indigo-500 selection:text-white">
       {/* Header Fixo Premium */}
       <header className="h-16 bg-gray-950/80 backdrop-blur-md border-b border-gray-800 text-white flex items-center justify-between px-4 sticky top-0 z-50">
         <button 
