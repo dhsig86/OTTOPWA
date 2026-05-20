@@ -5,6 +5,13 @@ import { OTTO_MODULES } from '../config/modules';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const normalizeString = (str: string) => {
+  return str
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+};
+
 export const Search: React.FC = () => {
   const [query, setQuery] = useState('');
   const { profile } = useAuth();
@@ -13,12 +20,16 @@ export const Search: React.FC = () => {
   const filteredModules = useMemo(() => {
     if (!query.trim()) return [];
     
+    const normalizedQuery = normalizeString(query);
+    
     return OTTO_MODULES.filter(mod => {
       // Filtrar pelo perfil
       if (profile && !mod.profiles.includes(profile)) return false;
       
-      const searchStr = `${mod.name} ${mod.description} ${mod.tags?.join(' ') || ''}`.toLowerCase();
-      return searchStr.includes(query.toLowerCase());
+      const searchStr = `${mod.name} ${mod.description} ${mod.tags?.join(' ') || ''}`;
+      const normalizedSearchStr = normalizeString(searchStr);
+      
+      return normalizedSearchStr.includes(normalizedQuery);
     });
   }, [query, profile]);
 

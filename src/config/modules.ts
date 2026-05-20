@@ -313,17 +313,18 @@ export const OTTO_MODULES: OttoModule[] = [
   },
   {
     id: 'info',
-    name: 'Informações',
-    description: 'Artigos',
+    name: 'OTTO Update',
+    description: 'Pílulas Clínicas',
     icon: Library,
     url: '/modules/info',
     external: false,
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
-    status: 'beta',
+    status: 'live',
     category: 'educacao_paciente',
-    tags: ['artigo', 'informacao', 'texto', 'leitura', 'estudo'],
-    iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
+    tags: ['artigo', 'informacao', 'texto', 'leitura', 'estudo', 'update', 'pilulas', 'quiz', 'curiosidades', 'ciencia', 'vanguarda'],
+    iconBg: 'bg-[#EEEDFC] text-[#5649B4]',
+    hasIA: true
   },
   // Premium desativado para MVP — reativar quando gateway de pagamento estiver pronto
   // { id: 'premium_access', name: 'Premium', ... }
