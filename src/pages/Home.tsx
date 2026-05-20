@@ -144,8 +144,11 @@ export const Home: React.FC = () => {
       {/* Ferramentas Clínicas */}
       {renderModulesCategory('clinico', 'Ferramentas Clínicas')}
 
-      {/* Educação e Pacientes */}
-      {renderModulesCategory('educacao_paciente', 'Educação e Pacientes')}
+      {/* Academia */}
+      {renderModulesCategory('academia', 'Academia')}
+
+      {/* Público */}
+      {renderModulesCategory('publico', 'Público')}
     </div>
   );
 };

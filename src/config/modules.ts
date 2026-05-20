@@ -37,7 +37,7 @@ export interface OttoModule {
   profiles: ('medico' | 'estudante' | 'profissional' | 'paciente')[]
   premium: boolean
   status: 'live' | 'beta' | 'coming-soon'
-  category: 'clinico' | 'educacao_paciente'
+  category: 'clinico' | 'academia' | 'publico'
   tags?: string[]
   localPath?: string
   iconBg?: string
@@ -72,7 +72,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'clinico',
+    category: 'publico',
     tags: ['imagem', 'foto', 'otoscopia', 'atlas', 'visual', 'diagnostico', 'ml'],
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
     hasIA: true
@@ -101,7 +101,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: true,
     status: 'live',
-    category: 'clinico',
+    category: 'publico',
     tags: ['ia', 'diagnostico', 'imagem', 'ouvido', 'otoscop', 'ml', 'classificacao'],
     iconBg: 'bg-[#E5F5FA] text-[#2C95B5]',
     hasIA: true
@@ -116,7 +116,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'clinico',
+    category: 'publico',
     tags: ['triagem', 'admissao', 'protocolo', 'ia', 'anamnese', 'cdss'],
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]',
     hasIA: true
@@ -131,7 +131,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'beta',
-    category: 'clinico',
+    category: 'publico',
     tags: ['triagem', 'audiometria', 'zumbido', 'tinnitus', 'teste', 'audicao', 'som'],
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
   },
@@ -147,7 +147,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'clinico',
+    category: 'publico',
     tags: ['calcula', 'score', 'snot', 'tnm', 'nose', 'epworth', 'stop-bang', 'vhi', 'eat', 'dhi', 'thi', 'dose'],
     iconBg: 'bg-[#FEF1E2] text-[#E08A27]'
   },
@@ -220,7 +220,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'clinico',
+    category: 'publico',
     tags: ['cirurgia', 'preoperatorio', 'posoperatorio', 'jejum', 'medicacao', 'protocolo', 'orientacao'],
     iconBg: 'bg-[#FBEBF3] text-[#D84989]'
   },
@@ -236,7 +236,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'publico',
     tags: ['jogo', 'game', 'crianca', 'pediatria', 'pos-operatorio', 'amigdala', 'divertido'],
     iconBg: 'bg-[#E1F7FC] text-[#0284C7]'
   },
@@ -250,7 +250,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional'],
     premium: true,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'academia',
     tags: ['quiz', 'questoes', 'simulado', 'prova', 'residencia', 'estudo', 'concurso', 'teste', 'avaliacao', 'academico'],
     iconBg: 'bg-[#EDF1FC] text-[#34446C]'
   },
@@ -264,7 +264,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'publico',
     tags: ['zumbido', 'tinnitus', 'som', 'ruido', 'terapia', 'reabilitacao', 'branco'],
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
   },
@@ -278,7 +278,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'publico',
     tags: ['video', 'youtube', 'aula', 'canal', 'educacao', 'anatomia'],
     iconBg: 'bg-[#F2EFFC] text-[#6A47C9]'
   },
@@ -292,7 +292,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'publico',
     tags: ['voz', 'laringectomia', 'emocao', 'audio', 'gerador'],
     iconBg: 'bg-[#FCF5E3] text-[#553018]',
     hasIA: true
@@ -307,7 +307,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante'],
     premium: false,
     status: 'live',
-    category: 'clinico',
+    category: 'academia',
     tags: ['caso', 'relato', 'clinico', 'apresentacao', 'publicacao'],
     iconBg: 'bg-[#EEEDFC] text-[#5649B4]'
   },
@@ -321,7 +321,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional'],
     premium: false,
     status: 'live',
-    category: 'clinico',
+    category: 'academia',
     tags: ['artigo', 'informacao', 'texto', 'leitura', 'estudo', 'update', 'pilulas', 'quiz', 'curiosidades', 'ciencia', 'vanguarda'],
     iconBg: 'bg-[#EEEDFC] text-[#5649B4]',
     hasIA: true
@@ -338,7 +338,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'publico',
     tags: ['glossario', 'dicionario', 'termos', 'definicao', 'vocabulario'],
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
     iframeBlocked: true
@@ -399,7 +399,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'educacao_paciente',
+    category: 'publico',
     tags: ['feedback', 'suporte', 'ajuda', 'bug', 'sugestao', 'contato'],
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]'
   }
