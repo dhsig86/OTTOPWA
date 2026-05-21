@@ -77,6 +77,18 @@ export const ModuleFrame: React.FC = () => {
       }, getSafeOrigin());
       sessionStorage.removeItem('otto_pending_injection');
     }
+
+    // Check for pending concierge postMessage payload
+    const pendingConciergeMessage = sessionStorage.getItem('otto_concierge_pending_message');
+    if (pendingConciergeMessage) {
+      try {
+        const parsed = JSON.parse(pendingConciergeMessage);
+        iframeRef.current?.contentWindow?.postMessage(parsed, getSafeOrigin());
+        sessionStorage.removeItem('otto_concierge_pending_message');
+      } catch (e) {
+        console.error('Failed to parse pending concierge message', e);
+      }
+    }
   };
 
   // Responde ao módulo quando ele pede renovação de token (401 recovery)

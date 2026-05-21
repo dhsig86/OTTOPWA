@@ -1,0 +1,211 @@
+import { CALC_HUB_CATALOG } from './registry';
+import type { IntentCandidate, IntentRegistryEntry } from './types';
+
+const BROAD_CLINICAL_CALC_ALIASES = new Set([
+  'sinusite',
+  'rinossinusite',
+  'faringite',
+  'amigdalite',
+  'disfagia',
+  'refluxo',
+  'pneumonia',
+  'traqueostomia pneumonia',
+  'traqueostomia',
+  'canula',
+  'otite media cronica',
+  'vertigem',
+  'tontura',
+  'zumbido',
+  'sonolencia',
+  'sonolencia diurna',
+  'apneia sono',
+  'massa cervical',
+  'estadiamento',
+  'pediatria',
+  'audiometria',
+  'implante coclear',
+  'cochlear',
+  'tomografia seios da face'
+]);
+
+export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
+  intent('calc.list', 'Listar calculadoras', 'calc', 'respond', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'], false, false, 'low', [
+    'quais calculadoras',
+    'lista de calculadoras',
+    'mostrar calculadoras',
+    'calculadoras disponiveis',
+    'menu calculadoras',
+    'abrir calculadora',
+    'calculadora'
+  ]),
+  intent('calc.open', 'Abrir calculadora', 'calc', 'deep_link', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'], false, false, 'low', calcOpenExamples()),
+  intent('procod.search_code', 'Buscar codigo PROCOD', 'procod', 'call_tool', 'medium', ['medico', 'estudante'], ['pwa', 'zap', 'test'], false, false, 'low', [
+    'cid rinossinusite',
+    'tuss septoplastia',
+    'cbhpm timpanoplastia',
+    'codigo amigdalectomia',
+    'procedimento adenoidectomia'
+  ]),
+  intent('ocr.extract', 'Extrair documento', 'ocr', 'call_tool', 'medium', ['medico', 'estudante'], ['pwa', 'zap', 'test'], true, false, 'phi', [
+    'ler laudo',
+    'ler esse laudo',
+    'extrair texto',
+    'ocr exame',
+    'ocr imagem',
+    'ler pdf',
+    'transformar imagem em texto'
+  ]),
+  intent('video.search', 'Buscar video', 'videos', 'respond', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'], false, false, 'none', [
+    'video adenoide',
+    'aula otoscopia',
+    'explicacao sinusite',
+    'video epistaxe',
+    'youtube'
+  ]),
+  intent('bottok.ask', 'Perguntar ao BOTTOK', 'bottok', 'call_tool', 'variable', ['medico', 'estudante', 'profissional'], ['pwa', 'zap', 'test'], false, false, 'low', [
+    'duvida orl',
+    'perguntar bottok',
+    'red flags otite',
+    'diferencial vertigem',
+    'disfonia persistente'
+  ]),
+  intent('whisper.transcribe', 'Transcrever consulta', 'whisper', 'handoff_to_pwa', 'high', ['medico'], ['pwa', 'zap', 'test'], true, false, 'high_phi', [
+    'transcrever consulta',
+    'audio da consulta',
+    'ditar evolucao',
+    'resumir audio',
+    'escrivao medico',
+    'abrir whisper',
+    'otto whisper',
+    'gravar consulta',
+    'iniciar transcricao'
+  ]),
+  intent('autolaudo.prepare_report', 'Preparar laudo no OTTO Laudo-IA', 'autolaudo', 'deep_link', 'medium', ['medico'], ['pwa', 'zap', 'test'], false, false, 'low', [
+    'abrir laudo ia',
+    'abrir autolaudo',
+    'otto laudo ia',
+    'laudo por ia',
+    'laudo por voz',
+    'preparar laudo',
+    'laudo videolaringoscopia',
+    'laudo video laringoscopia',
+    'laudo videoendoscopia nasal',
+    'laudo video endoscopia nasal',
+    'laudo nasofibrolaringoscopia',
+    'laudo nasofibro',
+    'laudo endoscopia nasal',
+    'modelo de laudo orl'
+  ]),
+  intent('cases.create_draft', 'Criar rascunho de caso', 'cases', 'call_tool', 'medium', ['medico', 'estudante'], ['pwa', 'test'], true, false, 'phi', [
+    'criar relato de caso',
+    'case report',
+    'rascunho de caso',
+    'montar caso clinico',
+    'gerar caso'
+  ]),
+  intent('protto.search_protocol', 'Buscar protocolo PROTTO', 'protto', 'deep_link', 'medium', ['medico'], ['pwa', 'zap', 'test'], false, false, 'low', [
+    'protocolo rinossinusite',
+    'fluxo epistaxe',
+    'abrir protto',
+    'protocolo amigdalite',
+    'conduta otite',
+    'prontuario protto',
+    'abrir prontuario',
+    'protocolo epistaxe',
+    'protocolo otite',
+    'protocolo disfonia',
+    'protocolo vertigem',
+    'protocolo apneia',
+    'buscar protocolo no protto'
+  ])
+];
+
+function calcOpenExamples(): string[] {
+  const examples = CALC_HUB_CATALOG.flatMap((calculator) => {
+    const labels = [calculator.id, calculator.name, ...calculator.aliases];
+    return [
+      ...labels.filter(canUseBareCalculatorAlias),
+      ...labels.flatMap((label) => [
+        `calculadora ${label}`,
+        `abrir ${label}`,
+        `calcular ${label}`,
+        `score ${label}`,
+        `escala ${label}`
+      ])
+    ];
+  });
+
+  return Array.from(new Set(examples));
+}
+
+function canUseBareCalculatorAlias(alias: string): boolean {
+  return !BROAD_CLINICAL_CALC_ALIASES.has(normalizeText(alias));
+}
+
+export function classifyIntent(text: string): IntentCandidate[] {
+  const normalized = normalizeText(text);
+
+  return CLINICAL_INTENTS.map((intentEntry) => {
+    const matchedTerms = intentEntry.examples.filter((example) => matchesExample(normalized, normalizeText(example)));
+    const confidence = matchedTerms.length > 0 ? Math.min(0.95, 0.65 + matchedTerms.length * 0.15) : 0;
+    return { intent: intentEntry, confidence, matchedTerms };
+  })
+    .filter((candidate) => candidate.confidence > 0)
+    .sort((a, b) => b.confidence - a.confidence || matchedSpecificity(b) - matchedSpecificity(a));
+}
+
+function matchedSpecificity(candidate: IntentCandidate): number {
+  return candidate.matchedTerms.reduce((total, term) => total + normalizeText(term).length, 0);
+}
+
+function matchesExample(normalizedText: string, normalizedExample: string): boolean {
+  if (normalizedText.includes(normalizedExample)) return true;
+
+  const tokens = normalizedExample.split(' ').filter((token) => token.length > 2);
+  if (tokens.length === 0) return false;
+  return tokens.every((token) => normalizedText.includes(token));
+}
+
+function intent(
+  id: string,
+  displayName: string,
+  moduleId: string,
+  actionKind: IntentRegistryEntry['actionKind'],
+  riskLevel: IntentRegistryEntry['riskLevel'],
+  allowedProfiles: IntentRegistryEntry['allowedProfiles'],
+  allowedSurfaces: IntentRegistryEntry['allowedSurfaces'],
+  requiresConfirmation: boolean,
+  requiresPatientContext: boolean,
+  dataSensitivity: IntentRegistryEntry['dataSensitivity'],
+  examples: string[]
+): IntentRegistryEntry {
+  return {
+    id,
+    displayName,
+    description: displayName,
+    examples,
+    moduleId,
+    actionKind,
+    riskLevel,
+    allowedProfiles,
+    allowedSurfaces,
+    requiresConfirmation,
+    requiresPatientContext,
+    dataSensitivity,
+    auditPolicy: {
+      eventType: `intent.${id}`,
+      storePayload: false,
+      redactionLevel: dataSensitivity === 'none' || dataSensitivity === 'low' ? 'partial' : 'strict'
+    }
+  };
+}
+
+function normalizeText(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
