@@ -1,273 +1,473 @@
-import React from 'react';
-import { Bot, ChevronDown, LockKeyhole, Play, Sparkles, X } from 'lucide-react';
-import type { PwaLaunchPlan } from './bridge';
-import { OTTO_TUTORIALS } from './tutorials';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Bot, X, Send, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ConciergeChatBubble, type ChatAction } from './ConciergeChatBubble';
+import { generateGreeting } from './greetings';
+import { classifyIntent } from './intents';
+import { runModuleAdapter } from './adapters';
+import { createPwaLaunchPlan } from './bridge';
+import { getModuleById, getCalcHubCatalogByArea } from './registry';
+import { useAuth } from '../contexts/AuthContext';
+import type { CommandSimulationResult, ModuleActivation, ConciergeDecision } from './types';
 
-export interface ConciergeCalculatorSummary {
+// ─── Chat Message Type ───────────────────────────────────────────────────────
+
+interface ChatMessage {
   id: string;
-  name: string;
+  variant: 'assistant' | 'user' | 'system';
+  text: string;
+  actions?: ChatAction[];
+  timestamp: string;
 }
 
-export interface ConciergeCalculatorGroup {
-  area: string;
-  calculators: ConciergeCalculatorSummary[];
+// ─── Help Response ───────────────────────────────────────────────────────────
+
+function getHelpResponse(profile: string | null): { text: string; actions: ChatAction[] } {
+  const modules = [
+    { label: '🧮 Calculadoras ORL', cmd: 'quais calculadoras' },
+    { label: '📋 Laudo por IA', cmd: 'abrir autolaudo' },
+    { label: '📰 Pílulas Científicas', cmd: 'abrir update' },
+    { label: '🔍 PROCOD (CID/TUSS)', cmd: 'abrir procod' },
+    { label: '📝 Prontuário PROTTO', cmd: 'abrir protto' },
+    { label: '📊 Cases Clínicos', cmd: 'abrir cases' },
+    { label: '🎬 Vídeos ORL', cmd: 'abrir videos' },
+    { label: '📖 LogBook Cirúrgico', cmd: 'abrir logbook' },
+  ];
+
+  if (profile === 'estudante') {
+    modules.push({ label: '🎓 Simulado Acadêmico', cmd: 'abrir simulados' });
+  }
+
+  return {
+    text: 'Posso te ajudar com qualquer módulo do ecossistema OTTO! Toque em uma opção ou digite o que precisa:',
+    actions: modules.map(m => ({ label: m.label, command: m.cmd })),
+  };
 }
 
-export interface ConciergeModuleSummary {
-  id: string;
-  name: string;
-  status: string;
+// ─── Conversational Responses ────────────────────────────────────────────────
+
+function getConversationalResponse(text: string): { text: string; actions: ChatAction[] } | null {
+  const normalized = text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
+
+  // Greetings
+  if (/^(oi|ola|hey|bom dia|boa tarde|boa noite|e ai|fala|salve)\b/.test(normalized)) {
+    return {
+      text: 'Olá! 😊 Estou aqui para ajudar. O que você precisa?',
+      actions: [
+        { label: '❓ O que posso fazer?', command: 'ajuda' },
+        { label: '📰 Novidades', command: 'abrir update' },
+      ],
+    };
+  }
+
+  // Thanks
+  if (/^(obrigad|valeu|vlw|thanks|brigad)/.test(normalized)) {
+    return {
+      text: 'De nada! 🫡 Estou sempre por aqui. Precisa de mais alguma coisa?',
+      actions: [],
+    };
+  }
+
+  // Who are you?
+  if (/quem (e |eh )?(voce|vc|tu)|o que (e |eh )?o? ?concierge|se apresent/.test(normalized)) {
+    return {
+      text: '🤖 Sou o **OTTO Concierge** — seu assistente inteligente dentro do ecossistema OTTO.\n\nPosso navegar para qualquer módulo, abrir calculadoras, buscar códigos TUSS/CID, e muito mais! Sou movido por IA mas todas as decisões clínicas são do médico.',
+      actions: [{ label: '❓ Ver tudo que posso fazer', command: 'ajuda' }],
+    };
+  }
+
+  return null;
 }
 
-export interface ConciergeQuickAction {
-  label: string;
-}
+// ─── Main Component ──────────────────────────────────────────────────────────
 
-export interface OttoConciergeDockProps {
-  command: string;
-  isOpen: boolean;
-  isPending: boolean;
-  mascotSrc?: string;
-  userLabel: string;
-  userStatus: string;
-  plan: PwaLaunchPlan;
-  quickActions: ConciergeQuickAction[];
-  modules: ConciergeModuleSummary[];
-  calculatorGroups: ConciergeCalculatorGroup[];
-  onOpenChange: (isOpen: boolean) => void;
-  onCommandChange: (command: string) => void;
-  onRun: () => void;
-  onExecutePlan: () => void;
-  onQuickAction: (index: number) => void;
-  onCalculatorSelect: (calculator: ConciergeCalculatorSummary) => void;
-}
+export const OttoConciergeDock: React.FC = () => {
+  const navigate = useNavigate();
+  const { userName, profile, userId } = useAuth();
+  
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [hasGreeted, setHasGreeted] = useState(false);
+  
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-export const OttoConciergeDock: React.FC<OttoConciergeDockProps> = ({
-  command,
-  isOpen,
-  isPending,
-  mascotSrc,
-  userLabel,
-  userStatus,
-  plan,
-  quickActions,
-  modules,
-  calculatorGroups,
-  onOpenChange,
-  onCommandChange,
-  onRun,
-  onExecutePlan,
-  onQuickAction,
-  onCalculatorSelect
-}) => {
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+  }, []);
+
+  const addMessage = useCallback((msg: Omit<ChatMessage, 'id' | 'timestamp'>) => {
+    const newMsg: ChatMessage = {
+      ...msg,
+      id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages(prev => [...prev, newMsg]);
+    scrollToBottom();
+    return newMsg;
+  }, [scrollToBottom]);
+
+  // ─── Generate greeting on open ──────────────────────────────────────────────
+  useEffect(() => {
+    if (isOpen && !hasGreeted) {
+      const lastModule = localStorage.getItem('otto_last_module') || undefined;
+      const pillsReadStr = localStorage.getItem('otto_pills_read_count');
+      const totalPillsRead = pillsReadStr ? parseInt(pillsReadStr, 10) : 0;
+      const favsStr = localStorage.getItem('otto_favs_count');
+      const favoritesCount = favsStr ? parseInt(favsStr, 10) : 0;
+
+      const greeting = generateGreeting({
+        userName: userName || 'Doutor(a)',
+        profile: profile as any,
+        hour: new Date().getHours(),
+        unreadPills: 0, // TODO: compute from Firestore
+        lastModule,
+        totalPillsRead,
+        favoritesCount,
+      });
+
+      addMessage({
+        variant: 'assistant',
+        text: greeting.message,
+        actions: greeting.suggestions.map(s => ({
+          label: `${s.icon} ${s.label}`,
+          command: s.command,
+        })),
+      });
+
+      setHasGreeted(true);
+    }
+  }, [isOpen, hasGreeted, userName, profile, addMessage]);
+
+  // ─── Focus input on open ────────────────────────────────────────────────────
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 200);
+    }
+  }, [isOpen]);
+
+  // ─── Process command ────────────────────────────────────────────────────────
+  const processCommand = useCallback(async (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+
+    // Add user message
+    addMessage({ variant: 'user', text: trimmed });
+    setIsProcessing(true);
+
+    // Small delay for natural feel
+    await new Promise(r => setTimeout(r, 300));
+
+    try {
+      // 1. Check for conversational responses first
+      const conversational = getConversationalResponse(trimmed);
+      if (conversational) {
+        addMessage({ variant: 'assistant', text: conversational.text, actions: conversational.actions });
+        setIsProcessing(false);
+        return;
+      }
+
+      // 2. Check for help command
+      const normalizedCmd = trimmed.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+      if (/^(ajuda|help|menu|o que (voce|vc) (faz|pode)|opcoes|comandos)/.test(normalizedCmd)) {
+        const help = getHelpResponse(profile);
+        addMessage({ variant: 'assistant', text: help.text, actions: help.actions });
+        setIsProcessing(false);
+        return;
+      }
+
+      // 3. Classify intent
+      const candidates = classifyIntent(trimmed);
+      
+      if (candidates.length === 0) {
+        addMessage({
+          variant: 'assistant',
+          text: `🤔 Não encontrei um módulo para "${trimmed}". Posso te ajudar de outra forma?`,
+          actions: [
+            { label: '❓ Ver opções', command: 'ajuda' },
+            { label: '🤖 Perguntar ao BOTTOK', command: `perguntar bottok ${trimmed}` },
+          ],
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      const topCandidate = candidates[0];
+      const intentEntry = topCandidate.intent;
+      const module = getModuleById(intentEntry.moduleId);
+
+      // 4. Catalog request (special case)
+      if (intentEntry.id === 'calc.list') {
+        const catalog = getCalcHubCatalogByArea();
+        const catalogText = catalog.map(g =>
+          `**${g.area}:**\n${g.calculators.map(c => `  • ${c.name}`).join('\n')}`
+        ).join('\n\n');
+
+        addMessage({
+          variant: 'assistant',
+          text: `🧮 Calculadoras disponíveis no OTTO CALC-HUB:\n\n${catalogText}\n\nDigite o nome de uma calculadora para abrir.`,
+          actions: [
+            { label: 'SNOT-22', command: 'abrir snot-22' },
+            { label: 'Epworth', command: 'abrir epworth' },
+            { label: 'THI Zumbido', command: 'abrir thi' },
+          ],
+        });
+        setIsProcessing(false);
+        return;
+      }
+
+      // 5. Run adapter and create launch plan
+      const traceId = `trace_${Date.now()}`;
+      const adapterRequest = {
+        moduleId: intentEntry.moduleId,
+        intentId: intentEntry.id,
+        surface: 'pwa' as const,
+        input: { text: trimmed },
+        identity: userId ? {
+          uid: userId,
+          profile: (profile || 'medico') as any,
+        } : undefined,
+        traceId,
+      };
+
+      const adapterResponse = await runModuleAdapter(adapterRequest);
+
+      const decision: ConciergeDecision = {
+        decisionId: traceId,
+        intentId: intentEntry.id,
+        confidence: topCandidate.confidence,
+        riskLevel: intentEntry.riskLevel,
+        action: {
+          kind: intentEntry.actionKind,
+          moduleId: intentEntry.moduleId,
+          url: module?.currentUrl,
+        },
+        audit: intentEntry.auditPolicy,
+        userMessage: adapterResponse.summary,
+        debug: {
+          traceId,
+          selectedIntent: intentEntry.id,
+          guardrailDecision: 'allow',
+        },
+      };
+
+      const activation: ModuleActivation = {
+        shouldActivate: true,
+        moduleId: intentEntry.moduleId,
+        mode: intentEntry.actionKind === 'deep_link' ? 'deep_link' : 'open_module',
+        url: module?.currentUrl,
+        reason: 'Intent classified with high confidence',
+      };
+
+      const simResult: CommandSimulationResult = {
+        decision,
+        activation,
+        adapterResponse,
+        durationMs: 0,
+      };
+
+      const plan = createPwaLaunchPlan(simResult);
+
+      // 6. Build response
+      const moduleName = module?.displayName || intentEntry.displayName;
+      const actions: ChatAction[] = [];
+
+      if (plan.route && plan.status === 'ready') {
+        actions.push({
+          label: `🚀 Abrir ${moduleName}`,
+          command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}`,
+        });
+      } else if (plan.status === 'handoff_required') {
+        actions.push({
+          label: `🔐 Continuar no PWA`,
+          command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}`,
+        });
+      }
+
+      // Add contextual follow-up
+      actions.push({ label: '❓ Mais opções', command: 'ajuda' });
+
+      // Humanized response
+      let responseText = '';
+      if (plan.status === 'ready') {
+        responseText = `✅ **${moduleName}** está pronto! ${adapterResponse.summary}`;
+      } else if (plan.status === 'handoff_required') {
+        responseText = `🔐 **${moduleName}** precisa de acesso seguro. ${adapterResponse.summary}`;
+      } else if (plan.status === 'confirmation_required') {
+        responseText = `⚠️ **${moduleName}** precisa de confirmação. ${plan.helperMessage}`;
+      } else {
+        responseText = `ℹ️ ${adapterResponse.summary}`;
+      }
+
+      // Track last module
+      localStorage.setItem('otto_last_module', intentEntry.moduleId);
+
+      addMessage({ variant: 'assistant', text: responseText, actions });
+
+    } catch (err) {
+      console.error('Concierge error:', err);
+      addMessage({
+        variant: 'assistant',
+        text: '❌ Ops, algo deu errado. Tente novamente ou use o menu principal.',
+        actions: [{ label: '❓ Ver opções', command: 'ajuda' }],
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [addMessage, profile, userId, navigate]);
+
+  // ─── Handle action clicks ──────────────────────────────────────────────────
+  const handleAction = useCallback((command: string) => {
+    if (command.startsWith('__navigate__')) {
+      const parts = command.split('__');
+      const route = parts[2] || '/';
+      const url = parts[3] || '';
+
+      if (route === '/modules/webview' && url) {
+        navigate(route, { state: { url } });
+      } else if (route.startsWith('/')) {
+        navigate(route);
+      }
+      setIsOpen(false);
+      return;
+    }
+
+    setInputValue('');
+    processCommand(command);
+  }, [navigate, processCommand]);
+
+  // ─── Handle submit ─────────────────────────────────────────────────────────
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isProcessing) return;
+    processCommand(inputValue);
+    setInputValue('');
+  };
+
   return (
-    <div className="otto-concierge-layer" aria-label="OTTO Concierge no PWA">
-      <button
-        className={`concierge-fab ${plan.status}`}
-        type="button"
+    <>
+      {/* ═══ FAB Button ═══ */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setIsOpen(true)}
+        className={`fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 w-14 h-14 rounded-full
+          bg-gradient-to-br from-emerald-600 to-teal-700 shadow-xl shadow-emerald-900/40
+          flex items-center justify-center text-white
+          hover:from-emerald-500 hover:to-teal-600 transition-all
+          ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
         aria-label="Abrir OTTO Concierge"
-        aria-expanded={isOpen}
-        aria-controls="otto-concierge-panel"
-        onClick={() => onOpenChange(!isOpen)}
       >
-        {mascotSrc ? <img src={mascotSrc} alt="" aria-hidden="true" /> : <Bot aria-hidden="true" />}
-        <span>OTTO Concierge</span>
-        <small aria-hidden="true">{plan.status}</small>
-      </button>
+        <Bot size={24} />
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full flex items-center justify-center animate-pulse">
+          <Sparkles size={9} className="text-[#051813]" />
+        </span>
+      </motion.button>
 
-      {isOpen ? (
-        <aside id="otto-concierge-panel" className="concierge-dock" aria-label="Painel do OTTO Concierge">
-          <header className="concierge-dock-header">
-            <div>
-              <span>Helper do PWA</span>
-              <strong>Posso ajudar ou prefere me dispensar por enquanto?</strong>
-            </div>
-            <button type="button" aria-label="Fechar OTTO Concierge" onClick={() => onOpenChange(false)}>
-              <X aria-hidden="true" />
-            </button>
-          </header>
-
-          <section className="concierge-butler-greeting" aria-label="Saudacao do mordomo OTTO">
-            {mascotSrc ? <img src={mascotSrc} alt="" aria-hidden="true" /> : <Bot aria-hidden="true" />}
-            <div>
-              <strong>Estou a porta.</strong>
-              <p>Posso abrir um modulo, preparar um contexto ou ficar quietinho ate voce chamar.</p>
-              <button type="button" onClick={() => onOpenChange(false)}>
-                Dispensar por enquanto
-              </button>
-            </div>
-          </section>
-
-          <section className="concierge-user-strip" aria-label="Usuario reconhecido">
-            <LockKeyhole aria-hidden="true" />
-            <div>
-              <strong>{userLabel}</strong>
-              <span>{userStatus}</span>
-            </div>
-          </section>
-
-          <label className="concierge-command">
-            <span>Pedido ao Concierge</span>
-            <textarea
-              value={command}
-              rows={4}
-              onChange={(event) => onCommandChange(event.target.value)}
-              onKeyDown={(event) => {
-                if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') onRun();
-              }}
+      {/* ═══ Chat Panel ═══ */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop (mobile) */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none sm:pointer-events-none"
             />
-          </label>
 
-          <button className="concierge-run" type="button" disabled={isPending} onClick={onRun}>
-            <Play aria-hidden="true" />
-            {isPending ? 'Preparando' : 'Preparar abertura'}
-          </button>
-
-          <section className="concierge-mini-plan" aria-label="Resumo do plano PWA">
-            <div>
-              <Sparkles aria-hidden="true" />
-              <strong>{plan.actionLabel}</strong>
-            </div>
-            <p>{plan.helperMessage}</p>
-            <dl>
-              <div>
-                <dt>Modulo</dt>
-                <dd>{plan.moduleName ?? plan.moduleId ?? 'aguardando'}</dd>
-              </div>
-              <div>
-                <dt>Rota</dt>
-                <dd>{plan.route ?? 'n/a'}</dd>
-              </div>
-            </dl>
-            {plan.status !== 'idle' && plan.status !== 'blocked' && (
-              <button
-                className="concierge-execute-plan-btn"
-                type="button"
-                onClick={onExecutePlan}
-                style={{
-                  marginTop: '12px',
-                  width: '100%',
-                  padding: '10px',
-                  background: '#26745f',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontWeight: 750,
-                  cursor: 'pointer',
-                  transition: 'background 0.15s ease'
-                }}
-              >
-                {plan.actionLabel}
-              </button>
-            )}
-          </section>
-
-          <section className="concierge-shortcuts" aria-label="Atalhos do Concierge">
-            <h3>Atalhos</h3>
-            <div>
-              {quickActions.map((action, index) => (
-                <button key={action.label} type="button" onClick={() => onQuickAction(index)}>
-                  {action.label}
+            {/* Panel */}
+            <motion.div
+              initial={{ x: '100%', opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '100%', opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="fixed z-50
+                inset-0 sm:inset-auto
+                sm:right-0 sm:top-0 sm:bottom-0 sm:w-[380px]
+                bg-[#051813] border-l border-[#123E32]
+                flex flex-col shadow-2xl"
+            >
+              {/* Panel Header */}
+              <header className="h-14 bg-[#0B251E] border-b border-[#123E32] px-4 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center shadow-md">
+                    <Bot size={16} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-extrabold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent leading-none">
+                      OTTO Concierge
+                    </h2>
+                    <span className="text-[9px] text-emerald-600 font-semibold">Assistente Inteligente</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 hover:bg-[#123E32]/60 rounded-full transition-colors text-gray-500 hover:text-white"
+                >
+                  <X size={18} />
                 </button>
-              ))}
-            </div>
-          </section>
+              </header>
 
-          <section className="concierge-module-list" aria-label="Modulos disponiveis no PWA">
-            <h3>Modulos</h3>
-            {modules.map((module) => (
-              <div key={module.id}>
-                <span>{module.name}</span>
-                <small>{module.status}</small>
+              {/* Chat Messages */}
+              <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#123E32]">
+                {messages.map((msg) => (
+                  <ConciergeChatBubble
+                    key={msg.id}
+                    variant={msg.variant}
+                    text={msg.text}
+                    actions={msg.actions}
+                    timestamp={msg.timestamp}
+                    onAction={handleAction}
+                  />
+                ))}
+
+                {isProcessing && (
+                  <ConciergeChatBubble variant="assistant" text="" isTyping />
+                )}
+
+                <div ref={chatEndRef} />
               </div>
-            ))}
-          </section>
 
-          <section className="concierge-tutorials" aria-label="Tutoriais de uso do sistema">
-            <h3>Manual & Tutoriais</h3>
-            {OTTO_TUTORIALS.map((tutorial) => (
-              <details key={tutorial.id} className="concierge-tutorial-item">
-                <summary>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span>{tutorial.emoji}</span>
-                    <span>{tutorial.title}</span>
-                  </span>
-                  <ChevronDown aria-hidden="true" />
-                </summary>
-                <div className="concierge-tutorial-content" style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', marginTop: '4px' }}>
-                  <p style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '8px', lineHeight: '1.4' }}>{tutorial.summary}</p>
-                  
-                  <div style={{ fontSize: '10px', color: '#818cf8', fontWeight: 'bold', marginBottom: '8px' }}>
-                    Público-alvo: <span style={{ color: '#d1d5db', fontWeight: 'normal' }}>{tutorial.audience}</span>
-                  </div>
-
-                  <ol style={{ paddingLeft: '0', listStyle: 'none', margin: '10px 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {tutorial.steps.map((step, idx) => (
-                      <li key={idx} style={{ display: 'flex', gap: '8px', fontSize: '11px', color: '#d1d5db', lineHeight: '1.4' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', background: '#312e81', color: '#a5b4fc', borderRadius: '50%', fontSize: '10px', fontWeight: 'bold', flexShrink: 0, marginTop: '2px' }}>{idx + 1}</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-
-                  <div style={{ background: 'rgba(16,185,129,0.05)', borderLeft: '3px solid #10b981', padding: '8px', borderRadius: '0 6px 6px 0', fontSize: '10px', color: '#a7f3d0', margin: '12px 0 8px 0', lineHeight: '1.4' }}>
-                    <strong>💡 Dica:</strong> {tutorial.tip}
-                  </div>
-
-                  <button 
-                    type="button" 
-                    className="tutorial-test-btn"
-                    onClick={() => {
-                      onCommandChange(tutorial.shortcutCommand);
-                      onOpenChange(true);
-                      setTimeout(() => {
-                        onRun();
-                      }, 120);
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      marginTop: '8px',
-                      padding: '6px 12px',
-                      background: '#312e81',
-                      color: '#a5b4fc',
-                      border: '1px solid #4338ca',
-                      borderRadius: '6px',
-                      fontSize: '10px',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
-                    }}
+              {/* Input Bar */}
+              <div className="shrink-0 bg-[#0B251E] border-t border-[#123E32] p-3">
+                <form onSubmit={handleSubmit} className="flex gap-2">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="Digite um comando ou pergunta..."
+                    disabled={isProcessing}
+                    className="flex-1 bg-[#051813] border border-[#123E32] rounded-xl px-3.5 py-2.5
+                      text-[13px] text-gray-200 placeholder-gray-600
+                      focus:outline-none focus:border-emerald-700/60 focus:ring-1 focus:ring-emerald-800/40
+                      disabled:opacity-50 transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!inputValue.trim() || isProcessing}
+                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700
+                      flex items-center justify-center text-white
+                      hover:from-emerald-500 hover:to-teal-600
+                      disabled:opacity-30 disabled:cursor-not-allowed
+                      transition-all active:scale-95 shadow-md"
                   >
-                    <Play size={10} aria-hidden="true" />
-                    Testar Ferramenta
+                    <Send size={16} />
                   </button>
-                </div>
-              </details>
-            ))}
-          </section>
-
-          <section className="concierge-calc-areas" aria-label="Calculadoras por area no Concierge">
-            <h3>CALC-HUB</h3>
-            {calculatorGroups.map((group) => (
-              <details key={group.area}>
-                <summary>
-                  <span>{group.area}</span>
-                  <ChevronDown aria-hidden="true" />
-                </summary>
-                <div>
-                  {group.calculators.map((calculator) => (
-                    <button key={calculator.id} type="button" onClick={() => onCalculatorSelect(calculator)}>
-                      {calculator.name}
-                    </button>
-                  ))}
-                </div>
-              </details>
-            ))}
-          </section>
-        </aside>
-      ) : null}
-    </div>
+                </form>
+                <p className="text-[9px] text-gray-700 text-center mt-1.5">
+                  Decisões clínicas são sempre do médico · LGPD compliant
+                </p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
