@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -12,7 +12,12 @@ import {
   Calendar,
   Sparkles,
   Search,
-  ListFilter
+  ListFilter,
+  RefreshCw,
+  TrendingUp,
+  Zap,
+  BarChart3,
+  Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../lib/firebase';
@@ -27,6 +32,8 @@ import {
   limit
 } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
+
+// ─── Interfaces ──────────────────────────────────────────────────────────────
 
 interface Artigo {
   titulo: string;
@@ -43,6 +50,12 @@ interface QuizCuriosidade {
   explicacao: string;
 }
 
+interface InsightChartData {
+  tipo: 'comparacao' | 'percentual' | 'timeline';
+  titulo: string;
+  dados: Array<{ label: string; valor: number; unidade?: string }>;
+}
+
 interface PillData {
   id: string;
   tema: string;
@@ -53,7 +66,175 @@ interface PillData {
   consenso_cientifico: string;
   pratica_clinica: string;
   quiz_curiosidade?: QuizCuriosidade;
+  revelacao_central?: string;
+  insight_grafico?: InsightChartData;
+  fonte?: 'mock' | 'pubmed_real';
+  pmids?: string[];
 }
+
+// ─── InsightChart SVG Component ──────────────────────────────────────────────
+
+function InsightChart({ data }: { data: InsightChartData }) {
+  if (!data?.dados?.length) return null;
+
+  const COLORS = ['#10b981', '#06b6d4', '#f59e0b', '#8b5cf6'];
+
+  if (data.tipo === 'percentual') {
+    const valor = data.dados[0]?.valor || 0;
+    const r = 42;
+    const circumference = 2 * Math.PI * r;
+    const offset = circumference - (valor / 100) * circumference;
+
+    return (
+      <div className="flex flex-col items-center gap-2 py-2">
+        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">{data.titulo}</p>
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r={r} fill="none" stroke="#1a3a2f" strokeWidth="6" />
+          <circle
+            cx="50" cy="50" r={r} fill="none"
+            stroke="#10b981" strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            transform="rotate(-90 50 50)"
+            className="transition-all duration-1000"
+          />
+          <text x="50" y="46" textAnchor="middle" fill="white" fontSize="18" fontWeight="800">{valor}</text>
+          <text x="50" y="60" textAnchor="middle" fill="#9ca3af" fontSize="10">{data.dados[0]?.unidade || '%'}</text>
+        </svg>
+        <p className="text-[10px] text-gray-500 text-center">{data.dados[0]?.label}</p>
+      </div>
+    );
+  }
+
+  if (data.tipo === 'comparacao') {
+    const maxVal = Math.max(...data.dados.map(d => d.valor), 1);
+    return (
+      <div className="space-y-2 py-2">
+        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{data.titulo}</p>
+        {data.dados.map((d, i) => (
+          <div key={i} className="space-y-1">
+            <div className="flex justify-between text-[10px]">
+              <span className="text-gray-400 truncate max-w-[60%]">{d.label}</span>
+              <span className="font-bold text-white">{d.valor}{d.unidade || '%'}</span>
+            </div>
+            <div className="w-full h-2 bg-[#1a3a2f] rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(d.valor / maxVal) * 100}%` }}
+                transition={{ duration: 0.8, delay: i * 0.15 }}
+                className="h-full rounded-full"
+                style={{ backgroundColor: COLORS[i % COLORS.length] }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (data.tipo === 'timeline') {
+    return (
+      <div className="space-y-2 py-2">
+        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{data.titulo}</p>
+        <div className="flex items-end justify-between gap-1 h-16 px-1">
+          {data.dados.map((d, i) => {
+            const maxVal = Math.max(...data.dados.map(x => x.valor), 1);
+            const pct = (d.valor / maxVal) * 100;
+            return (
+              <div key={i} className="flex flex-col items-center flex-1 gap-1">
+                <span className="text-[9px] font-bold text-white">{d.valor}{d.unidade || ''}</span>
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: `${Math.max(pct, 8)}%` }}
+                  transition={{ duration: 0.6, delay: i * 0.1 }}
+                  className="w-full max-w-[24px] rounded-t"
+                  style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                />
+                <span className="text-[8px] text-gray-500 text-center leading-tight">{d.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+// ─── Fallback mock pills (manter para offline) ──────────────────────────────
+
+const MOCK_PILLS: PillData[] = [
+  {
+    id: "mock_pill_1",
+    tema: "Eficácia da Mometasona vs. Lavagem Salina na Rinossinusite Crônica",
+    data_exibicao: new Date().toISOString().slice(0, 10),
+    tempo_leitura_min: 5,
+    especialidade: "Rinologia",
+    fonte: 'mock',
+    revelacao_central: "Lavagem salina antes do corticoide tópico otimiza a penetração nos óstios sinusais",
+    insight_grafico: {
+      tipo: 'comparacao',
+      titulo: 'Redução do SNOT-22',
+      dados: [
+        { label: 'Combinada (salina + CIN)', valor: 78, unidade: '%' },
+        { label: 'Corticoide isolado', valor: 54, unidade: '%' },
+        { label: 'Salina isolada', valor: 32, unidade: '%' },
+      ]
+    },
+    artigos: [
+      { titulo: "Intranasal corticosteroids for chronic rhinosinusitis without nasal polyps", revista: "Cochrane Database Syst Rev", ano: "2024", autores: "Chong LY, et al.", link: "https://pubmed.ncbi.nlm.nih.gov/" },
+      { titulo: "Nasal Saline Irrigation vs. Topical Steroids in CRS Management", revista: "Laryngoscope", ano: "2023", autores: "Harvey RJ, et al.", link: "https://pubmed.ncbi.nlm.nih.gov/" }
+    ],
+    consenso_cientifico: "A análise crítica das evidências de longo prazo da Cochrane e de ensaios clínicos controlados demonstra que o uso contínuo de corticosteroides intranasais apresenta superioridade estatística na redução de sintomas obstrutivos e escores SNOT-22 em pacientes com RSC sem pólipos nasais. A terapia combinada (lavagem salina + mometasona) confere a maior taxa de depuração mucociliar.",
+    pratica_clinica: "Recomende irrigação nasal salina de alto volume (240ml) 10 a 15 minutos ANTES do spray de mometasona nasofaríngeo (200mcg/dia). Isso remove a barreira de muco e otimiza a penetração do corticoide.",
+    quiz_curiosidade: {
+      pergunta: "Qual conduta otimiza a penetração do corticoide tópico na rinossinusite crônica?",
+      alternativas: [
+        "A) Aplicar spray em posição de Trendelenburg.",
+        "B) Lavagem nasal salina 10-15min antes do corticoide.",
+        "C) Duplicar a dose do spray nos dias de crise.",
+        "D) Associar corticoide oral nos 3 primeiros dias."
+      ],
+      resposta_correta: "B) Lavagem nasal salina 10-15min antes do corticoide.",
+      explicacao: "A irrigação salina remove crostas e muco espesso, permitindo absorção direta e homogênea do corticoide tópico."
+    }
+  },
+  {
+    id: "mock_pill_2",
+    tema: "Corticoterapia Intratimpânica como Resgate na Surdez Súbita",
+    data_exibicao: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
+    tempo_leitura_min: 5,
+    especialidade: "Otologia",
+    fonte: 'mock',
+    revelacao_central: "CIT de resgate deve iniciar nas primeiras 2 semanas após falha do corticoide sistêmico",
+    insight_grafico: {
+      tipo: 'percentual',
+      titulo: 'Taxa de Recuperação Auditiva',
+      dados: [{ label: 'Pacientes com CIT ≤ 14 dias', valor: 67, unidade: '%' }]
+    },
+    artigos: [
+      { titulo: "Intratympanic methylprednisolone vs systemic steroids for SSNHL", revista: "JAMA Otolaryngol", ano: "2023", autores: "Rauch SD, et al.", link: "https://pubmed.ncbi.nlm.nih.gov/" },
+      { titulo: "Salvage intratympanic steroid therapy for sudden deafness", revista: "Otol Neurotol", ano: "2024", autores: "Plontke SK, et al.", link: "https://pubmed.ncbi.nlm.nih.gov/" }
+    ],
+    consenso_cientifico: "Na PANSS idiopática, a CIT de resgate com metilprednisolona ou dexametasona apresenta eficácia comprovada em pacientes refratários ao corticoide sistêmico, devendo ser iniciada nas primeiras 2-3 semanas após a falha do tratamento inicial.",
+    pratica_clinica: "Realize 3-4 aplicações intratimpânicas (dexametasona 4mg/ml) com intervalo de 3-7 dias. Oriente decúbito lateral por 20-30 minutos sem engolir.",
+    quiz_curiosidade: {
+      pergunta: "Qual recomendação otimiza a absorção na corticoterapia intratimpânica?",
+      alternativas: [
+        "A) Paciente sentado mastigando chiclete.",
+        "B) Decúbito lateral 20-30min sem deglutir.",
+        "C) Manobras de Valsalva nos primeiros 5min.",
+        "D) Compressa morna no pavilhão auricular."
+      ],
+      resposta_correta: "B) Decúbito lateral 20-30min sem deglutir.",
+      explicacao: "Decúbito com orelha tratada para cima acumula medicação sobre a janela redonda. Evitar deglutição previne drenagem pela tuba."
+    }
+  }
+];
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 
 export const InfoPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,6 +242,8 @@ export const InfoPage: React.FC = () => {
   
   const [pills, setPills] = useState<PillData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isMockData, setIsMockData] = useState(false);
   
   const [activePill, setActivePill] = useState<PillData | null>(null);
   const [activeTab, setActiveTab] = useState<'evidencia' | 'pratica' | 'quiz'>('evidencia');
@@ -72,304 +255,65 @@ export const InfoPage: React.FC = () => {
   const [readPills, setReadPills] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
 
-  useEffect(() => {
-    const mockPills: PillData[] = [
-      {
-        id: "mock_pill_1",
-        tema: "Eficácia da Mometasona vs. Lavagem Salina na Rinossinusite Crônica",
-        data_exibicao: "2026-05-21",
-        tempo_leitura_min: 5,
-        especialidade: "Rinologia",
-        artigos: [
-          {
-            titulo: "Intranasal corticosteroids for chronic rhinosinusitis without nasal polyps",
-            revista: "Cochrane Database Syst Rev",
-            ano: "2024",
-            autores: "Chong LY, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/38318854/"
-          },
-          {
-            titulo: "Nasal Saline Irrigation vs. Topical Steroids in Chronic Rhinosinusitis Management",
-            revista: "Laryngoscope",
-            ano: "2023",
-            autores: "Harvey RJ, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/37021145/"
-          }
-        ],
-        consenso_cientifico: "A análise crítica das evidências de longo prazo da Cochrane e de ensaios clínicos controlados demonstra que o uso contínuo de corticosteroides intranasais apresenta superioridade estatística e clínica na redução de sintomas obstrutivos e escores SNOT-22 em pacientes com RSC sem pólipos nasais, em comparação com a lavagem salina isolada. No entanto, a terapia combinada (lavagem salina de alto volume antes da mometasona) confere a maior taxa de depuração mucociliar e controle de biofilmes bacterianos nasais.",
-        pratica_clinica: "Recomende a realização de irrigação nasal salina de alto volume (240ml) sempre 10 a 15 minutos ANTES da aplicação do spray de mometasona nasofaríngeo (200mcg/dia). Isso remove a barreira mecânica de muco e otimiza a penetração do corticoide nos óstios sinusais reabertos.",
-        quiz_curiosidade: {
-          pergunta: "Qual a conduta que otimiza a penetração e eficácia do corticoide tópico na rinossinusite crônica?",
-          alternativas: [
-            "Aplicar o spray corticoide com o paciente em posição de Trendelenburg.",
-            "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
-            "Duplicar a dose do spray nasal nos dias de crise obstrutiva intensa.",
-            "Associar corticoide oral nos primeiros 3 dias de tratamento tópico."
-          ],
-          resposta_correta: "Realizar lavagem nasal salina de alto volume 10 a 15 minutos antes do corticoide.",
-          explicacao: "A irrigação salina remove as crostas e o muco espesso, limpando a mucosa nasal para que o corticoide tópico seja absorvido de forma direta e homogênea."
-        }
-      },
-      {
-        id: "mock_pill_2",
-        tema: "Diagnóstico Diferencial de Disfonia Espasmódica de Adução vs. Tremor Vocal",
-        data_exibicao: "2026-05-20",
-        tempo_leitura_min: 6,
-        especialidade: "Laringologia",
-        artigos: [
-          {
-            titulo: "Laryngeal electromyography in vocal fold disorders",
-            revista: "Laryngoscope",
-            ano: "2023",
-            autores: "Rosen CA, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/36711902/"
-          },
-          {
-            titulo: "Spasmodic dysphonia vs. Vocal tremor: A diagnostic challenge",
-            revista: "J Voice",
-            ano: "2024",
-            autores: "Ludlow CL, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/38202911/"
-          }
-        ],
-        consenso_cientifico: "O diagnóstico diferencial preciso é crucial para o sucesso terapêutico. A disfonia espasmódica de adução (DEA) caracteriza-se por quebras de sonoridade espasmódicas principalmente em vogais sonoras, enquanto o tremor vocal apresenta oscilações rítmicas na frequência e amplitude (geralmente 4-7 Hz), visíveis tanto na fala quanto na laringoscopia em tarefas sustentadas. A eletromiografia laríngea (EMG) e a análise acústica espectrográfica auxiliam na distinção diagnóstica.",
-        pratica_clinica: "Utilize a tarefa de vogal sustentada /a/ para evidenciar o tremor rítmico, e leitura de frases ricas em consoantes sonoras (ex: 'o gato bebeu leite') para acentuar os espasmos de adução da DEA. O tratamento inicial padrão de escolha da DEA é a infiltração de toxina botulínica no músculo tireoaritenóideo.",
-        quiz_curiosidade: {
-          pergunta: "Qual tarefa fonatória é mais útil para acentuar os sintomas da Disfonia Espasmódica de Adução durante a avaliação clínica?",
-          alternativas: [
-            "Sons sussurrados e prolongados.",
-            "Produção de vogais curtas e repetidas em falsete.",
-            "Leitura de frases ricas em consoantes sonoras (vogais e fonemas sonoros).",
-            "Fonação reversa (inspiração fonada)."
-          ],
-          resposta_correta: "Leitura de frases ricas em consoantes sonoras (vogais e fonemas sonoros).",
-          explicacao: "A DEA manifesta-se predominantemente durante a emissão de fonemas sonoros, onde ocorre hiperadução involuntária das pregas vocais, provocando quebras de voz."
-        }
-      },
-      {
-        id: "mock_pill_3",
-        tema: "Corticoterapia Intratimpânica como Resgate na Surdez Súbita",
-        data_exibicao: "2026-05-19",
-        tempo_leitura_min: 5,
-        especialidade: "Otologia",
-        artigos: [
-          {
-            titulo: "Intratympanic methylprednisolone vs. systemic steroids for sudden sensorineural hearing loss",
-            revista: "JAMA Otolaryngol Head Neck Surg",
-            ano: "2023",
-            autores: "Rauch SD, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/36881903/"
-          },
-          {
-            titulo: "Salvage intratympanic steroid therapy for sudden deafness",
-            revista: "Otol Neurotol",
-            ano: "2024",
-            autores: "Plontke SK, et5 al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/38199202/"
-          }
-        ],
-        consenso_cientifico: "Na perda auditiva neurossensorial súbita (PANSS) idiopática, a corticoterapia intratimpânica (CIT) de resgate com metilprednisolona ou dexametasona apresenta eficácia comprovada na recuperação de limiares auditivos em pacientes refratários ao corticoide sistêmico oral ou endovenoso. A CIT deve ser iniciada idealmente nas primeiras 2 a 3 semanas após a falha do tratamento sistêmico inicial.",
-        pratica_clinica: "Realize de 3 a 4 aplicações intratimpânicas (dexametasona 4mg/ml ou metilprednisolona 40mg/ml) com intervalo de 3 a 7 dias entre as sessões. Oriente o paciente a permanecer em decúbito lateral por 20 a 30 minutos sem engolir saliva para otimizar o tempo de contato na janela redonda.",
-        quiz_curiosidade: {
-          pergunta: "Qual a recomendação pós-aplicação que otimiza a absorção da medicação na corticoterapia intratimpânica?",
-          alternativas: [
-            "Manter o paciente sentado e mastigando chiclete.",
-            "Permanecer em decúbito lateral por 20 a 30 minutos sem deglutir.",
-            "Realizar manobras de Valsalva repetidas nos primeiros 5 minutos.",
-            "Colocar compressa morna sobre o pavilhão auricular."
-          ],
-          resposta_correta: "Permanecer em decúbito lateral por 20 a 30 minutos sem deglutir.",
-          explicacao: "A permanência em decúbito com a orelha tratada para cima acumula a medicação sobre o nicho da janela redonda, enquanto evitar a deglutição previne que a tuba auditiva se abra e drene o corticoide para a rinofaringe."
-        }
-      },
-      {
-        id: "mock_pill_4",
-        tema: "Indicações de Adenoamigdalectomia na Apneia Obstrutiva do Sono Infantil",
-        data_exibicao: "2026-05-18",
-        tempo_leitura_min: 7,
-        especialidade: "Pediatria ORL",
-        artigos: [
-          {
-            titulo: "Adenotonsillectomy for Obstructive Sleep Apnea in Children",
-            revista: "N Engl J Med",
-            ano: "2023",
-            autores: "Marcus CL, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/36991804/"
-          },
-          {
-            titulo: "Clinical Practice Guideline: Tonsillectomy in Children",
-            revista: "Otolaryngol Head Neck Surg",
-            ano: "2024",
-            autores: "Mitchell RB, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/38203204/"
-          }
-        ],
-        consenso_cientifico: "A adenoamigdalectomia (A&A) permanece como tratamento de primeira linha para crianças com AOS secundária à hipertrofia adenoamigdaliana. A polissonografia pré-operatória é fortemente recomendada em crianças com comorbidades (síndrome de Down, obesidade, malformações craniofaciais), porém em crianças hígidas com sinais clínicos evidentes de AOS obstrutiva grave, a cirurgia pode ser indicada com base no exame físico e anamnese direcionada.",
-        pratica_clinica: "Em pacientes pediátricos com AOS grave comprovada ou comorbidades sistêmicas associadas, programe a internação hospitalar por pelo menos 24 horas no pós-operatório imediato para monitoramento contínuo de oximetria de pulso devido ao risco aumentado de edema pulmonar pós-obstrutivo e episódios de apneia central residual.",
-        quiz_curiosidade: {
-          pergunta: "Qual população pediátrica submetida à adenoamigdalectomia exige obrigatoriamente internação hospitalar pós-operatória de 24 horas?",
-          alternativas: [
-            "Crianças maiores de 6 anos sem comorbidades associadas.",
-            "Crianças com rinite alérgica persistente controlada.",
-            "Crianças com apneia obstrutiva grave ou comorbidades como Síndrome de Down.",
-            "Crianças que realizaram apenas adenoidectomia isolada."
-          ],
-          resposta_correta: "Crianças com apneia obstrutiva grave ou comorbidades como Síndrome de Down.",
-          explicacao: "Crianças com AOS grave ou comorbidades como síndromes genéticas e obesidade correm alto risco de complicações respiratórias no pós-operatório (obstrução de via aérea e apneia central) e necessitam de monitoramento contínuo."
-        }
-      },
-      {
-        id: "mock_pill_5",
-        tema: "Terapia Cognitivo-Comportamental vs. Terapia de Som no Zumbido Crônico",
-        data_exibicao: "2026-05-17",
-        tempo_leitura_min: 5,
-        especialidade: "Otologia",
-        artigos: [
-          {
-            titulo: "Cognitive Behavioral Therapy for Tinnitus: A Systematic Review",
-            revista: "JAMA",
-            ano: "2023",
-            autores: "Cima RF, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/36901905/"
-          },
-          {
-            titulo: "Sound therapy options for chronic tinnitus management",
-            revista: "Ear Hear",
-            ano: "2024",
-            autores: "Searchfield GD, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/38104505/"
-          }
-        ],
-        consenso_cientifico: "Ensaios clínicos randomizados evidenciam que a Terapia Cognitivo-Comportamental (TCC) é a intervenção não-farmacológica com maior nível de evidência (Grau A) para reduzir o incômodo, sofrimento e o impacto na qualidade de vida causados pelo zumbido crônico, superando a terapia de som isolada. A associação de ambas as estratégias otimiza os resultados.",
-        pratica_clinica: "Ao prescrever enriquecimento sonoro com geradores de som ou ruído branco, oriente o paciente a ajustar o volume logo abaixo do nível de mascaramento do zumbido (ponto de mistura ou 'mixing point'). Isso permite a habituação central do sinal auditivo no córtex auditivo, ao invés de simplesmente mascarar ou cobrir o zumbido.",
-        quiz_curiosidade: {
-          pergunta: "Qual o ajuste de volume recomendado na terapia de som para estimular a habituação ao zumbido?",
-          alternativas: [
-            "Ajustar o gerador de som no volume máximo suportável.",
-            "Mascarar completamente o zumbido para que o paciente não o ouça.",
-            "Ajustar o som logo abaixo do zumbido (ponto de mistura ou 'mixing point').",
-            "Usar o som de forma intermitente, mudando de frequência a cada minuto."
-          ],
-          resposta_correta: "Ajustar o som logo abaixo do zumbido (ponto de mistura ou 'mixing point').",
-          explicacao: "Ajustar o volume no 'mixing point' permite que o zumbido e o ruído terapêutico sejam ouvidos simultaneamente. Isso treina o cérebro a habituar-se ao estímulo do zumbido e dessensibilizar a via auditiva hiperativa."
-        }
-      },
-      {
-        id: "mock_pill_6",
-        tema: "Efeitos da Microgravidade na Função Vestibular e Orientação Espacial",
-        data_exibicao: "2026-05-16",
-        tempo_leitura_min: 7,
-        especialidade: "Vanguarda ORL",
-        artigos: [
-          {
-            titulo: "Vestibular adaptation and spatial disorientation in long-duration spaceflight",
-            revista: "npj Microgravity",
-            ano: "2024",
-            autores: "Hallgren E, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/38201243/"
-          },
-          {
-            titulo: "3D Printing of Otolith Models for Space Motion Sickness Simulation",
-            revista: "Otology & Neurotology",
-            ano: "2023",
-            autores: "Snape M, et al.",
-            link: "https://pubmed.ncbi.nlm.nih.gov/37199201/"
-          }
-        ],
-        consenso_cientifico: "Estudos vestibulares em astronautas da ISS mostram que a ausência de gravidade altera a sinalização dos otólitos (utrículo e sáculo), forçando o cérebro a depender puramente de pistas visuais e proprioceptivas para a auto-orientação espacial. A adaptação vestibular inicial causa a chamada 'Síndrome de Adaptação Espacial' (Space Motion Sickness), com náusea e ilusões visuo-vestibulares, enquanto o retorno à Terra gera instabilidade postural prolongada devido à reconfiguração dos reflexos vestíbulo-oculares.",
-        pratica_clinica: "Na prática terrestre de reabilitação vestibular, utilize exercícios de habituação visual complexos (optocinéticos e realidade virtual) para emular a dependência visual e acelerar a compensação vestibular em pacientes com perda otolítica unilateral crônica.",
-        quiz_curiosidade: {
-          pergunta: "Qual receptor vestibular sofre a maior alteração de sinalização na ausência de gravidade?",
-          alternativas: [
-            "Canais semicirculares horizontais.",
-            "Órgãos otolíticos (utrículo e sáculo).",
-            "Cúpula do canal semicircular superior.",
-            "Nervo vestibular coclear proximal."
-          ],
-          resposta_correta: "Órgãos otolíticos (utrículo e sáculo).",
-          explicacao: "Os otólitos dependem da força da gravidade sobre a membrana otolítica para defletir os cílios das células sensoriais. Em microgravidade, essa deflexão basal desaparece."
-        }
+  const fetchData = async (showRefreshAnim = false) => {
+    try {
+      if (showRefreshAnim) setIsRefreshing(true);
+      else setLoading(true);
+
+      const q = query(collection(db, 'otto_pills'), orderBy('data_exibicao', 'desc'), limit(30));
+      const snap = await getDocs(q);
+      const list: PillData[] = [];
+      
+      snap.forEach((d) => {
+        list.push({ id: d.id, ...d.data() } as PillData);
+      });
+
+      if (list.length === 0) {
+        setPills(MOCK_PILLS);
+        setActivePill(MOCK_PILLS[0]);
+        setIsMockData(true);
+      } else {
+        setPills(list);
+        if (!showRefreshAnim || !activePill) setActivePill(list[0]);
+        setIsMockData(false);
       }
-    ];
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const q = query(collection(db, 'otto_pills'), orderBy('data_exibicao', 'desc'), limit(20));
-        const snap = await getDocs(q);
-        const list: PillData[] = [];
-        
-        snap.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() } as PillData);
-        });
+      if (userId) {
+        const favRef = doc(db, 'users', userId, 'favoritos_news', 'list');
+        const favSnap = await getDoc(favRef);
+        if (favSnap.exists()) setFavorites(favSnap.data().ids || []);
 
-        if (list.length === 0) {
-          setPills(mockPills);
-          setActivePill(mockPills[0]);
-        } else {
-          setPills(list);
-          setActivePill(list[0]);
-        }
-
-        if (userId) {
-          const favRef = doc(db, 'users', userId, 'favoritos_news', 'list');
-          const favSnap = await getDoc(favRef);
-          if (favSnap.exists()) {
-            setFavorites(favSnap.data().ids || []);
-          }
-
-          const readRef = doc(db, 'users', userId, 'leituras_news', 'list');
-          const readSnap = await getDoc(readRef);
-          if (readSnap.exists()) {
-            setReadPills(readSnap.data().ids || []);
-          }
-        }
-      } catch (err) {
-        console.error("Erro ao carregar dados do OTTO Update, carregando fallback clínico:", err);
-        setPills(mockPills);
-        setActivePill(mockPills[0]);
-      } finally {
-        setLoading(false);
+        const readRef = doc(db, 'users', userId, 'leituras_news', 'list');
+        const readSnap = await getDoc(readRef);
+        if (readSnap.exists()) setReadPills(readSnap.data().ids || []);
       }
-    };
+    } catch (err) {
+      console.error("Erro ao carregar OTTO Update:", err);
+      setPills(MOCK_PILLS);
+      setActivePill(MOCK_PILLS[0]);
+      setIsMockData(true);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
-    fetchData();
-  }, [userId]);
+  useEffect(() => { fetchData(); }, [userId]);
 
   const toggleFavorite = async (pillId: string) => {
     if (!userId) return;
-    
-    let updated: string[];
-    if (favorites.includes(pillId)) {
-      updated = favorites.filter(id => id !== pillId);
-    } else {
-      updated = [...favorites, pillId];
-    }
-    
+    const updated = favorites.includes(pillId) ? favorites.filter(id => id !== pillId) : [...favorites, pillId];
     setFavorites(updated);
-    try {
-      await setDoc(doc(db, 'users', userId, 'favoritos_news', 'list'), { ids: updated });
-    } catch (e) {
-      console.error("Erro ao salvar favorito:", e);
-    }
+    try { await setDoc(doc(db, 'users', userId, 'favoritos_news', 'list'), { ids: updated }); }
+    catch (e) { console.error("Erro ao salvar favorito:", e); }
   };
 
   const toggleRead = async (pillId: string) => {
     if (!userId) return;
-
-    let updated: string[];
-    if (readPills.includes(pillId)) {
-      updated = readPills.filter(id => id !== pillId);
-    } else {
-      updated = [...readPills, pillId];
-    }
-
+    const updated = readPills.includes(pillId) ? readPills.filter(id => id !== pillId) : [...readPills, pillId];
     setReadPills(updated);
-    try {
-      await setDoc(doc(db, 'users', userId, 'leituras_news', 'list'), { ids: updated });
-    } catch (e) {
-      console.error("Erro ao salvar leitura concluída:", e);
-    }
+    try { await setDoc(doc(db, 'users', userId, 'leituras_news', 'list'), { ids: updated }); }
+    catch (e) { console.error("Erro ao salvar leitura:", e); }
   };
 
   const filteredPills = pills.filter(p => {
@@ -378,32 +322,36 @@ export const InfoPage: React.FC = () => {
     return p.especialidade === selectedCategory;
   });
 
+  const categories = useMemo(() => {
+    const cats = [...new Set(pills.map(p => p.especialidade))].sort();
+    return ['Todas', ...cats, 'Favoritos'];
+  }, [pills]);
+
+  // Stats
   const totalLidos = readPills.length;
+  const totalPills = pills.length;
+  const realPills = pills.filter(p => p.fonte === 'pubmed_real').length;
+  const specialtiesCovered = new Set(pills.map(p => p.especialidade)).size;
+  const lastUpdate = pills[0]?.data_exibicao || '—';
 
   const selectPill = (pill: PillData) => {
     setActivePill(pill);
     setActiveTab('evidencia');
     setSelectedAlternative(null);
     setQuizAnswered(false);
-    
-    const contentArea = document.getElementById('otto-update-scrollable-content');
-    if (contentArea) {
-      contentArea.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    const el = document.getElementById('otto-update-scrollable-content');
+    if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Bloqueio explícito para paciente
+  // Block patients
   if (profile === 'paciente') {
     return (
-      <div className="fixed inset-0 z-50 bg-gray-900 flex flex-col items-center justify-center p-6 text-center text-white">
-        <h2 className="text-xl font-bold mb-2">Acesso Restrito</h2>
+      <div className="fixed inset-0 z-50 bg-[#051813] flex flex-col items-center justify-center p-6 text-center text-white">
+        <h2 className="text-xl font-bold mb-2 text-emerald-400">Acesso Restrito</h2>
         <p className="text-sm text-gray-400 max-w-sm mb-6">
-          Este módulo contém informações científicas e pílulas de vanguarda clínica voltadas exclusivamente a médicos, estudantes e profissionais de saúde.
+          Este módulo contém informações científicas voltadas exclusivamente a médicos e profissionais de saúde.
         </p>
-        <button 
-          onClick={() => navigate('/')} 
-          className="px-6 py-2.5 bg-[#1D9E75] hover:bg-[#0A865F] text-white rounded-full font-semibold transition-colors shadow-lg"
-        >
+        <button onClick={() => navigate('/')} className="px-6 py-2.5 bg-[#1D9E75] hover:bg-[#0A865F] text-white rounded-full font-semibold transition-colors shadow-lg">
           Voltar para o Início
         </button>
       </div>
@@ -411,135 +359,205 @@ export const InfoPage: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-45 bg-gray-900 flex flex-col text-gray-100 selection:bg-indigo-500 selection:text-white">
-      {/* Header Fixo Premium - Fundo Sólido (Corrige vazamento/transparência) */}
-      <header className="h-16 bg-gray-950 border-b border-gray-800 text-white flex items-center justify-between px-4 shrink-0 z-50">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="p-2 -ml-2 hover:bg-gray-800/80 rounded-full transition-colors flex items-center gap-1.5 text-gray-400 hover:text-white"
-        >
-          <ArrowLeft size={20} />
-          <span className="text-sm font-semibold">Voltar</span>
+    <div className="fixed inset-0 z-45 bg-[#051813] flex flex-col text-gray-100 selection:bg-[#1D9E75] selection:text-white">
+      {/* Header */}
+      <header className="h-14 sm:h-16 bg-[#0B251E] border-b border-[#123E32] text-white flex items-center justify-between px-3 sm:px-4 shrink-0 z-50">
+        <button onClick={() => navigate(-1)} className="p-2 -ml-1 hover:bg-[#123E32]/80 rounded-full transition-colors flex items-center gap-1 text-gray-400 hover:text-white">
+          <ArrowLeft size={18} />
+          <span className="text-xs sm:text-sm font-semibold hidden sm:inline">Voltar</span>
         </button>
-        <span className="font-extrabold text-base bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent flex items-center gap-2">
-          <Sparkles size={18} className="text-purple-400 animate-pulse" />
+        <span className="font-extrabold text-sm sm:text-base bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400 bg-clip-text text-transparent flex items-center gap-1.5">
+          <Sparkles size={16} className="text-emerald-400 animate-pulse" />
           OTTO UPDATE
         </span>
-        <div className="w-8" />
+        <button
+          onClick={() => fetchData(true)}
+          disabled={isRefreshing}
+          className="p-2 hover:bg-[#123E32]/80 rounded-full transition-colors text-gray-400 hover:text-white disabled:opacity-50"
+          title="Atualizar pílulas"
+        >
+          <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+        </button>
       </header>
 
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-3">
-          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-[#1D9E75] border-t-transparent rounded-full animate-spin" />
           <span className="text-sm font-medium text-gray-400">Analisando literatura científica...</span>
         </div>
       ) : (
-        /* Scrollable Content Container (Garante que a rolagem fique restrita a essa área e não passe atrás do header) */
-        <div id="otto-update-scrollable-content" className="flex-1 overflow-y-auto p-4 pb-24">
-          <div className="max-w-4xl mx-auto w-full space-y-6">
-            
-            {/* Dashboard Clínico: Cérebro Afiado */}
-            <div className="bg-gradient-to-r from-gray-950 via-slate-900 to-gray-950 border border-gray-800 rounded-3xl p-5 shadow-2xl relative overflow-hidden">
-              <div className="absolute right-0 top-0 w-24 h-24 bg-indigo-500/5 blur-2xl rounded-full" />
-              <div className="absolute left-1/2 bottom-0 w-32 h-12 bg-emerald-500/5 blur-2xl rounded-full" />
-              
-              <div className="flex items-center justify-between mb-4">
+        <div id="otto-update-scrollable-content" className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24">
+          <div className="max-w-4xl mx-auto w-full space-y-4 sm:space-y-6">
+
+            {/* Mock Data Banner */}
+            {isMockData && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-amber-950/30 border border-amber-700/40 rounded-2xl p-3 sm:p-4 flex items-start gap-3"
+              >
+                <Zap size={18} className="text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
-                    <Award size={15} className="text-indigo-400" />
+                  <p className="text-xs font-bold text-amber-300 mb-0.5">Modo Demonstração</p>
+                  <p className="text-[10px] sm:text-xs text-amber-200/70">
+                    Exibindo pílulas de exemplo. Execute o script <code className="bg-amber-950/50 px-1 rounded text-amber-300">generate-pills.mjs</code> para buscar artigos reais do PubMed.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══ DASHBOARD ═══ */}
+            <div className="bg-gradient-to-br from-[#030d0a] via-[#0B251E] to-[#071a14] border border-[#123E32] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+              <div className="absolute right-0 top-0 w-24 h-24 bg-emerald-500/5 blur-2xl rounded-full" />
+              <div className="absolute left-1/3 bottom-0 w-32 h-12 bg-[#1D9E75]/5 blur-2xl rounded-full" />
+
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <div>
+                  <h2 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1">
+                    <BarChart3 size={13} className="text-[#1D9E75]" />
                     Performance Científica
                   </h2>
-                  <p className="text-xl font-black text-white mt-1">Cérebro Afiado 🧠</p>
+                  <p className="text-lg sm:text-xl font-black text-white mt-0.5">Cérebro Afiado 🧠</p>
                 </div>
-                <span className="bg-indigo-950 text-indigo-300 border border-indigo-800 text-xs px-3 py-1 rounded-full font-bold">
-                  Level {Math.max(1, Math.floor(totalLidos / 3))}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="bg-emerald-950/80 text-emerald-300 border border-[#123E32] text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-bold">
+                    Level {Math.max(1, Math.floor(totalLidos / 3))}
+                  </span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="bg-gray-900/60 border border-gray-800/80 p-3 rounded-2xl">
-                  <span className="text-xs text-gray-500 block mb-1">Pílulas Lidas</span>
-                  <span className="text-2xl font-black text-emerald-400">{totalLidos}</span>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">Pílulas Lidas</span>
+                  <span className="text-xl sm:text-2xl font-black text-emerald-400">{totalLidos}</span>
                 </div>
-                <div className="bg-gray-900/60 border border-gray-800/80 p-3 rounded-2xl">
-                  <span className="text-xs text-gray-500 block mb-1">Favoritos</span>
-                  <span className="text-2xl font-black text-amber-400">{favorites.length}</span>
+                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">No Acervo</span>
+                  <span className="text-xl sm:text-2xl font-black text-teal-400">{totalPills}</span>
                 </div>
-                <div className="bg-gray-900/60 border border-gray-800/80 p-3 rounded-2xl">
-                  <span className="text-xs text-gray-500 block mb-1">Meta Semanal</span>
-                  <span className="text-2xl font-black text-indigo-400">{totalLidos % 5}/5</span>
+                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">Especialidades</span>
+                  <span className="text-xl sm:text-2xl font-black text-cyan-400">{specialtiesCovered}</span>
                 </div>
+                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">Favoritos</span>
+                  <span className="text-xl sm:text-2xl font-black text-amber-400">{favorites.length}</span>
+                </div>
+              </div>
+
+              {/* Last update info */}
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#123E32]/60">
+                <span className="text-[9px] sm:text-[10px] text-gray-600 flex items-center gap-1">
+                  <Clock size={10} />
+                  Última atualização: {lastUpdate}
+                </span>
+                {realPills > 0 && (
+                  <span className="text-[9px] sm:text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <TrendingUp size={10} />
+                    {realPills} artigos PubMed verificados
+                  </span>
+                )}
               </div>
             </div>
 
+            {/* ═══ HERO CARD — Revelação Central ═══ */}
             {activePill && (
-              <motion.div 
+              <motion.div
+                key={activePill.id}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-950 border border-gray-800 rounded-3xl overflow-hidden shadow-2xl"
+                className="bg-[#071F19] border border-[#123E32] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl"
               >
-                {/* Topo do Card de Leitura */}
-                <div className="p-6 bg-gradient-to-b from-indigo-950/40 via-gray-950 to-gray-950 border-b border-gray-800 relative">
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-black uppercase tracking-wider bg-indigo-900/60 border border-indigo-700 text-indigo-300 px-3 py-1 rounded-full">
+                {/* Revelação Central Hero */}
+                {activePill.revelacao_central && (
+                  <div className="bg-gradient-to-r from-emerald-950/40 via-[#071F19] to-teal-950/30 border-b border-[#123E32] p-4 sm:p-5">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                        <Zap size={16} className="text-emerald-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-500/70 mb-1">Revelação Central</p>
+                        <p className="text-sm sm:text-base font-extrabold text-white leading-snug">
+                          {activePill.revelacao_central}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Insight Chart */}
+                    {activePill.insight_grafico && (
+                      <div className="mt-3 bg-[#030d0a]/50 border border-[#123E32]/60 rounded-xl p-3">
+                        <InsightChart data={activePill.insight_grafico} />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Pill Header */}
+                <div className="p-4 sm:p-6 bg-gradient-to-b from-emerald-950/10 via-[#071F19] to-[#071F19] border-b border-[#123E32]">
+                  <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider bg-emerald-900/40 border border-emerald-700/50 text-[#CDF0E3] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                         {activePill.especialidade}
                       </span>
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar size={12} />
+                      <span className="text-[9px] sm:text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar size={10} />
                         {activePill.data_exibicao}
                       </span>
+                      {activePill.fonte === 'pubmed_real' && (
+                        <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-500 bg-emerald-950/50 border border-emerald-700/30 px-1.5 py-0.5 rounded">
+                          PubMed ✓
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <button 
                         onClick={() => toggleFavorite(activePill.id)}
-                        className={`p-2 rounded-full border transition-all ${
+                        className={`p-1.5 sm:p-2 rounded-full border transition-all ${
                           favorites.includes(activePill.id)
                             ? 'bg-amber-950/40 border-amber-500/50 text-amber-400'
-                            : 'bg-gray-900 border-gray-850 text-gray-500 hover:text-gray-200'
+                            : 'bg-[#030d0a] border-[#123E32] text-gray-500 hover:text-gray-200'
                         }`}
                       >
-                        <Star size={18} fill={favorites.includes(activePill.id) ? "currentColor" : "none"} />
+                        <Star size={15} fill={favorites.includes(activePill.id) ? "currentColor" : "none"} />
                       </button>
                       <button 
                         onClick={() => toggleRead(activePill.id)}
-                        className={`p-2 rounded-full border transition-all ${
+                        className={`p-1.5 sm:p-2 rounded-full border transition-all ${
                           readPills.includes(activePill.id)
                             ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-400'
-                            : 'bg-gray-900 border-gray-850 text-gray-500 hover:text-gray-200'
+                            : 'bg-[#030d0a] border-[#123E32] text-gray-500 hover:text-gray-200'
                         }`}
                         title={readPills.includes(activePill.id) ? "Lido" : "Marcar como lido"}
                       >
-                        <CheckCircle2 size={18} />
+                        <CheckCircle2 size={15} />
                       </button>
                     </div>
                   </div>
                   
-                  <h1 className="text-xl font-extrabold text-white leading-snug">{activePill.tema}</h1>
-                  <p className="text-xs text-gray-400 mt-2 flex items-center gap-1.5">
-                    <BookOpen size={13} className="text-indigo-400" />
-                    Tempo estimado de leitura: <strong className="text-gray-200">{activePill.tempo_leitura_min} minutos</strong>
+                  <h1 className="text-base sm:text-xl font-extrabold text-white leading-snug">{activePill.tema}</h1>
+                  <p className="text-[10px] sm:text-xs text-gray-400 mt-1.5 sm:mt-2 flex items-center gap-1.5">
+                    <BookOpen size={12} className="text-[#1D9E75]" />
+                    Leitura: <strong className="text-gray-200">{activePill.tempo_leitura_min} min</strong>
+                    {activePill.artigos.length > 0 && (
+                      <span className="ml-2">· {activePill.artigos.length} artigos</span>
+                    )}
                   </p>
                 </div>
 
-                {/* Abas Navegáveis */}
-                <div className="flex border-b border-gray-850 bg-gray-950 px-4">
+                {/* Tabs */}
+                <div className="flex border-b border-[#123E32] bg-[#071F19] px-2 sm:px-4">
                   <button
                     onClick={() => setActiveTab('evidencia')}
-                    className={`flex-1 py-3 text-center text-xs font-bold border-b-2 transition-all ${
-                      activeTab === 'evidencia' 
-                        ? 'border-indigo-500 text-white' 
-                        : 'border-transparent text-gray-500 hover:text-gray-300'
+                    className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
+                      activeTab === 'evidencia' ? 'border-[#1D9E75] text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
                     }`}
                   >
-                    Duelo de Evidências
+                    Evidências
                   </button>
                   <button
                     onClick={() => setActiveTab('pratica')}
-                    className={`flex-1 py-3 text-center text-xs font-bold border-b-2 transition-all ${
-                      activeTab === 'pratica' 
-                        ? 'border-emerald-500 text-white' 
-                        : 'border-transparent text-gray-500 hover:text-gray-300'
+                    className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
+                      activeTab === 'pratica' ? 'border-emerald-500 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
                     }`}
                   >
                     Pílula Prática
@@ -547,60 +565,43 @@ export const InfoPage: React.FC = () => {
                   {activePill.quiz_curiosidade && (
                     <button
                       onClick={() => setActiveTab('quiz')}
-                      className={`flex-1 py-3 text-center text-xs font-bold border-b-2 transition-all ${
-                        activeTab === 'quiz' 
-                          ? 'border-purple-500 text-white' 
-                          : 'border-transparent text-gray-500 hover:text-gray-300'
+                      className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
+                        activeTab === 'quiz' ? 'border-teal-400 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
                       }`}
                     >
-                      Quiz de Fixação
+                      Quiz
                     </button>
                   )}
                 </div>
 
-                {/* Conteúdo da Aba Ativa */}
-                <div className="p-6">
+                {/* Tab Content */}
+                <div className="p-4 sm:p-6">
                   <AnimatePresence mode="wait">
                     {activeTab === 'evidencia' && (
-                      <motion.div
-                        key="evidencia"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        className="space-y-6"
-                      >
-                        {/* Consenso Científico */}
+                      <motion.div key="ev" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-6">
                         <div>
-                          <h3 className="text-xs font-black uppercase text-indigo-400 tracking-wider mb-2">Consenso e Integração Científica</h3>
-                          <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line bg-gray-900/40 p-4 rounded-2xl border border-gray-850">
+                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-[#CDF0E3] tracking-wider mb-2">Consenso e Integração Científica</h3>
+                          <p className="text-gray-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-[#051813]/60 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#123E32]">
                             {activePill.consenso_cientifico}
                           </p>
                         </div>
-
-                        {/* Artigos Utilizados */}
-                        <div className="space-y-3">
-                          <h3 className="text-xs font-black uppercase text-gray-400 tracking-wider">Artigos Analisados (Publicados &gt; 12 meses)</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2 sm:space-y-3">
+                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-gray-400 tracking-wider">Artigos Analisados</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             {activePill.artigos.map((art, idx) => (
-                              <div key={idx} className="bg-gray-900 p-4 rounded-2xl border border-gray-850 flex flex-col justify-between hover:border-gray-800 transition-colors">
+                              <div key={idx} className="bg-[#051813] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#123E32] flex flex-col justify-between hover:border-[#1D9E75]/30 transition-colors">
                                 <div>
-                                  <div className="flex items-center justify-between gap-1 mb-2">
-                                    <span className="text-[10px] font-bold text-gray-500 bg-gray-950 border border-gray-850 px-2 py-0.5 rounded-md">
-                                      Estudo {idx + 1}
-                                    </span>
-                                    <span className="text-xs font-semibold text-indigo-400">{art.revista} · {art.ano}</span>
+                                  <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
+                                    <span className="text-[8px] sm:text-[10px] font-bold text-gray-500 bg-[#030d0a] border border-[#123E32] px-1.5 sm:px-2 py-0.5 rounded-md">Estudo {idx + 1}</span>
+                                    <span className="text-[9px] sm:text-xs font-semibold text-emerald-400 truncate ml-1">{art.revista} · {art.ano}</span>
                                   </div>
-                                  <h4 className="text-xs font-bold text-white leading-snug line-clamp-3 mb-2">{art.titulo}</h4>
-                                  <p className="text-[10px] text-gray-500 italic mb-3">Autores: {art.autores}</p>
+                                  <h4 className="text-[10px] sm:text-xs font-bold text-white leading-snug line-clamp-3 mb-1.5 sm:mb-2">{art.titulo}</h4>
+                                  <p className="text-[9px] sm:text-[10px] text-gray-500 italic mb-2 sm:mb-3">Autores: {art.autores}</p>
                                 </div>
-                                <a 
-                                  href={art.link} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold flex items-center gap-1 self-start group"
-                                >
-                                  Acessar Artigo Original 
-                                  <ExternalLink size={10} className="group-hover:translate-x-0.5 transition-transform" />
+                                <a href={art.link} target="_blank" rel="noopener noreferrer"
+                                  className="text-[9px] sm:text-[10px] text-[#1D9E75] hover:text-emerald-300 font-bold flex items-center gap-1 self-start group">
+                                  Acessar Artigo Original
+                                  <ExternalLink size={9} className="group-hover:translate-x-0.5 transition-transform" />
                                 </a>
                               </div>
                             ))}
@@ -610,89 +611,55 @@ export const InfoPage: React.FC = () => {
                     )}
 
                     {activeTab === 'pratica' && (
-                      <motion.div
-                        key="pratica"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        className="space-y-4"
-                      >
-                        <h3 className="text-xs font-black uppercase text-emerald-400 tracking-wider">Takeaway Clínico (Conduta do Otorrino)</h3>
-                        <div className="bg-emerald-950/20 border-l-4 border-emerald-500 p-5 rounded-r-2xl space-y-3">
-                          <p className="text-gray-200 text-sm font-medium leading-relaxed whitespace-pre-line">
+                      <motion.div key="pr" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
+                        <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-400 tracking-wider">Takeaway Clínico (Conduta do Otorrino)</h3>
+                        <div className="bg-emerald-950/20 border-l-4 border-emerald-500 p-4 sm:p-5 rounded-r-xl sm:rounded-r-2xl space-y-3">
+                          <p className="text-gray-200 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line">
                             {activePill.pratica_clinica}
                           </p>
                         </div>
-                        <div className="bg-gray-900 border border-gray-850 rounded-2xl p-4 flex items-center gap-3">
-                          <Bookmark className="text-indigo-400 shrink-0" size={20} />
-                          <p className="text-xs text-gray-400 leading-snug">
-                            Esta pílula foi sintetizada a partir de meta-análises e ensaios clínicos controlados de alto impacto, projetada para ser memorizada em segundos e aplicada ao longo do dia.
+                        <div className="bg-[#051813] border border-[#123E32] rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3">
+                          <Bookmark className="text-[#1D9E75] shrink-0" size={18} />
+                          <p className="text-[9px] sm:text-xs text-gray-400 leading-snug">
+                            Pílula sintetizada de meta-análises e ensaios controlados para aplicação imediata no consultório.
                           </p>
                         </div>
                       </motion.div>
                     )}
 
                     {activeTab === 'quiz' && activePill.quiz_curiosidade && (
-                      <motion.div
-                        key="quiz"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                        className="space-y-5"
-                      >
-                        <div className="bg-purple-950/20 border border-purple-800/40 p-4 rounded-2xl flex items-center gap-2">
-                          <Award className="text-purple-400 shrink-0 animate-bounce" size={20} />
-                          <span className="text-xs font-bold text-purple-300">Sala de Espera & Curiosidades (OTTO GAMES preview)</span>
+                      <motion.div key="qz" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-5">
+                        <div className="bg-emerald-950/20 border border-emerald-800/40 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2">
+                          <Award className="text-emerald-400 shrink-0 animate-bounce" size={18} />
+                          <span className="text-[10px] sm:text-xs font-bold text-emerald-300">Quiz de Fixação Clínica</span>
                         </div>
-
-                        <h3 className="text-sm font-bold text-white leading-relaxed">
-                          {activePill.quiz_curiosidade.pergunta}
-                        </h3>
-
-                        <div className="space-y-2.5">
+                        <h3 className="text-xs sm:text-sm font-bold text-white leading-relaxed">{activePill.quiz_curiosidade.pergunta}</h3>
+                        <div className="space-y-2">
                           {activePill.quiz_curiosidade.alternativas.map((alt, i) => {
                             const isSelected = selectedAlternative === alt;
                             const isCorrect = alt === activePill.quiz_curiosidade?.resposta_correta;
-                            let btnStyle = "bg-gray-900 hover:bg-gray-850 border-gray-850 text-gray-300";
-                            
+                            let btnStyle = "bg-[#051813] hover:bg-[#071F19] border-[#123E32] text-gray-300";
                             if (quizAnswered) {
-                              if (isCorrect) {
-                                btnStyle = "bg-emerald-950/40 border-emerald-500 text-emerald-400";
-                              } else if (isSelected) {
-                                btnStyle = "bg-rose-950/40 border-rose-500 text-rose-400";
-                              } else {
-                                btnStyle = "bg-gray-900 border-gray-850 text-gray-600 opacity-60";
-                              }
+                              if (isCorrect) btnStyle = "bg-emerald-950/40 border-emerald-500 text-emerald-400";
+                              else if (isSelected) btnStyle = "bg-rose-950/40 border-rose-500 text-rose-400";
+                              else btnStyle = "bg-[#051813] border-[#123E32] text-gray-600 opacity-60";
                             }
-
                             return (
-                              <button
-                                key={i}
-                                disabled={quizAnswered}
-                                onClick={() => {
-                                  setSelectedAlternative(alt);
-                                  setQuizAnswered(true);
-                                }}
-                                className={`w-full text-left p-3.5 rounded-2xl border text-xs font-medium transition-all flex items-center justify-between ${btnStyle}`}
+                              <button key={i} disabled={quizAnswered}
+                                onClick={() => { setSelectedAlternative(alt); setQuizAnswered(true); }}
+                                className={`w-full text-left p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-[10px] sm:text-xs font-medium transition-all flex items-center justify-between ${btnStyle}`}
                               >
                                 <span>{alt}</span>
-                                {quizAnswered && isCorrect && <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />}
+                                {quizAnswered && isCorrect && <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />}
                               </button>
                             );
                           })}
                         </div>
-
                         <AnimatePresence>
                           {quizAnswered && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className="bg-gray-900 border border-gray-850 p-4 rounded-2xl"
-                            >
-                              <h4 className="text-xs font-bold text-white mb-1">Explicação Científica:</h4>
-                              <p className="text-xs text-gray-400 leading-relaxed">
-                                {activePill.quiz_curiosidade.explicacao}
-                              </p>
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-[#051813] border border-[#123E32] p-3 sm:p-4 rounded-xl sm:rounded-2xl">
+                              <h4 className="text-[10px] sm:text-xs font-bold text-white mb-1">Explicação:</h4>
+                              <p className="text-[10px] sm:text-xs text-gray-400 leading-relaxed">{activePill.quiz_curiosidade.explicacao}</p>
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -703,24 +670,20 @@ export const InfoPage: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Histórico e Busca */}
-            <div className="space-y-4 pt-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-850 pb-3">
-                <h2 className="text-base font-extrabold text-white flex items-center gap-1.5">
-                  <ListFilter size={18} className="text-indigo-400" />
-                  Acervo de Pílulas Clínicas
+            {/* ═══ ACERVO ═══ */}
+            <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 border-b border-[#123E32] pb-2 sm:pb-3">
+                <h2 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">
+                  <ListFilter size={16} className="text-[#1D9E75]" />
+                  Acervo de Pílulas
                 </h2>
-
-                {/* Botões de Categorias */}
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {['Todas', 'Rinologia', 'Laringologia', 'Otologia', 'Pediatria ORL', 'Vanguarda ORL', 'Favoritos'].map(cat => (
-                    <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all shrink-0 ${
+                <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {categories.map(cat => (
+                    <button key={cat} onClick={() => setSelectedCategory(cat)}
+                      className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all shrink-0 ${
                         selectedCategory === cat
-                          ? 'bg-indigo-500 border-indigo-400 text-white'
-                          : 'bg-gray-950 border-gray-800 text-gray-500 hover:text-gray-300'
+                          ? 'bg-[#1D9E75] border-[#1D9E75] text-white'
+                          : 'bg-[#030d0a] border-[#123E32] text-gray-500 hover:text-gray-300'
                       }`}
                     >
                       {cat}
@@ -729,44 +692,48 @@ export const InfoPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Listagem do Acervo */}
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {filteredPills.length === 0 ? (
-                  <div className="bg-gray-950 border border-gray-850 p-8 rounded-3xl text-center text-gray-500">
-                    <Search size={30} className="mx-auto text-gray-700 mb-2" />
-                    Nenhuma pílula de conhecimento nesta subárea no momento.
+                  <div className="bg-[#030d0a] border border-[#123E32] p-6 sm:p-8 rounded-2xl sm:rounded-3xl text-center text-gray-500">
+                    <Search size={28} className="mx-auto text-gray-700 mb-2" />
+                    <p className="text-xs sm:text-sm">Nenhuma pílula nesta subárea no momento.</p>
                   </div>
                 ) : (
                   filteredPills.map((pill, i) => (
-                    <motion.div
-                      key={pill.id}
+                    <motion.div key={pill.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
+                      transition={{ delay: i * 0.04 }}
                       onClick={() => selectPill(pill)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-4 ${
+                      className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4 ${
                         activePill?.id === pill.id
-                          ? 'bg-indigo-950/20 border-indigo-500/80 shadow-md'
-                          : 'bg-gray-950 border-gray-850 hover:bg-gray-900/60 hover:border-gray-800'
+                          ? 'bg-[#1D9E75]/10 border-[#1D9E75]/80 shadow-md'
+                          : 'bg-[#030d0a] border-[#123E32]/80 hover:bg-[#071F19]'
                       }`}
                     >
-                      <div className="flex-1 pr-2">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="text-[9px] font-black uppercase tracking-wider bg-gray-900 border border-gray-800 text-gray-400 px-2 py-0.5 rounded-md">
+                      <div className="flex-1 min-w-0 pr-1">
+                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 flex-wrap">
+                          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-[#051813] border border-[#123E32] text-gray-400 px-1.5 sm:px-2 py-0.5 rounded-md">
                             {pill.especialidade}
                           </span>
+                          {pill.fonte === 'pubmed_real' && (
+                            <span className="text-[7px] sm:text-[8px] font-bold text-emerald-500">PubMed✓</span>
+                          )}
                           {readPills.includes(pill.id) && (
-                            <span className="text-[9px] font-bold uppercase text-emerald-400 flex items-center gap-0.5">
-                              <CheckCircle2 size={10} /> Lido
+                            <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-400 flex items-center gap-0.5">
+                              <CheckCircle2 size={9} /> Lido
                             </span>
                           )}
                           {favorites.includes(pill.id) && (
-                            <Star size={10} className="text-amber-400 fill-amber-400" />
+                            <Star size={9} className="text-amber-400 fill-amber-400" />
                           )}
                         </div>
-                        <h4 className="font-bold text-sm text-gray-200 leading-snug line-clamp-2">{pill.tema}</h4>
+                        <h4 className="font-bold text-xs sm:text-sm text-gray-200 leading-snug line-clamp-2">{pill.tema}</h4>
+                        {pill.revelacao_central && (
+                          <p className="text-[9px] sm:text-[10px] text-emerald-500/70 mt-0.5 line-clamp-1 italic">💡 {pill.revelacao_central}</p>
+                        )}
                       </div>
-                      <ChevronRight size={18} className="text-gray-600 shrink-0" />
+                      <ChevronRight size={16} className="text-gray-600 shrink-0" />
                     </motion.div>
                   ))
                 )}
