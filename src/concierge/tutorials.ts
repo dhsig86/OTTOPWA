@@ -129,5 +129,80 @@ export const OTTO_TUTORIALS: OttoTutorial[] = [
     ],
     tip: 'Crie atalhos de voz customizados para laudos normais para preencher o exame inteiro com apenas 1 palavra.',
     shortcutCommand: 'abrir autolaudo'
+  },
+  {
+    id: 'aerodig',
+    title: 'Aerodigestive — Medicina Aerodigestiva Pediátrica',
+    emoji: '🌬️',
+    audience: 'Otorrinolaringologistas Pediátricos e Pediatras',
+    summary: 'Consulte diretrizes, escalas de estenose subglótica (Monnier, Myer-Rutter), protocolos de decanulação e manejo de traqueostomias infantis.',
+    steps: [
+      'Abra o módulo Aerodigestive a partir do painel ou enviando "abrir aerodig".',
+      'Navegue entre as seções de Condutas de Via Aérea, Disfagia Pediátrica e Calculadoras de Cânula.',
+      'Acesse as ferramentas interativas de dimensionamento de cânulas (Shiley, Bivona) conforme peso e idade do paciente.',
+      'Utilize os fluxogramas de tomada de decisão clínica para manejo de fenda laríngea e laringomalácia.'
+    ],
+    tip: 'Utilize a calculadora de cânulas do módulo ao discutir casos de estenose e planejamento cirúrgico pediátrico.',
+    shortcutCommand: 'abrir aerodig'
+  },
+  {
+    id: 'logbook',
+    title: 'OTTO Log — Livro de Registro Cirúrgico',
+    emoji: '📋',
+    audience: 'Cirurgiões e Residentes de ORL',
+    summary: 'Registre suas cirurgias e obtenha gráficos automáticos de casuística, estatísticas de complicações e relatórios exportáveis para o MEC/ABORL.',
+    steps: [
+      'Acesse o OTTO Log pelo menu ou comando ("abrir logbook").',
+      'Clique em "Adicionar Nova Cirurgia" e preencha a data, hospital, procedimento (TUSS) e desfecho.',
+      'Adicione registros de fotos intraoperatórias ou anotações de técnicas cirúrgicas específicas de forma segura.',
+      'Acompanhe o dashboard estatístico em tempo real com distribuição de cirurgias por subespecialidade e via de acesso.'
+    ],
+    tip: 'Mantenha o OTTO Log atualizado semanalmente. Ele serve como seu portfólio cirúrgico consolidado para fins acadêmicos e comprovação.',
+    shortcutCommand: 'abrir logbook'
+  },
+  {
+    id: 'ocr',
+    title: 'OTTO OCR — Extrator de Laudos e Carteirinhas',
+    emoji: '📄',
+    audience: 'Médicos e Recepcionistas',
+    summary: 'Faça upload de laudos de exames anteriores em PDF ou fotos de carteirinhas de convênio para extrair os dados e textos estruturados instantaneamente.',
+    steps: [
+      'Abra o OTTO OCR no menu ou enviando "abrir ocr".',
+      'Arraste o arquivo PDF do exame ou a imagem da carteirinha para a área de upload.',
+      'A IA processa o documento clínico e transcreve os campos fundamentais estruturando as informações.',
+      'Copie o texto reconhecido ou os dados estruturados do convênio para o cadastro do PWA com um clique.'
+    ],
+    tip: 'O processamento do OCR é ideal para converter laudos antigos de audiometria digitalizados em texto puro para colar no PROTTO.',
+    shortcutCommand: 'abrir ocr'
+  },
+  {
+    id: 'imune',
+    title: 'Imunobiológicos — Elegibilidade e Formulários LME',
+    emoji: '💉',
+    audience: 'Médicos Otorrinolaringologistas',
+    summary: 'Avalie a elegibilidade de pacientes com Polipose Nasossinusal Grave para tratamento com anticorpos monoclonais (Dupilumabe, Mepolizumabe) e gere a documentação LME.',
+    steps: [
+      'Abra o portal de Imunobiológicos a partir do menu ou com o comando ("abrir imune").',
+      'Preencha os critérios clínicos do paciente (número de cirurgias prévias, uso de corticoides, escore SNOT-22 e presença de asma).',
+      'Verifique se os critérios da ANVISA e diretrizes da Associação Médica estão preenchidos para cobertura pelo convênio.',
+      'Gere e faça download do relatório de justificativa clínica e formulários LME preenchidos automaticamente.'
+    ],
+    tip: 'O preenchimento automático das LMEs economiza cerca de 20 minutos de burocracia por paciente elegível a imunobiológico.',
+    shortcutCommand: 'abrir imune'
+  },
+  {
+    id: 'ottotests',
+    title: 'OTTO Acadêmico — Simulados e MCQ',
+    emoji: '🎓',
+    audience: 'Médicos Residentes e Estudantes',
+    summary: 'Estude com um banco de centenas de questões de múltipla escolha focadas no Título de Especialista (TEGO/ABORL-CCF) com resoluções comentadas por IA.',
+    steps: [
+      'Acesse o OTTO Acadêmico clicando no módulo ou enviando "abrir academico".',
+      'Selecione uma área de estudo (Otologia, Rinologia, Bucolaringologia, ORL Pediátrica) ou crie um simulado geral.',
+      'Responda às questões cronometradas e veja a correção imediata.',
+      'Consulte a explicação detalhada de cada alternativa e as referências dos tratados nacionais.'
+    ],
+    tip: 'Utilize o modo simulado com imagens para treinar o reconhecimento visual de otoscopias e exames de imagem comuns em provas.',
+    shortcutCommand: 'abrir academico'
   }
 ];

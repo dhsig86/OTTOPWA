@@ -117,6 +117,116 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'protocolo vertigem',
     'protocolo apneia',
     'buscar protocolo no protto'
+  ]),
+  intent('procod.open', 'Abrir CID & TUSS', 'procod', 'open_module', 'low', ['medico', 'estudante'], ['pwa', 'test'], false, false, 'none', [
+    'abrir procod',
+    'procod',
+    'gerador de laudos',
+    'laudos cirurgicos',
+    'faturamento tuss',
+    'tuss cid'
+  ]),
+  intent('cases.open', 'Abrir OTTO Cases', 'cases', 'open_module', 'low', ['medico', 'estudante'], ['pwa', 'test'], false, false, 'none', [
+    'abrir cases',
+    'cases',
+    'relatos de caso',
+    'criar relato de caso'
+  ]),
+  intent('logbook.open', 'Abrir OTTO Log', 'logbook', 'open_module', 'low', ['medico', 'estudante'], ['pwa', 'test'], false, false, 'none', [
+    'abrir logbook',
+    'abrir log',
+    'logbook',
+    'casuistica cirurgica',
+    'registro cirurgico'
+  ]),
+  intent('aerodig.open', 'Abrir Aerodigestive', 'aerodig', 'open_module', 'low', ['medico', 'estudante', 'profissional'], ['pwa', 'test'], false, false, 'none', [
+    'abrir aerodig',
+    'abrir aerodigestive',
+    'aerodig',
+    'via aerea pediatrica',
+    'canulas de traqueostomia'
+  ]),
+  intent('imune.open', 'Abrir Imunobiológicos', 'imune', 'open_module', 'low', ['medico', 'estudante', 'profissional'], ['pwa', 'test'], false, false, 'none', [
+    'abrir imune',
+    'abrir imunobiologicos',
+    'imunobiologicos',
+    'elegibilidade dupilumabe',
+    'portal de imunobiologicos'
+  ]),
+  intent('ottotests.open', 'Abrir OTTO Acadêmico', 'ottotests', 'open_module', 'low', ['medico', 'estudante', 'profissional'], ['pwa', 'test'], false, false, 'none', [
+    'abrir academico',
+    'abrir simulados',
+    'abrir questao',
+    'academico',
+    'otto academico',
+    'questoes de residencia'
+  ]),
+  intent('check.open', 'Abrir OTTO Check', 'check', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir check',
+    'abrir triagem auditiva',
+    'otto check',
+    'exame de audicao'
+  ]),
+  intent('zumbido.open', 'Abrir Zumbido', 'zumbido', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir zumbido',
+    'zumbido',
+    'terapia sonora',
+    'ruido branco'
+  ]),
+  intent('voice.open', 'Abrir Voz', 'voice', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir voz',
+    'abrir voice',
+    'otto voice',
+    'gerador de voz'
+  ]),
+  intent('atlas.open', 'Abrir Atlas ORL', 'atlas', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir atlas',
+    'atlas orl',
+    'atlas de otoscopia'
+  ]),
+  intent('otoscopia.open', 'Abrir Otoscop.IA', 'otoscopia', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir otoscopia',
+    'otoscopia ia',
+    'classificar otoscopia'
+  ]),
+  intent('info.open', 'Abrir OTTO Update', 'info', 'open_module', 'low', ['medico', 'estudante', 'profissional'], ['pwa', 'test'], false, false, 'none', [
+    'abrir update',
+    'abrir info',
+    'abrir news',
+    'otto update',
+    'pilulas clinicas',
+    'noticias otorrino'
+  ]),
+  intent('ottosig.open', 'Abrir OTTO Glossário', 'ottosig', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir glossario',
+    'abrir minidic',
+    'dicionario otorrino',
+    'termos otorrino'
+  ]),
+  intent('periop.open', 'Abrir Peri-op', 'periop', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir periop',
+    'pre operatorio',
+    'pos operatorio',
+    'jejum cirurgico'
+  ]),
+  intent('games.open', 'Abrir OTTO Games', 'games', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir games',
+    'otto games',
+    'jogos da saude'
+  ]),
+  intent('feedback.open', 'Abrir Feedback', 'feedback', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir feedback',
+    'reportar bug',
+    'sugestoes'
+  ]),
+  intent('ocr.open', 'Abrir OTTO OCR', 'ocr', 'open_module', 'low', ['medico', 'estudante'], ['pwa', 'test'], false, false, 'none', [
+    'abrir ocr',
+    'extrator de laudos'
+  ]),
+  intent('bottok.open', 'Abrir BOTTOK', 'bottok', 'open_module', 'low', ['medico', 'estudante', 'profissional'], ['pwa', 'test'], false, false, 'none', [
+    'abrir bottok',
+    'conversar com bottok',
+    'chatia'
   ])
 ];
 

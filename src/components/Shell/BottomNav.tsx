@@ -1,5 +1,4 @@
-import React from 'react';
-import { Home, User, Search } from 'lucide-react';
+import { Home, User, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -9,7 +8,7 @@ export const BottomNav: React.FC = () => {
 
   const navItems = [
     { icon: Home, label: 'Início', path: '/' },
-    { icon: Search, label: 'Buscar', path: '/search' },
+    { icon: Sparkles, label: 'Concierge', path: '/concierge' },
     { icon: User, label: 'Perfil', path: '/profile' },
   ];
 
@@ -21,7 +20,13 @@ export const BottomNav: React.FC = () => {
           <motion.button
             whileTap={{ scale: 0.9 }}
             key={item.label}
-            onClick={() => navigate(item.path)}
+            onClick={() => {
+              if (item.label === 'Concierge') {
+                window.dispatchEvent(new CustomEvent('otto-open-concierge'));
+              } else {
+                navigate(item.path);
+              }
+            }}
             className={`flex flex-col items-center justify-center w-full h-full space-y-0.5 transition-colors duration-300 ${
               isActive ? 'text-[#1D9E75]' : 'text-gray-400 hover:text-[#1D9E75]'
             }`}

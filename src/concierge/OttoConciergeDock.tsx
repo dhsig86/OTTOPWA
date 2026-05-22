@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, X, Send, Sparkles } from 'lucide-react';
+import { Bot, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConciergeChatBubble, type ChatAction } from './ConciergeChatBubble';
 import { generateGreeting } from './greetings';
@@ -319,6 +319,19 @@ export const OttoConciergeDock: React.FC = () => {
     }
   }, [addMessage, profile, userId, navigate]);
 
+  // ─── Listen to global open event ───────────────────────────────────────────
+  useEffect(() => {
+    const handleOpen = (e: Event) => {
+      const customEvent = e as CustomEvent<{ command?: string }>;
+      setIsOpen(true);
+      if (customEvent.detail?.command) {
+        void processCommand(customEvent.detail.command);
+      }
+    };
+    window.addEventListener('otto-open-concierge', handleOpen as EventListener);
+    return () => window.removeEventListener('otto-open-concierge', handleOpen as EventListener);
+  }, [processCommand]);
+
   // ─── Handle action clicks ──────────────────────────────────────────────────
   const handleAction = useCallback((command: string) => {
     if (command.startsWith('__navigate__')) {
@@ -349,24 +362,6 @@ export const OttoConciergeDock: React.FC = () => {
 
   return (
     <>
-      {/* ═══ FAB Button ═══ */}
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(true)}
-        className={`fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 w-14 h-14 rounded-full
-          bg-gradient-to-br from-emerald-600 to-teal-700 shadow-xl shadow-emerald-900/40
-          flex items-center justify-center text-white
-          hover:from-emerald-500 hover:to-teal-600 transition-all
-          ${isOpen ? 'scale-0 opacity-0 pointer-events-none' : 'scale-100 opacity-100'}`}
-        aria-label="Abrir OTTO Concierge"
-      >
-        <Bot size={24} />
-        <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full flex items-center justify-center animate-pulse">
-          <Sparkles size={9} className="text-[#051813]" />
-        </span>
-      </motion.button>
-
       {/* ═══ Chat Panel ═══ */}
       <AnimatePresence>
         {isOpen && (

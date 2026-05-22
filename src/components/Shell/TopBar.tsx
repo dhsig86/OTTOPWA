@@ -1,5 +1,4 @@
-import React from 'react';
-import { Menu, Search, Bell } from 'lucide-react';
+import { Menu, Sparkles, Bell } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -34,8 +33,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
       <header className="sticky top-0 left-0 right-0 pt-10 bg-[#1D9E75] text-white flex flex-col z-40 shadow-sm">
         <div className="flex flex-row items-center justify-between px-5 pb-5 w-full relative">
           <div className="flex items-center gap-2 z-10">
-            <button onClick={() => navigate('/search')} className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
-              <Search size={18} />
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent('otto-open-concierge'))} 
+              className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto"
+              title="OTTO Concierge"
+            >
+              <Sparkles size={18} />
             </button>
           </div>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-5 pt-0">

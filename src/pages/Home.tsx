@@ -13,6 +13,41 @@ export const Home: React.FC = () => {
   // Se usuário tem profile, esse é o padrao dele, senão usa 'medico'
   const [activeFilter, setActiveFilter] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>(profile || 'medico');
 
+  const [greeting, setGreeting] = useState('');
+  const [suggestion, setSuggestion] = useState('');
+  const [actionLabel, setActionLabel] = useState('');
+  const [actionCommand, setActionCommand] = useState('');
+
+  useEffect(() => {
+    const hours = new Date().getHours();
+    let greet = '';
+    let sug = '';
+    let actLbl = '';
+    let actCmd = '';
+
+    if (hours >= 5 && hours < 12) {
+      greet = 'Bom dia';
+      sug = 'Que tal agilizar sua manhã clínica com o prontuário inteligente ou as calculadoras?';
+      actLbl = 'Abrir PROTTO';
+      actCmd = 'abrir protto';
+    } else if (hours >= 12 && hours < 18) {
+      greet = 'Boa tarde';
+      sug = 'Precisa preencher um laudo cirúrgico TUSS ou calcular algum PROM?';
+      actLbl = 'Gerar Laudo';
+      actCmd = 'abrir procod';
+    } else {
+      greet = 'Boa noite';
+      sug = 'Aproveite o final do dia para conferir as novas pílulas literárias no OTTO Update.';
+      actLbl = 'Ver Literatura';
+      actCmd = 'abrir update';
+    }
+
+    setGreeting(greet);
+    setSuggestion(sug);
+    setActionLabel(actLbl);
+    setActionCommand(actCmd);
+  }, []);
+
   useEffect(() => {
     // Verifica contexto E localStorage — contexto é fonte primária (Firestore),
     // localStorage é fallback para Samsung/outros browsers que limpam storage
@@ -21,6 +56,11 @@ export const Home: React.FC = () => {
       navigate('/onboarding', { replace: true });
     }
   }, [navigate, onboardingCompleted]);
+
+  const handleOpenConcierge = (cmd?: string) => {
+    const event = new CustomEvent('otto-open-concierge', { detail: { command: cmd } });
+    window.dispatchEvent(event);
+  };
 
   const handleRunModule = (url: string, external: boolean, status: string) => {
     if (status === 'coming-soon') return;
@@ -139,6 +179,66 @@ export const Home: React.FC = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Card do OTTO Concierge Proativo (Ser Vivo) */}
+      <div className="px-4 py-2">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-[#E1F7EE] via-[#E8F9F3] to-[#CDF0E3] border border-[#1D9E75]/20 rounded-3xl p-5 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4"
+        >
+          {/* Fundo decorativo premium */}
+          <div className="absolute right-0 top-0 w-24 h-24 bg-white/20 rounded-full blur-xl pointer-events-none" />
+          
+          <div className="flex items-start gap-4">
+            {/* Mascot Avatar com animação de pulso */}
+            <div className="relative shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-[#1D9E75] flex items-center justify-center shadow-md">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                  <path d="M12 2a10 10 0 0 1 10 10v1a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-1A10 10 0 0 1 12 2Z" />
+                  <path d="M8 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
+                  <path d="M16 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
+                  <path d="M10 16s1 1 2 1 2-1 2-1" />
+                </svg>
+              </div>
+              <span className="absolute -bottom-1 -right-1 flex h-3.5 w-3.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border border-white"></span>
+              </span>
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-xs font-black text-[#0F6E56] uppercase tracking-widest flex items-center gap-1">
+                ✦ Assistente OTTO
+              </span>
+              <h3 className="text-base font-bold text-gray-800 mt-0.5">
+                {greeting}, {localStorage.getItem('otto_user_name')?.split(' ')[0] || 'Doutor'}!
+              </h3>
+              <p className="text-xs text-gray-600 mt-1 leading-relaxed max-w-md">
+                {suggestion}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-row gap-2 shrink-0 self-end md:self-center z-10">
+            <button
+              onClick={() => handleOpenConcierge(actionCommand)}
+              className="px-4 py-2 bg-[#1D9E75] hover:bg-[#0F6E56] text-white text-xs font-extrabold rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1"
+            >
+              <span className="font-bold">{actionLabel}</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => handleOpenConcierge()}
+              className="px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-[#1D9E75] text-xs font-bold rounded-xl transition-all shadow-xs active:scale-95 flex items-center gap-1"
+            >
+              Falar com IA
+            </button>
+          </div>
+        </motion.div>
       </div>
 
       {/* Ferramentas Clínicas */}

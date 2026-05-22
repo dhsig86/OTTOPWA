@@ -9,11 +9,11 @@ const SERVICES = [
 ];
 
 // Tempo mínimo de exibição (ms) — garante que o usuário veja a tela mesmo se tudo acordar rápido
-const MIN_DISPLAY_MS = 4000;
+const MIN_DISPLAY_MS = 1800;
 // Tempo máximo antes de avançar mesmo com serviços ainda dormindo
-const MAX_DISPLAY_MS = 18000;
+const MAX_DISPLAY_MS = 3200;
 // Timeout por ping individual
-const PING_TIMEOUT_MS = 15000;
+const PING_TIMEOUT_MS = 3000;
 
 type ServiceStatus = 'pending' | 'ok' | 'slow';
 

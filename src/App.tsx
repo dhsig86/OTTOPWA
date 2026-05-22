@@ -1,25 +1,26 @@
-import React, { lazy, Suspense, useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PatientProvider } from './contexts/PatientContext';
 import { Layout } from './components/Shell/Layout';
+import { lazyWithRetry } from './utils/lazyWithRetry';
 
 // Pages (Lazy Loaded)
-const Home           = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
-const Login          = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
-const ModuleFrame    = lazy(() => import('./components/ModuleFrame').then(m => ({ default: m.ModuleFrame })));
-const VideoChannels  = lazy(() => import('./pages/modules/VideoChannels').then(m => ({ default: m.VideoChannels })));
-const Feedback       = lazy(() => import('./pages/modules/Feedback').then(m => ({ default: m.Feedback })));
-const PeriOp         = lazy(() => import('./pages/modules/PeriOp').then(m => ({ default: m.PeriOp })));
+const Home           = lazyWithRetry(() => import('./pages/Home').then(m => ({ default: m.Home })));
+const Login          = lazyWithRetry(() => import('./pages/Login').then(m => ({ default: m.Login })));
+const ModuleFrame    = lazyWithRetry(() => import('./components/ModuleFrame').then(m => ({ default: m.ModuleFrame })));
+const VideoChannels  = lazyWithRetry(() => import('./pages/modules/VideoChannels').then(m => ({ default: m.VideoChannels })));
+const Feedback       = lazyWithRetry(() => import('./pages/modules/Feedback').then(m => ({ default: m.Feedback })));
+const PeriOp         = lazyWithRetry(() => import('./pages/modules/PeriOp').then(m => ({ default: m.PeriOp })));
 
-const InfoPage       = lazy(() => import('./pages/modules/InfoPage').then(m => ({ default: m.InfoPage })));
-const Search         = lazy(() => import('./pages/Search').then(m => ({ default: m.Search })));
-const Notifications  = lazy(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
-const Onboarding        = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
-const Profile           = lazy(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
-const CompleteProfile   = lazy(() => import('./pages/CompleteProfile').then(m => ({ default: m.CompleteProfile })));
-const NotFound          = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
-const PremiumPage       = lazy(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
+const InfoPage       = lazyWithRetry(() => import('./pages/modules/InfoPage').then(m => ({ default: m.InfoPage })));
+const Search         = lazyWithRetry(() => import('./pages/Search').then(m => ({ default: m.Search })));
+const Notifications  = lazyWithRetry(() => import('./pages/Notifications').then(m => ({ default: m.Notifications })));
+const Onboarding        = lazyWithRetry(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
+const Profile           = lazyWithRetry(() => import('./pages/Profile').then(m => ({ default: m.Profile })));
+const CompleteProfile   = lazyWithRetry(() => import('./pages/CompleteProfile').then(m => ({ default: m.CompleteProfile })));
+const NotFound          = lazyWithRetry(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+const PremiumPage       = lazyWithRetry(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { WarmUpSplash } from './components/WarmUpSplash';

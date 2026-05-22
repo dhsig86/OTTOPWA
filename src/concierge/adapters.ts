@@ -84,11 +84,9 @@ export async function runModuleAdapter(request: AdapterRequest, options: Adapter
   const module = getModuleById(request.moduleId);
   const mode = options.adapterModeOverride ?? module?.adapter.status ?? 'mock';
   const timeoutMs = options.timeoutMs ?? module?.adapter.timeoutMs ?? 1500;
-  const adapter = CONTROLLED_ADAPTERS[request.moduleId]?.[mode] ?? MOCK_ADAPTERS[request.moduleId];
-
-  if (!adapter) {
-    return errorResponse(request, 'Adapter nao encontrado para o modo solicitado.');
-  }
+  const adapter = CONTROLLED_ADAPTERS[request.moduleId]?.[mode] ?? 
+                  MOCK_ADAPTERS[request.moduleId] ?? 
+                  (async (req) => success(req, `Módulo ${module?.displayName || req.moduleId} pronto para abertura.`, 'none', { kind: 'open', url: module?.currentUrl }));
 
   return withTimeout(adapter(request), timeoutMs, request);
 }

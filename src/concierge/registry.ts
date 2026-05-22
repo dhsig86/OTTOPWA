@@ -250,6 +250,286 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
       supportsPostMessage: true,
       requiresConfirmationForPersist: true
     }
+  },
+  {
+    id: 'aerodig',
+    displayName: 'Aerodigestive',
+    currentUrl: 'https://otto-aerodig.vercel.app/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional'],
+    status: 'beta',
+    clinicalRisk: 'medium',
+    dataSensitivity: 'low',
+    capabilities: ['aerodig.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: true,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: true
+    }
+  },
+  {
+    id: 'logbook',
+    displayName: 'OTTO Log',
+    currentUrl: 'https://otto-log.vercel.app/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'low',
+    capabilities: ['logbook.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: true,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: true
+    }
+  },
+  {
+    id: 'imune',
+    displayName: 'Imunobiológicos',
+    currentUrl: 'https://otto-imune.vercel.app/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional'],
+    status: 'live',
+    clinicalRisk: 'medium',
+    dataSensitivity: 'low',
+    capabilities: ['imune.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: true,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: true
+    }
+  },
+  {
+    id: 'ottotests',
+    displayName: 'OTTO Acadêmico',
+    currentUrl: 'https://test-pg-bice.vercel.app/',
+    category: 'operacional',
+    profiles: ['medico', 'estudante', 'profissional'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['ottotests.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: true,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'check',
+    displayName: 'OTTO Check',
+    currentUrl: 'https://otto-check.vercel.app/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'beta',
+    clinicalRisk: 'low',
+    dataSensitivity: 'low',
+    capabilities: ['check.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'zumbido',
+    displayName: 'Zumbido',
+    currentUrl: 'https://otto-check.vercel.app/?tool=zumbido',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['zumbido.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'voice',
+    displayName: 'Voz',
+    currentUrl: 'https://otto-voice-one.vercel.app/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'low',
+    capabilities: ['voice.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'atlas',
+    displayName: 'Atlas ORL',
+    currentUrl: 'https://atlas.drdariohart.com/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['atlas.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'otoscopia',
+    displayName: 'Otoscop.IA',
+    currentUrl: 'https://atlas.drdariohart.com/?tab=ia&embed=true',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'medium',
+    dataSensitivity: 'low',
+    capabilities: ['otoscopia.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'info',
+    displayName: 'OTTO Update',
+    currentUrl: '/modules/info',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['info.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: false,
+      supportsDeepLink: true,
+      supportsPostMessage: false,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'ottosig',
+    displayName: 'OTTO Glossário',
+    currentUrl: 'https://dhsig86.github.io/minidic/',
+    category: 'educacao_paciente',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['ottosig.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: false,
+      supportsDeepLink: true,
+      supportsPostMessage: false,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'periop',
+    displayName: 'Peri-op',
+    currentUrl: '/modules/periop',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['periop.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: false,
+      supportsDeepLink: true,
+      supportsPostMessage: false,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'games',
+    displayName: 'OTTO Games',
+    currentUrl: 'https://otto-games.vercel.app/',
+    category: 'educacao_paciente',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['games.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: false,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
+    id: 'feedback',
+    displayName: 'Feedback',
+    currentUrl: '/modules/feedback',
+    category: 'operacional',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'none',
+    capabilities: ['feedback.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: false,
+      supportsDeepLink: true,
+      supportsPostMessage: false,
+      requiresConfirmationForPersist: false
+    }
   }
 ];
 
