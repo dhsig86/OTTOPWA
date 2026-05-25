@@ -222,7 +222,7 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
     dataSensitivity: 'phi',
     capabilities: ['cases.create_draft'],
     surfaces: ['pwa', 'test'],
-    adapter: { status: 'mock', timeoutMs: 5000 },
+    adapter: { status: 'deeplink', timeoutMs: 5000 },
     policies: {
       requiresAuth: true,
       allowsIframe: true,

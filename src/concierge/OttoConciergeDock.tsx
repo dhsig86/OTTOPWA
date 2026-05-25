@@ -384,32 +384,32 @@ export const OttoConciergeDock: React.FC = () => {
               className="fixed z-50
                 inset-0 sm:inset-auto
                 sm:right-0 sm:top-0 sm:bottom-0 sm:w-[380px]
-                bg-[#051813] border-l border-[#123E32]
+                bg-white border-l border-gray-200
                 flex flex-col shadow-2xl"
             >
               {/* Panel Header */}
-              <header className="h-14 bg-[#0B251E] border-b border-[#123E32] px-4 flex items-center justify-between shrink-0">
+              <header className="h-14 bg-[#1D9E75] border-b border-[#0A865F] px-4 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center shadow-md">
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shadow-md">
                     <Bot size={16} className="text-white" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-extrabold bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent leading-none">
+                    <h2 className="text-sm font-extrabold text-white leading-none">
                       OTTO Concierge
                     </h2>
-                    <span className="text-[9px] text-emerald-600 font-semibold">Assistente Inteligente</span>
+                    <span className="text-[9px] text-emerald-100 font-semibold">Assistente Inteligente</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-[#123E32]/60 rounded-full transition-colors text-gray-500 hover:text-white"
+                  className="p-2 hover:bg-white/20 rounded-full transition-colors text-emerald-100 hover:text-white"
                 >
                   <X size={18} />
                 </button>
               </header>
 
               {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#123E32]">
+              <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300">
                 {messages.map((msg) => (
                   <ConciergeChatBubble
                     key={msg.id}
@@ -429,7 +429,7 @@ export const OttoConciergeDock: React.FC = () => {
               </div>
 
               {/* Input Bar */}
-              <div className="shrink-0 bg-[#0B251E] border-t border-[#123E32] p-3">
+              <div className="shrink-0 bg-gray-50 border-t border-gray-200 p-3">
                 <form onSubmit={handleSubmit} className="flex gap-2">
                   <input
                     ref={inputRef}
@@ -438,9 +438,9 @@ export const OttoConciergeDock: React.FC = () => {
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="Digite um comando ou pergunta..."
                     disabled={isProcessing}
-                    className="flex-1 bg-[#051813] border border-[#123E32] rounded-xl px-3.5 py-2.5
-                      text-[13px] text-gray-200 placeholder-gray-600
-                      focus:outline-none focus:border-emerald-700/60 focus:ring-1 focus:ring-emerald-800/40
+                    className="flex-1 bg-white border border-gray-300 rounded-xl px-3.5 py-2.5
+                      text-[13px] text-gray-800 placeholder-gray-400
+                      focus:outline-none focus:border-[#1D9E75] focus:ring-1 focus:ring-[#1D9E75]/30
                       disabled:opacity-50 transition-colors"
                   />
                   <button
@@ -455,7 +455,7 @@ export const OttoConciergeDock: React.FC = () => {
                     <Send size={16} />
                   </button>
                 </form>
-                <p className="text-[9px] text-gray-700 text-center mt-1.5">
+                <p className="text-[9px] text-gray-400 text-center mt-1.5">
                   Decisões clínicas são sempre do médico · LGPD compliant
                 </p>
               </div>

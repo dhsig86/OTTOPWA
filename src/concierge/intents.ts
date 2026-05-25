@@ -227,6 +227,21 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'abrir bottok',
     'conversar com bottok',
     'chatia'
+  ]),
+  intent('concierge.help', 'Explicar módulo ou ajuda', 'concierge', 'respond', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'], false, false, 'none', [
+    'como funciona o sistema',
+    'quais modulos existem',
+    'o que faz o modulo',
+    'me ajuda a usar',
+    'quais calculadoras tem',
+    'como eu trato meu zumbido',
+    'onde vejo o jejum da cirurgia',
+    'o que e amigdalectomia',
+    'como cadastrar cirurgia',
+    'onde fazer teste de audicao',
+    'ajuda',
+    'socorro',
+    'manual'
   ])
 ];
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, 
   BookOpen, 
   Star, 
   Award, 
@@ -87,9 +86,9 @@ function InsightChart({ data }: { data: InsightChartData }) {
 
     return (
       <div className="flex flex-col items-center gap-2 py-2">
-        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-center">{data.titulo}</p>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">{data.titulo}</p>
         <svg width="100" height="100" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r={r} fill="none" stroke="#1a3a2f" strokeWidth="6" />
+          <circle cx="50" cy="50" r={r} fill="none" stroke="#e5e7eb" strokeWidth="6" />
           <circle
             cx="50" cy="50" r={r} fill="none"
             stroke="#10b981" strokeWidth="6"
@@ -99,10 +98,10 @@ function InsightChart({ data }: { data: InsightChartData }) {
             transform="rotate(-90 50 50)"
             className="transition-all duration-1000"
           />
-          <text x="50" y="46" textAnchor="middle" fill="white" fontSize="18" fontWeight="800">{valor}</text>
-          <text x="50" y="60" textAnchor="middle" fill="#9ca3af" fontSize="10">{data.dados[0]?.unidade || '%'}</text>
+          <text x="50" y="46" textAnchor="middle" fill="#111827" fontSize="18" fontWeight="800">{valor}</text>
+          <text x="50" y="60" textAnchor="middle" fill="#6b7280" fontSize="10">{data.dados[0]?.unidade || '%'}</text>
         </svg>
-        <p className="text-[10px] text-gray-500 text-center">{data.dados[0]?.label}</p>
+        <p className="text-[10px] text-gray-400 text-center">{data.dados[0]?.label}</p>
       </div>
     );
   }
@@ -111,14 +110,14 @@ function InsightChart({ data }: { data: InsightChartData }) {
     const maxVal = Math.max(...data.dados.map(d => d.valor), 1);
     return (
       <div className="space-y-2 py-2">
-        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{data.titulo}</p>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{data.titulo}</p>
         {data.dados.map((d, i) => (
           <div key={i} className="space-y-1">
             <div className="flex justify-between text-[10px]">
-              <span className="text-gray-400 truncate max-w-[60%]">{d.label}</span>
-              <span className="font-bold text-white">{d.valor}{d.unidade || '%'}</span>
+              <span className="text-gray-500 truncate max-w-[60%]">{d.label}</span>
+              <span className="font-bold text-gray-900">{d.valor}{d.unidade || '%'}</span>
             </div>
-            <div className="w-full h-2 bg-[#1a3a2f] rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(d.valor / maxVal) * 100}%` }}
@@ -136,14 +135,14 @@ function InsightChart({ data }: { data: InsightChartData }) {
   if (data.tipo === 'timeline') {
     return (
       <div className="space-y-2 py-2">
-        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{data.titulo}</p>
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{data.titulo}</p>
         <div className="flex items-end justify-between gap-1 h-16 px-1">
           {data.dados.map((d, i) => {
             const maxVal = Math.max(...data.dados.map(x => x.valor), 1);
             const pct = (d.valor / maxVal) * 100;
             return (
               <div key={i} className="flex flex-col items-center flex-1 gap-1">
-                <span className="text-[9px] font-bold text-white">{d.valor}{d.unidade || ''}</span>
+                <span className="text-[9px] font-bold text-gray-900">{d.valor}{d.unidade || ''}</span>
                 <motion.div
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max(pct, 8)}%` }}
@@ -151,7 +150,7 @@ function InsightChart({ data }: { data: InsightChartData }) {
                   className="w-full max-w-[24px] rounded-t"
                   style={{ backgroundColor: COLORS[i % COLORS.length] }}
                 />
-                <span className="text-[8px] text-gray-500 text-center leading-tight">{d.label}</span>
+                <span className="text-[8px] text-gray-400 text-center leading-tight">{d.label}</span>
               </div>
             );
           })}
@@ -346,9 +345,9 @@ export const InfoPage: React.FC = () => {
   // Block patients
   if (profile === 'paciente') {
     return (
-      <div className="fixed inset-0 z-50 bg-[#051813] flex flex-col items-center justify-center p-6 text-center text-white">
-        <h2 className="text-xl font-bold mb-2 text-emerald-400">Acesso Restrito</h2>
-        <p className="text-sm text-gray-400 max-w-sm mb-6">
+      <div className="min-h-[60vh] bg-gray-50 flex flex-col items-center justify-center p-6 text-center text-gray-800">
+        <h2 className="text-xl font-bold mb-2 text-emerald-600">Acesso Restrito</h2>
+        <p className="text-sm text-gray-500 max-w-sm mb-6">
           Este módulo contém informações científicas voltadas exclusivamente a médicos e profissionais de saúde.
         </p>
         <button onClick={() => navigate('/')} className="px-6 py-2.5 bg-[#1D9E75] hover:bg-[#0A865F] text-white rounded-full font-semibold transition-colors shadow-lg">
@@ -359,31 +358,27 @@ export const InfoPage: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-45 bg-[#051813] flex flex-col text-gray-100 selection:bg-[#1D9E75] selection:text-white">
-      {/* Header */}
-      <header className="h-14 sm:h-16 bg-[#0B251E] border-b border-[#123E32] text-white flex items-center justify-between px-3 sm:px-4 shrink-0 z-50">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-1 hover:bg-[#123E32]/80 rounded-full transition-colors flex items-center gap-1 text-gray-400 hover:text-white">
-          <ArrowLeft size={18} />
-          <span className="text-xs sm:text-sm font-semibold hidden sm:inline">Voltar</span>
-        </button>
-        <span className="font-extrabold text-sm sm:text-base bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400 bg-clip-text text-transparent flex items-center gap-1.5">
-          <Sparkles size={16} className="text-emerald-400 animate-pulse" />
-          OTTO UPDATE
-        </span>
+    <div className="min-h-screen bg-gray-50 flex flex-col text-gray-800 selection:bg-[#1D9E75] selection:text-white">
+      {/* Page Title */}
+      <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+        <h1 className="text-lg font-extrabold text-gray-800 flex items-center gap-2">
+          <Sparkles size={18} className="text-[#1D9E75]" />
+          OTTO Update
+        </h1>
         <button
           onClick={() => fetchData(true)}
           disabled={isRefreshing}
-          className="p-2 hover:bg-[#123E32]/80 rounded-full transition-colors text-gray-400 hover:text-white disabled:opacity-50"
+          className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600 disabled:opacity-50"
           title="Atualizar pílulas"
         >
           <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
         </button>
-      </header>
+      </div>
 
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center space-y-3">
           <div className="w-10 h-10 border-4 border-[#1D9E75] border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-medium text-gray-400">Analisando literatura científica...</span>
+          <span className="text-sm font-medium text-gray-500">Analisando literatura científica...</span>
         </div>
       ) : (
         <div id="otto-update-scrollable-content" className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24">
@@ -394,33 +389,33 @@ export const InfoPage: React.FC = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-amber-950/30 border border-amber-700/40 rounded-2xl p-3 sm:p-4 flex items-start gap-3"
+                className="bg-amber-50 border border-amber-200 rounded-2xl p-3 sm:p-4 flex items-start gap-3"
               >
-                <Zap size={18} className="text-amber-400 shrink-0 mt-0.5" />
+                <Zap size={18} className="text-amber-600 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-bold text-amber-300 mb-0.5">Modo Demonstração</p>
-                  <p className="text-[10px] sm:text-xs text-amber-200/70">
-                    Exibindo pílulas de exemplo. Execute o script <code className="bg-amber-950/50 px-1 rounded text-amber-300">generate-pills.mjs</code> para buscar artigos reais do PubMed.
+                  <p className="text-xs font-bold text-amber-700 mb-0.5">Modo Demonstração</p>
+                  <p className="text-[10px] sm:text-xs text-amber-600">
+                    Exibindo pílulas de exemplo. Execute o script <code className="bg-amber-100 px-1 rounded text-amber-700">generate-pills.mjs</code> para buscar artigos reais do PubMed.
                   </p>
                 </div>
               </motion.div>
             )}
 
             {/* ═══ DASHBOARD ═══ */}
-            <div className="bg-gradient-to-br from-[#030d0a] via-[#0B251E] to-[#071a14] border border-[#123E32] rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
-              <div className="absolute right-0 top-0 w-24 h-24 bg-emerald-500/5 blur-2xl rounded-full" />
+            <div className="bg-gradient-to-br from-white via-gray-50 to-emerald-50/30 border border-gray-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
+              <div className="absolute right-0 top-0 w-24 h-24 bg-emerald-50/50 blur-2xl rounded-full" />
               <div className="absolute left-1/3 bottom-0 w-32 h-12 bg-[#1D9E75]/5 blur-2xl rounded-full" />
 
               <div className="flex items-center justify-between mb-3 sm:mb-4">
                 <div>
-                  <h2 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1">
+                  <h2 className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
                     <BarChart3 size={13} className="text-[#1D9E75]" />
                     Performance Científica
                   </h2>
-                  <p className="text-lg sm:text-xl font-black text-white mt-0.5">Cérebro Afiado 🧠</p>
+                  <p className="text-lg sm:text-xl font-black text-gray-900 mt-0.5">Cérebro Afiado 🧠</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="bg-emerald-950/80 text-emerald-300 border border-[#123E32] text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-bold">
+                  <span className="bg-emerald-100 text-emerald-600 border border-gray-200 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-bold">
                     Level {Math.max(1, Math.floor(totalLidos / 3))}
                   </span>
                 </div>
@@ -428,27 +423,27 @@ export const InfoPage: React.FC = () => {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">Pílulas Lidas</span>
-                  <span className="text-xl sm:text-2xl font-black text-emerald-400">{totalLidos}</span>
+                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">Pílulas Lidas</span>
+                  <span className="text-xl sm:text-2xl font-black text-emerald-600">{totalLidos}</span>
                 </div>
-                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">No Acervo</span>
-                  <span className="text-xl sm:text-2xl font-black text-teal-400">{totalPills}</span>
+                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">No Acervo</span>
+                  <span className="text-xl sm:text-2xl font-black text-teal-600">{totalPills}</span>
                 </div>
-                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">Especialidades</span>
-                  <span className="text-xl sm:text-2xl font-black text-cyan-400">{specialtiesCovered}</span>
+                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">Especialidades</span>
+                  <span className="text-xl sm:text-2xl font-black text-cyan-600">{specialtiesCovered}</span>
                 </div>
-                <div className="bg-[#030d0a]/60 border border-[#123E32]/80 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-500 block mb-0.5">Favoritos</span>
-                  <span className="text-xl sm:text-2xl font-black text-amber-400">{favorites.length}</span>
+                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
+                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">Favoritos</span>
+                  <span className="text-xl sm:text-2xl font-black text-amber-600">{favorites.length}</span>
                 </div>
               </div>
 
               {/* Last update info */}
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#123E32]/60">
-                <span className="text-[9px] sm:text-[10px] text-gray-600 flex items-center gap-1">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                <span className="text-[9px] sm:text-[10px] text-gray-400 flex items-center gap-1">
                   <Clock size={10} />
                   Última atualização: {lastUpdate}
                 </span>
@@ -467,25 +462,25 @@ export const InfoPage: React.FC = () => {
                 key={activePill.id}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-[#071F19] border border-[#123E32] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl"
+                className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl"
               >
                 {/* Revelação Central Hero */}
                 {activePill.revelacao_central && (
-                  <div className="bg-gradient-to-r from-emerald-950/40 via-[#071F19] to-teal-950/30 border-b border-[#123E32] p-4 sm:p-5">
+                  <div className="bg-gradient-to-r from-emerald-50 via-white to-teal-50 border-b border-gray-200 p-4 sm:p-5">
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                        <Zap size={16} className="text-emerald-400" />
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center shrink-0">
+                        <Zap size={16} className="text-emerald-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-500/70 mb-1">Revelação Central</p>
-                        <p className="text-sm sm:text-base font-extrabold text-white leading-snug">
+                        <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Revelação Central</p>
+                        <p className="text-sm sm:text-base font-extrabold text-gray-900 leading-snug">
                           {activePill.revelacao_central}
                         </p>
                       </div>
                     </div>
                     {/* Insight Chart */}
                     {activePill.insight_grafico && (
-                      <div className="mt-3 bg-[#030d0a]/50 border border-[#123E32]/60 rounded-xl p-3">
+                      <div className="mt-3 bg-gray-100 border border-gray-100 rounded-xl p-3">
                         <InsightChart data={activePill.insight_grafico} />
                       </div>
                     )}
@@ -493,18 +488,18 @@ export const InfoPage: React.FC = () => {
                 )}
 
                 {/* Pill Header */}
-                <div className="p-4 sm:p-6 bg-gradient-to-b from-emerald-950/10 via-[#071F19] to-[#071F19] border-b border-[#123E32]">
+                <div className="p-4 sm:p-6 bg-gradient-to-b from-emerald-50/50 via-white to-white border-b border-gray-200">
                   <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider bg-emerald-900/40 border border-emerald-700/50 text-[#CDF0E3] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
+                      <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider bg-emerald-100 border border-emerald-300 text-emerald-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                         {activePill.especialidade}
                       </span>
-                      <span className="text-[9px] sm:text-xs text-gray-500 flex items-center gap-1">
+                      <span className="text-[9px] sm:text-xs text-gray-400 flex items-center gap-1">
                         <Calendar size={10} />
                         {activePill.data_exibicao}
                       </span>
                       {activePill.fonte === 'pubmed_real' && (
-                        <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-500 bg-emerald-950/50 border border-emerald-700/30 px-1.5 py-0.5 rounded">
+                        <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
                           PubMed ✓
                         </span>
                       )}
@@ -514,8 +509,8 @@ export const InfoPage: React.FC = () => {
                         onClick={() => toggleFavorite(activePill.id)}
                         className={`p-1.5 sm:p-2 rounded-full border transition-all ${
                           favorites.includes(activePill.id)
-                            ? 'bg-amber-950/40 border-amber-500/50 text-amber-400'
-                            : 'bg-[#030d0a] border-[#123E32] text-gray-500 hover:text-gray-200'
+                            ? 'bg-amber-50 border-amber-300 text-amber-600'
+                            : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-900'
                         }`}
                       >
                         <Star size={15} fill={favorites.includes(activePill.id) ? "currentColor" : "none"} />
@@ -524,8 +519,8 @@ export const InfoPage: React.FC = () => {
                         onClick={() => toggleRead(activePill.id)}
                         className={`p-1.5 sm:p-2 rounded-full border transition-all ${
                           readPills.includes(activePill.id)
-                            ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-400'
-                            : 'bg-[#030d0a] border-[#123E32] text-gray-500 hover:text-gray-200'
+                            ? 'bg-emerald-50 border-emerald-300 text-emerald-600'
+                            : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-900'
                         }`}
                         title={readPills.includes(activePill.id) ? "Lido" : "Marcar como lido"}
                       >
@@ -534,10 +529,10 @@ export const InfoPage: React.FC = () => {
                     </div>
                   </div>
                   
-                  <h1 className="text-base sm:text-xl font-extrabold text-white leading-snug">{activePill.tema}</h1>
-                  <p className="text-[10px] sm:text-xs text-gray-400 mt-1.5 sm:mt-2 flex items-center gap-1.5">
+                  <h1 className="text-base sm:text-xl font-extrabold text-gray-900 leading-snug">{activePill.tema}</h1>
+                  <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2 flex items-center gap-1.5">
                     <BookOpen size={12} className="text-[#1D9E75]" />
-                    Leitura: <strong className="text-gray-200">{activePill.tempo_leitura_min} min</strong>
+                    Leitura: <strong className="text-gray-700">{activePill.tempo_leitura_min} min</strong>
                     {activePill.artigos.length > 0 && (
                       <span className="ml-2">· {activePill.artigos.length} artigos</span>
                     )}
@@ -545,11 +540,11 @@ export const InfoPage: React.FC = () => {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-[#123E32] bg-[#071F19] px-2 sm:px-4">
+                <div className="flex border-b border-gray-200 bg-white px-2 sm:px-4">
                   <button
                     onClick={() => setActiveTab('evidencia')}
                     className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
-                      activeTab === 'evidencia' ? 'border-[#1D9E75] text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
+                      activeTab === 'evidencia' ? 'border-[#1D9E75] text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
                     }`}
                   >
                     Evidências
@@ -557,7 +552,7 @@ export const InfoPage: React.FC = () => {
                   <button
                     onClick={() => setActiveTab('pratica')}
                     className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
-                      activeTab === 'pratica' ? 'border-emerald-500 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
+                      activeTab === 'pratica' ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
                     }`}
                   >
                     Pílula Prática
@@ -566,7 +561,7 @@ export const InfoPage: React.FC = () => {
                     <button
                       onClick={() => setActiveTab('quiz')}
                       className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
-                        activeTab === 'quiz' ? 'border-teal-400 text-white' : 'border-transparent text-gray-500 hover:text-gray-300'
+                        activeTab === 'quiz' ? 'border-teal-400 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
                       }`}
                     >
                       Quiz
@@ -580,26 +575,26 @@ export const InfoPage: React.FC = () => {
                     {activeTab === 'evidencia' && (
                       <motion.div key="ev" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-6">
                         <div>
-                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-[#CDF0E3] tracking-wider mb-2">Consenso e Integração Científica</h3>
-                          <p className="text-gray-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-[#051813]/60 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#123E32]">
+                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-700 tracking-wider mb-2">Consenso e Integração Científica</h3>
+                          <p className="text-gray-600 text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-gray-100 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
                             {activePill.consenso_cientifico}
                           </p>
                         </div>
                         <div className="space-y-2 sm:space-y-3">
-                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-gray-400 tracking-wider">Artigos Analisados</h3>
+                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-gray-500 tracking-wider">Artigos Analisados</h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                             {activePill.artigos.map((art, idx) => (
-                              <div key={idx} className="bg-[#051813] p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-[#123E32] flex flex-col justify-between hover:border-[#1D9E75]/30 transition-colors">
+                              <div key={idx} className="bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 flex flex-col justify-between hover:border-[#1D9E75]/50 transition-colors">
                                 <div>
                                   <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
-                                    <span className="text-[8px] sm:text-[10px] font-bold text-gray-500 bg-[#030d0a] border border-[#123E32] px-1.5 sm:px-2 py-0.5 rounded-md">Estudo {idx + 1}</span>
-                                    <span className="text-[9px] sm:text-xs font-semibold text-emerald-400 truncate ml-1">{art.revista} · {art.ano}</span>
+                                    <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 bg-gray-100 border border-gray-200 px-1.5 sm:px-2 py-0.5 rounded-md">Estudo {idx + 1}</span>
+                                    <span className="text-[9px] sm:text-xs font-semibold text-emerald-600 truncate ml-1">{art.revista} · {art.ano}</span>
                                   </div>
-                                  <h4 className="text-[10px] sm:text-xs font-bold text-white leading-snug line-clamp-3 mb-1.5 sm:mb-2">{art.titulo}</h4>
-                                  <p className="text-[9px] sm:text-[10px] text-gray-500 italic mb-2 sm:mb-3">Autores: {art.autores}</p>
+                                  <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 leading-snug line-clamp-3 mb-1.5 sm:mb-2">{art.titulo}</h4>
+                                  <p className="text-[9px] sm:text-[10px] text-gray-400 italic mb-2 sm:mb-3">Autores: {art.autores}</p>
                                 </div>
                                 <a href={art.link} target="_blank" rel="noopener noreferrer"
-                                  className="text-[9px] sm:text-[10px] text-[#1D9E75] hover:text-emerald-300 font-bold flex items-center gap-1 self-start group">
+                                  className="text-[9px] sm:text-[10px] text-[#1D9E75] hover:text-emerald-600 font-bold flex items-center gap-1 self-start group">
                                   Acessar Artigo Original
                                   <ExternalLink size={9} className="group-hover:translate-x-0.5 transition-transform" />
                                 </a>
@@ -612,15 +607,15 @@ export const InfoPage: React.FC = () => {
 
                     {activeTab === 'pratica' && (
                       <motion.div key="pr" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
-                        <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-400 tracking-wider">Takeaway Clínico (Conduta do Otorrino)</h3>
-                        <div className="bg-emerald-950/20 border-l-4 border-emerald-500 p-4 sm:p-5 rounded-r-xl sm:rounded-r-2xl space-y-3">
-                          <p className="text-gray-200 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line">
+                        <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-600 tracking-wider">Takeaway Clínico (Conduta do Otorrino)</h3>
+                        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 sm:p-5 rounded-r-xl sm:rounded-r-2xl space-y-3">
+                          <p className="text-gray-700 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line">
                             {activePill.pratica_clinica}
                           </p>
                         </div>
-                        <div className="bg-[#051813] border border-[#123E32] rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3">
+                        <div className="bg-gray-50 border border-gray-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3">
                           <Bookmark className="text-[#1D9E75] shrink-0" size={18} />
-                          <p className="text-[9px] sm:text-xs text-gray-400 leading-snug">
+                          <p className="text-[9px] sm:text-xs text-gray-500 leading-snug">
                             Pílula sintetizada de meta-análises e ensaios controlados para aplicação imediata no consultório.
                           </p>
                         </div>
@@ -629,20 +624,20 @@ export const InfoPage: React.FC = () => {
 
                     {activeTab === 'quiz' && activePill.quiz_curiosidade && (
                       <motion.div key="qz" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-5">
-                        <div className="bg-emerald-950/20 border border-emerald-800/40 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2">
-                          <Award className="text-emerald-400 shrink-0 animate-bounce" size={18} />
-                          <span className="text-[10px] sm:text-xs font-bold text-emerald-300">Quiz de Fixação Clínica</span>
+                        <div className="bg-emerald-50 border border-emerald-200 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2">
+                          <Award className="text-emerald-600 shrink-0 animate-bounce" size={18} />
+                          <span className="text-[10px] sm:text-xs font-bold text-emerald-600">Quiz de Fixação Clínica</span>
                         </div>
-                        <h3 className="text-xs sm:text-sm font-bold text-white leading-relaxed">{activePill.quiz_curiosidade.pergunta}</h3>
+                        <h3 className="text-xs sm:text-sm font-bold text-gray-900 leading-relaxed">{activePill.quiz_curiosidade.pergunta}</h3>
                         <div className="space-y-2">
                           {activePill.quiz_curiosidade.alternativas.map((alt, i) => {
                             const isSelected = selectedAlternative === alt;
                             const isCorrect = alt === activePill.quiz_curiosidade?.resposta_correta;
-                            let btnStyle = "bg-[#051813] hover:bg-[#071F19] border-[#123E32] text-gray-300";
+                            let btnStyle = "bg-gray-50 hover:bg-gray-50 border-gray-200 text-gray-600";
                             if (quizAnswered) {
-                              if (isCorrect) btnStyle = "bg-emerald-950/40 border-emerald-500 text-emerald-400";
-                              else if (isSelected) btnStyle = "bg-rose-950/40 border-rose-500 text-rose-400";
-                              else btnStyle = "bg-[#051813] border-[#123E32] text-gray-600 opacity-60";
+                              if (isCorrect) btnStyle = "bg-emerald-50 border-emerald-500 text-emerald-600";
+                              else if (isSelected) btnStyle = "bg-rose-50 border-rose-400 text-rose-600";
+                              else btnStyle = "bg-gray-50 border-gray-200 text-gray-400 opacity-60";
                             }
                             return (
                               <button key={i} disabled={quizAnswered}
@@ -657,9 +652,9 @@ export const InfoPage: React.FC = () => {
                         </div>
                         <AnimatePresence>
                           {quizAnswered && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-[#051813] border border-[#123E32] p-3 sm:p-4 rounded-xl sm:rounded-2xl">
-                              <h4 className="text-[10px] sm:text-xs font-bold text-white mb-1">Explicação:</h4>
-                              <p className="text-[10px] sm:text-xs text-gray-400 leading-relaxed">{activePill.quiz_curiosidade.explicacao}</p>
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 border border-gray-200 p-3 sm:p-4 rounded-xl sm:rounded-2xl">
+                              <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1">Explicação:</h4>
+                              <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">{activePill.quiz_curiosidade.explicacao}</p>
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -672,8 +667,8 @@ export const InfoPage: React.FC = () => {
 
             {/* ═══ ACERVO ═══ */}
             <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 border-b border-[#123E32] pb-2 sm:pb-3">
-                <h2 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 border-b border-gray-200 pb-2 sm:pb-3">
+                <h2 className="text-sm sm:text-base font-extrabold text-gray-900 flex items-center gap-1.5">
                   <ListFilter size={16} className="text-[#1D9E75]" />
                   Acervo de Pílulas
                 </h2>
@@ -683,7 +678,7 @@ export const InfoPage: React.FC = () => {
                       className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all shrink-0 ${
                         selectedCategory === cat
                           ? 'bg-[#1D9E75] border-[#1D9E75] text-white'
-                          : 'bg-[#030d0a] border-[#123E32] text-gray-500 hover:text-gray-300'
+                          : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-800'
                       }`}
                     >
                       {cat}
@@ -694,8 +689,8 @@ export const InfoPage: React.FC = () => {
 
               <div className="space-y-2 sm:space-y-3">
                 {filteredPills.length === 0 ? (
-                  <div className="bg-[#030d0a] border border-[#123E32] p-6 sm:p-8 rounded-2xl sm:rounded-3xl text-center text-gray-500">
-                    <Search size={28} className="mx-auto text-gray-700 mb-2" />
+                  <div className="bg-gray-100 border border-gray-200 p-6 sm:p-8 rounded-2xl sm:rounded-3xl text-center text-gray-400">
+                    <Search size={28} className="mx-auto text-gray-500 mb-2" />
                     <p className="text-xs sm:text-sm">Nenhuma pílula nesta subárea no momento.</p>
                   </div>
                 ) : (
@@ -708,32 +703,32 @@ export const InfoPage: React.FC = () => {
                       className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4 ${
                         activePill?.id === pill.id
                           ? 'bg-[#1D9E75]/10 border-[#1D9E75]/80 shadow-md'
-                          : 'bg-[#030d0a] border-[#123E32]/80 hover:bg-[#071F19]'
+                          : 'bg-gray-100 border-gray-200 hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex-1 min-w-0 pr-1">
                         <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 flex-wrap">
-                          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-[#051813] border border-[#123E32] text-gray-400 px-1.5 sm:px-2 py-0.5 rounded-md">
+                          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-gray-50 border border-gray-200 text-gray-500 px-1.5 sm:px-2 py-0.5 rounded-md">
                             {pill.especialidade}
                           </span>
                           {pill.fonte === 'pubmed_real' && (
-                            <span className="text-[7px] sm:text-[8px] font-bold text-emerald-500">PubMed✓</span>
+                            <span className="text-[7px] sm:text-[8px] font-bold text-emerald-600">PubMed✓</span>
                           )}
                           {readPills.includes(pill.id) && (
-                            <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-400 flex items-center gap-0.5">
+                            <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-600 flex items-center gap-0.5">
                               <CheckCircle2 size={9} /> Lido
                             </span>
                           )}
                           {favorites.includes(pill.id) && (
-                            <Star size={9} className="text-amber-400 fill-amber-400" />
+                            <Star size={9} className="text-amber-600 fill-amber-600" />
                           )}
                         </div>
-                        <h4 className="font-bold text-xs sm:text-sm text-gray-200 leading-snug line-clamp-2">{pill.tema}</h4>
+                        <h4 className="font-bold text-xs sm:text-sm text-gray-700 leading-snug line-clamp-2">{pill.tema}</h4>
                         {pill.revelacao_central && (
-                          <p className="text-[9px] sm:text-[10px] text-emerald-500/70 mt-0.5 line-clamp-1 italic">💡 {pill.revelacao_central}</p>
+                          <p className="text-[9px] sm:text-[10px] text-emerald-600 mt-0.5 line-clamp-1 italic">💡 {pill.revelacao_central}</p>
                         )}
                       </div>
-                      <ChevronRight size={16} className="text-gray-600 shrink-0" />
+                      <ChevronRight size={16} className="text-gray-400 shrink-0" />
                     </motion.div>
                   ))
                 )}

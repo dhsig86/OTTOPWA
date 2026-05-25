@@ -77,6 +77,10 @@ export const CONTROLLED_ADAPTERS: Record<string, Partial<Record<AdapterStatus, M
   autolaudo: {
     deeplink: async (request) => autolaudoDeepLink(request),
     read_only: async (request) => autolaudoDeepLink(request)
+  },
+  cases: {
+    deeplink: async (request) => casesDeepLink(request),
+    read_only: async (request) => casesDeepLink(request)
   }
 };
 
@@ -333,6 +337,38 @@ function prottoDeepLink(request: AdapterRequest): AdapterResponse {
       traceId: request.traceId,
       adapterStatus: 'deeplink',
       containsPhi: false
+    }
+  };
+}
+
+function casesDeepLink(request: AdapterRequest): AdapterResponse {
+  const module = getModuleById(request.moduleId);
+  const baseUrl = module?.currentUrl ?? 'https://otto-cases.vercel.app/';
+  const draftText = extractSafeClinicalQuery(request.input.text ?? '', [
+    'criar', 'relato', 'caso', 'report', 'rascunho', 'clinico', 'gerar', 'de'
+  ]);
+  const plannedDeepLinkUrl = buildUrl(baseUrl, { draft: draftText });
+
+  return {
+    status: 'success',
+    moduleId: request.moduleId,
+    intentId: request.intentId,
+    summary: 'OTTO Cases preparado. O Concierge abrira o modulo e pre-preenchera o Intake Inteligente com o rascunho.',
+    redactionLevel: 'strict',
+    payload: {
+      kind: 'deeplink',
+      draftText,
+      url: baseUrl,
+      plannedDeepLinkUrl,
+      postMessage: {
+        type: 'otto-cases-open',
+        draft: draftText
+      }
+    },
+    debug: {
+      traceId: request.traceId,
+      adapterStatus: 'deeplink',
+      containsPhi: true
     }
   };
 }
