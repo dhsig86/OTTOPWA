@@ -530,6 +530,26 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
       supportsPostMessage: false,
       requiresConfirmationForPersist: false
     }
+  },
+  {
+    id: 'triagem',
+    displayName: 'Triagem OS',
+    currentUrl: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'medium',
+    dataSensitivity: 'phi',
+    capabilities: ['triagem.open', 'triagem.start'],
+    surfaces: ['pwa', 'zap', 'test'],
+    adapter: { status: 'deeplink', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: false,
+      requiresConfirmationForPersist: false
+    }
   }
 ];
 

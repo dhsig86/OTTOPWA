@@ -242,6 +242,20 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'ajuda',
     'socorro',
     'manual'
+  ]),
+  intent('triagem.open', 'Abrir Triagem', 'triagem', 'open_module', 'low',
+    ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'],
+    false, false, 'none', [
+    'abrir triagem',
+    'triagem',
+    'triagem os',
+    'iniciar triagem',
+    'fazer triagem',
+    'admissao clinica',
+    'protocolo triagem',
+    'anamnese ia',
+    'triagem do paciente',
+    'admissao do paciente'
   ])
 ];
 

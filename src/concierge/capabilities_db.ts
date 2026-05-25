@@ -79,5 +79,10 @@ export const MODULE_CAPABILITIES_DB: Record<string, ModuleCapabilityInfo> = {
     description: 'Prontuário eletrônico inteligente adaptado para otimizar o fluxo de atendimento ORL.',
     targetProfile: 'medico',
     mainFeatures: ['Evoluções baseadas em NLP', 'Mapeamento de queixas e condutas automáticas']
+  },
+  triagem: {
+    description: 'Protocolo de triagem e admissão clínica ORL com IA conversacional. Gera prontuários pré-consulta estruturados.',
+    targetProfile: 'ambos',
+    mainFeatures: ['Triagem conversacional guiada por IA', 'Anamnese estruturada ORL', 'Geração de prontuário pré-consulta']
   }
 };
