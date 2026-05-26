@@ -176,6 +176,8 @@ function routeForTarget(targetUrl: string): string {
 }
 
 function extractTargetUrl(result: CommandSimulationResult): string | undefined {
+  const plannedUrl = result.adapterResponse?.payload?.plannedDeepLinkUrl;
+  if (typeof plannedUrl === 'string') return plannedUrl;
   const payloadUrl = result.adapterResponse?.payload?.url;
   if (typeof payloadUrl === 'string') return payloadUrl;
   return result.activation.url;

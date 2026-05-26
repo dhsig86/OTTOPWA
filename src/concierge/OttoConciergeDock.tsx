@@ -60,6 +60,56 @@ function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length
 function getConversationalResponse(text: string): { text: string; actions: ChatAction[] } | null {
   const n = text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
 
+  // ─── Tour Steps ──────────────────────────────────────────────────────────
+  if (n === 'concierge.tour.start') {
+    return {
+      text: '🧮 **Passo 1: Calculadoras Clínicas**\n\nExperimente digitar `calcular stop bang` ou `abrir vhi`. Eu identifico a calculadora e abro o módulo diretamente na ferramenta certa.\n\nVamos testar?',
+      actions: [
+        { label: 'Testar com STOP-Bang', command: 'calcular stop bang', style: 'primary' },
+        { label: 'Próximo Passo ➡️', command: 'concierge.tour.step2' }
+      ]
+    };
+  }
+
+  if (n === 'concierge.tour.step2') {
+    return {
+      text: '🎙️ **Passo 2: Escriba Médico (Whisper)**\n\nPrecisa de transcrever e resumir uma consulta? Diga `gravar consulta` ou `ditar evolucao`. Eu preparo o gravador com injeção segura no prontuário.\n\nPróximo?',
+      actions: [
+        { label: 'Próximo Passo ➡️', command: 'concierge.tour.step3', style: 'primary' }
+      ]
+    };
+  }
+
+  if (n === 'concierge.tour.step3') {
+    return {
+      text: '🔎 **Passo 3: Faturamento e CID/TUSS (PROCOD)**\n\nQuer codificar um procedimento ou buscar CID? Digite `cid faringite` ou `tuss amigdalectomia`. Trago os códigos certos na hora.\n\nPronto! Agora você está pronto para dominar o ecossistema.',
+      actions: [
+        { label: 'Concluir Tour ✅', command: 'concierge.tour.done', style: 'primary' }
+      ]
+    };
+  }
+
+  if (n === 'concierge.tour.done') {
+    localStorage.setItem('otto_concierge_tour_done', 'true');
+    return {
+      text: 'Excelente! O tour foi concluído. Estou sempre aqui no canto da tela para facilitar seu fluxo clínico. Como posso ajudar agora?',
+      actions: [
+        { label: '🧭 Ver opções', command: 'ajuda', style: 'primary' }
+      ]
+    };
+  }
+
+  if (n === 'concierge.tour.skip') {
+    localStorage.setItem('otto_concierge_tour_done', 'true');
+    return {
+      text: 'Sem problemas! Se precisar de ajuda, é só digitar `ajuda` ou clicar no botão de menu.',
+      actions: [
+        { label: '🧭 O que posso fazer?', command: 'ajuda', style: 'primary' }
+      ]
+    };
+  }
+
+  // ─── Conversational Responses ──────────────────────────────────────────────
   if (/^(oi|ola|hey|bom dia|boa tarde|boa noite|e ai|fala|salve)\b/.test(n)) {
     return {
       text: pick(GREETINGS_CASUAL),
@@ -162,6 +212,21 @@ export const OttoConciergeDock: React.FC = () => {
   // ─── Greeting ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen && !hasGreeted) {
+      const tourDone = localStorage.getItem('otto_concierge_tour_done') === 'true';
+      if (!tourDone) {
+        addMsg({
+          variant: 'assistant',
+          text: '🩺 **Bem-vindo ao OTTO Concierge!**\n\nSou seu assistente de navegação clínica. Posso abrir calculadoras, transcrever áudios e buscar códigos CID/TUSS rapidamente.\n\nGostaria de fazer um tour interativo de 1 minuto?',
+          bubbleStyle: 'hero',
+          actions: [
+            { label: '🚀 Iniciar Tour', command: 'concierge.tour.start', style: 'primary' },
+            { label: '❌ Pular', command: 'concierge.tour.skip', style: 'ghost' }
+          ]
+        });
+        setHasGreeted(true);
+        return;
+      }
+
       const lastModule = localStorage.getItem('otto_last_module') || undefined;
       const greeting = generateGreeting({
         userName: userName || 'Doutor(a)',
@@ -292,9 +357,10 @@ export const OttoConciergeDock: React.FC = () => {
       const moduleName = module?.displayName || moduleId;
       const status = plan.status || 'ready';
 
+      const postMsgStr = plan.postMessage ? btoa(encodeURIComponent(JSON.stringify(plan.postMessage))) : '';
       const navAction: ChatAction = {
         label: `🚀 Abrir ${moduleName}`,
-        command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}`,
+        command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}__${postMsgStr}`,
         style: 'primary',
       };
       if (status === 'handoff_required') {
@@ -357,6 +423,17 @@ export const OttoConciergeDock: React.FC = () => {
       const parts = command.split('__');
       const route = parts[2] || '/';
       const url = parts[3] || '';
+      const postMsgEncoded = parts[4] || '';
+
+      if (postMsgEncoded) {
+        try {
+          const decoded = decodeURIComponent(atob(postMsgEncoded));
+          sessionStorage.setItem('otto_concierge_pending_message', decoded);
+        } catch (e) {
+          console.error('Failed to parse encoded postMessage:', e);
+        }
+      }
+
       if (route === '/modules/webview' && url) navigate(route, { state: { url } });
       else if (route.startsWith('/')) navigate(route);
       setIsOpen(false);

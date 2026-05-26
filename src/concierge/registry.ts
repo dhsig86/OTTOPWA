@@ -56,8 +56,37 @@ export function getCalcHubCatalogByArea(): Array<{ area: string; calculators: Ca
   })).filter((group) => group.calculators.length > 0);
 }
 
+function levenshteinDistance(a: string, b: string): number {
+  const tmp: number[][] = [];
+  for (let i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (let j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1, // deletion
+        tmp[i][j - 1] + 1, // insertion
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // substitution
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+}
+
+function getSimilarity(a: string, b: string): number {
+  const maxLength = Math.max(a.length, b.length);
+  if (maxLength === 0) return 1.0;
+  const distance = levenshteinDistance(a, b);
+  return 1.0 - distance / maxLength;
+}
+
 export function findCalcHubCalculator(text: string): CalcHubCalculator | undefined {
   const normalizedText = normalizeSearchText(text);
+  const wordsText = normalizedText.split(' ').filter((w) => w.length > 2);
+
   const candidates = CALC_HUB_CATALOG.flatMap((calculator) => (
     [calculator.id, calculator.name, ...calculator.aliases].map((label) => ({
       calculator,
@@ -67,7 +96,35 @@ export function findCalcHubCalculator(text: string): CalcHubCalculator | undefin
     .filter((candidate) => candidate.label.length > 0)
     .sort((a, b) => b.label.length - a.label.length);
 
-  return candidates.find((candidate) => normalizedText.includes(candidate.label))?.calculator;
+  // First pass: exact substring match
+  const exactMatch = candidates.find((candidate) => normalizedText.includes(candidate.label));
+  if (exactMatch) return exactMatch.calculator;
+
+  // Second pass: fuzzy word-by-word match
+  for (const candidate of candidates) {
+    const candidateWords = candidate.label.split(' ').filter((w) => w.length > 2);
+    if (candidateWords.length === 0) continue;
+
+    const matchesAll = candidateWords.every((cWord) => {
+      return wordsText.some((wText) => {
+        if (wText === cWord) return true;
+        // Substring / extra character check
+        if (wText.includes(cWord) && wText.length - cWord.length <= 1) return true;
+        if (cWord.includes(wText) && cWord.length - wText.length <= 1) return true;
+        // Levenshtein check for longer words
+        if (cWord.length >= 4 && wText.length >= 4) {
+          return getSimilarity(cWord, wText) >= 0.8;
+        }
+        return false;
+      });
+    });
+
+    if (matchesAll) {
+      return candidate.calculator;
+    }
+  }
+
+  return undefined;
 }
 
 export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [

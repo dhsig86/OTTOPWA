@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -48,20 +48,13 @@ export const ModuleFrame: React.FC = () => {
     return () => { clearTimeout(timer); clearTimeout(minTimer); };
   }, [targetUrl, navigate]);
 
-  if (!targetUrl) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full p-4">
-        <p>Módulo não encontrado.</p>
-        <button onClick={() => navigate(-1)} className="mt-4 text-[#1D9E75]">Voltar</button>
-      </div>
-    );
-  }
+
 
   const getSafeOrigin = () => {
-    try { return new URL(targetUrl).origin; } catch { return '*'; }
+    try { return new URL(targetUrl || '').origin; } catch { return '*'; }
   };
 
-  const sendContext = (token = firebaseToken) => {
+  const sendContext = useCallback((token = firebaseToken) => {
     const payload = {
       type: 'otto-context',
       payload: { userId, userName, profile, patientId, doctorId, firebaseToken: token }
@@ -89,7 +82,7 @@ export const ModuleFrame: React.FC = () => {
         console.error('Failed to parse pending concierge message', e);
       }
     }
-  };
+  }, [firebaseToken, userId, userName, profile, patientId, doctorId, targetUrl]);
 
   // Responde ao módulo quando ele pede renovação de token (401 recovery)
   useEffect(() => {
@@ -105,7 +98,7 @@ export const ModuleFrame: React.FC = () => {
     };
     window.addEventListener('message', handleRefreshRequest);
     return () => window.removeEventListener('message', handleRefreshRequest);
-  }, [firebaseToken, userId, userName, profile, patientId, doctorId, targetUrl]);
+  }, [sendContext]);
 
   // Navega para outro módulo quando um iframe filho solicita via postMessage
   useEffect(() => {
@@ -157,6 +150,15 @@ export const ModuleFrame: React.FC = () => {
     const t2 = setTimeout(() => sendContext(), 4000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   };
+
+  if (!targetUrl) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full p-4">
+        <p>Módulo não encontrado.</p>
+        <button onClick={() => navigate(-1)} className="mt-4 text-[#1D9E75]">Voltar</button>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col">

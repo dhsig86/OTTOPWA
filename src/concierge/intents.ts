@@ -297,13 +297,62 @@ function matchedSpecificity(candidate: IntentCandidate): number {
   return candidate.matchedTerms.reduce((total, term) => total + normalizeText(term).length, 0);
 }
 
+function levenshteinDistance(a: string, b: string): number {
+  const tmp: number[][] = [];
+  for (let i = 0; i <= a.length; i++) {
+    tmp[i] = [i];
+  }
+  for (let j = 0; j <= b.length; j++) {
+    tmp[0][j] = j;
+  }
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1, // deletion
+        tmp[i][j - 1] + 1, // insertion
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1) // substitution
+      );
+    }
+  }
+  return tmp[a.length][b.length];
+}
+
+function getSimilarity(a: string, b: string): number {
+  const maxLength = Math.max(a.length, b.length);
+  if (maxLength === 0) return 1.0;
+  const distance = levenshteinDistance(a, b);
+  return 1.0 - distance / maxLength;
+}
+
 function matchesExample(normalizedText: string, normalizedExample: string): boolean {
   if (normalizedText.includes(normalizedExample)) return true;
 
-  const tokens = normalizedExample.split(' ').filter((token) => token.length > 2);
-  if (tokens.length === 0) return false;
-  return tokens.every((token) => normalizedText.includes(token));
+  const tokensText = normalizedText.split(' ').filter((token) => token.length > 2);
+  const tokensExample = normalizedExample.split(' ').filter((token) => token.length > 2);
+  if (tokensExample.length === 0) return false;
+
+  return tokensExample.every((tokenEx) => {
+    if (normalizedText.includes(tokenEx)) return true;
+
+    return tokensText.some((tokenTxt) => {
+      if (tokenEx === tokenTxt) return true;
+
+      // Substring/extra character check: "vhii" contains "vhi" or vice versa
+      if (tokenEx.length >= 3 && tokenTxt.length >= 3) {
+        if (tokenTxt.includes(tokenEx) && tokenTxt.length - tokenEx.length <= 1) return true;
+        if (tokenEx.includes(tokenTxt) && tokenEx.length - tokenTxt.length <= 1) return true;
+      }
+
+      // Levenshtein threshold (80% similarity) for tokens with >= 4 characters
+      if (tokenEx.length >= 4 && tokenTxt.length >= 4) {
+        return getSimilarity(tokenEx, tokenTxt) >= 0.8;
+      }
+
+      return false;
+    });
+  });
 }
+
 
 function intent(
   id: string,
