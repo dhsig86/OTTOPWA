@@ -118,26 +118,33 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (id: string, name: string, profileType: UserProfile, token: string) => {
     setUserId(id);
     setUserName(name);
-    setProfile(profileType);
     setFirebaseToken(token);
     localStorage.setItem('otto_user_id', id);
     localStorage.setItem('otto_user_name', name);
-    localStorage.setItem('otto_profile', profileType || '');
 
     try {
       const snap = await getDoc(doc(db, 'users', id));
       if (snap.exists()) {
         const d = snap.data();
+        const finalProfile = d.profile || profileType || 'medico';
+        setProfile(finalProfile);
+        localStorage.setItem('otto_profile', finalProfile);
         setProfileCompleted(!!d.profileCompleted);
         setOnboardingCompleted(!!d.onboardingCompleted);
         setIsPremium(!!d.premiumActive);
         if (d.profileCompleted) localStorage.setItem('otto_profile_completed', 'true');
         if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
       } else {
+        const finalProfile = profileType || 'medico';
+        setProfile(finalProfile);
+        localStorage.setItem('otto_profile', finalProfile);
         setProfileCompleted(false);
         setOnboardingCompleted(false);
       }
     } catch (e) {
+      const finalProfile = profileType || (localStorage.getItem('otto_profile') as UserProfile) || 'medico';
+      setProfile(finalProfile);
+      localStorage.setItem('otto_profile', finalProfile);
       setProfileCompleted(localStorage.getItem('otto_profile_completed') === 'true');
       setOnboardingCompleted(localStorage.getItem('otto_onboarding_completed') === 'true');
     }

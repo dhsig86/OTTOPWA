@@ -40,7 +40,6 @@ const firebaseError = (code: string, isRegistering: boolean): string => {
 export const Login: React.FC = () => {
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [selectedProfile, setSelectedProfile] = useState<'medico' | 'estudante' | 'profissional' | 'paciente'>('medico');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -72,7 +71,7 @@ export const Login: React.FC = () => {
       const token = await user.getIdToken();
       // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
       // antes de navegar — evita race condition que redirecionava para /complete-profile
-      await login(user.uid, user.email || 'Usuário', selectedProfile, token);
+      await login(user.uid, user.email || 'Usuário', 'medico', token);
       fireWarmUpPings(); // acorda backends enquanto navega
       navigate('/');
     } catch (error: any) {
@@ -118,7 +117,7 @@ export const Login: React.FC = () => {
       const token = await user.getIdToken();
       // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
       // antes de navegar — evita race condition que redirecionava para /complete-profile
-      await login(user.uid, user.displayName || user.email || 'Usuário', selectedProfile, token);
+      await login(user.uid, user.displayName || user.email || 'Usuário', 'medico', token);
       fireWarmUpPings(); // acorda backends enquanto navega
       navigate('/');
     } catch (error: any) {
@@ -135,103 +134,17 @@ export const Login: React.FC = () => {
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-        className="w-full max-w-sm space-y-8 bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-white/60 relative"
+        className="w-full max-w-sm space-y-6 bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-white/60 relative"
       >
         
         <div className="text-center space-y-2">
-          <div className="w-24 h-24 bg-[#1D9E75] rounded-full flex flex-col items-center justify-center mx-auto mb-6 shadow-lg">
+          <div className="w-20 h-20 bg-[#1D9E75] rounded-full flex flex-col items-center justify-center mx-auto mb-4 shadow-lg">
              <span className="text-white font-black text-3xl tracking-tighter">O</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">HART'S OTTO</h1>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div>
-            <label className="text-sm font-medium text-gray-800 block mb-2">Sou um(a):</label>
-            <div className="grid grid-cols-2 gap-2 w-full">
-              {([
-                { key: 'medico',       label: 'Médico',          active: 'bg-[#E1F7EE] text-[#1D9E75] border-[#1D9E75]/30' },
-                { key: 'estudante',    label: 'Estudante',       active: 'bg-[#E6EDFB] text-[#4068B2] border-[#4068B2]/30' },
-                { key: 'profissional', label: 'Prof. de Saúde',  active: 'bg-[#E0F5F0] text-[#0F766E] border-[#0F766E]/30' },
-                { key: 'paciente',     label: 'Paciente',        active: 'bg-[#F2EFFC] text-[#6A47C9] border-[#6A47C9]/30' },
-              ] as const).map(({ key, label, active }) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setSelectedProfile(key)}
-                  className={`py-2 px-2 rounded-full text-sm font-bold transition-all border ${
-                    selectedProfile === key ? active : 'bg-gray-50 text-gray-400 border-transparent'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-800">E-mail</label>
-            <input 
-              type="email" 
-              placeholder="Ex: seunome@email.com"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-800">Senha de Acesso</label>
-            <input 
-              type="password" 
-              placeholder="Digite a senha..."
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm"
-              required
-            />
-          </div>
-
-          {errorMsg && (
-            <p className="text-red-500 text-xs font-semibold text-center">{errorMsg}</p>
-          )}
-
-          {resetMessage && (
-            <p className="text-[#1D9E75] text-xs font-semibold text-center">{resetMessage}</p>
-          )}
-
-          {!isRegistering && (
-            <div className="flex justify-between items-center -mt-2">
-              <span className="text-xs text-gray-400">Problemas para acessar?</span>
-              <button
-                type="button"
-                onClick={handleResetPassword}
-                disabled={isLoading}
-                className="text-xs text-[#1D9E75] hover:text-[#0A865F] font-bold transition-colors underline decoration-[#1D9E75]/30 hover:decoration-[#1D9E75] underline-offset-2 flex items-center gap-1"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                </svg>
-                Redefinir Senha
-              </button>
-            </div>
-          )}
-
-          <button 
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-12 bg-[#1D9E75] hover:bg-[#0A865F] disabled:opacity-50 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
-          >
-            {isLoading ? 'Carregando...' : (isRegistering ? 'Criar Conta' : 'Avançar')}
-          </button>
-
-          <div className="flex items-center gap-3 my-4">
-            <div className="h-px bg-gray-200 flex-1"></div>
-            <span className="text-xs text-gray-400 font-medium tracking-wide uppercase">OU</span>
-            <div className="h-px bg-gray-200 flex-1"></div>
-          </div>
-
+        <div className="space-y-6">
           <button
             type="button"
             onClick={handleGoogleLogin}
@@ -246,22 +159,83 @@ export const Login: React.FC = () => {
             </svg>
             Continuar com Google
           </button>
-          
-          <button
-            type="button"
-            onClick={() => {
-              setIsRegistering(!isRegistering);
-              setErrorMsg('');
-              setResetMessage('');
-            }}
-            className="w-full text-center text-sm text-gray-500 hover:text-[#1D9E75] font-semibold mt-4 transition-colors"
-          >
-            {isRegistering ? 'Já tem uma conta? Entrar agora.' : 'Não possui acesso? Criar Conta.'}
-          </button>
-          
-        </form>
 
-        <p className="text-center text-xs text-gray-400 pt-6">
+          <div className="flex items-center gap-3 my-4">
+            <div className="h-px bg-gray-200 flex-1"></div>
+            <span className="text-[10px] text-gray-400 font-bold tracking-wider uppercase">ou usar e-mail</span>
+            <div className="h-px bg-gray-200 flex-1"></div>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">E-mail</label>
+              <input 
+                type="email" 
+                placeholder="Ex: seunome@email.com"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm text-gray-800"
+                required
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Senha</label>
+              <input 
+                type="password" 
+                placeholder="Digite sua senha..."
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm text-gray-800"
+                required
+              />
+            </div>
+
+            {errorMsg && (
+              <p className="text-red-500 text-xs font-semibold text-center">{errorMsg}</p>
+            )}
+
+            {resetMessage && (
+              <p className="text-[#1D9E75] text-xs font-semibold text-center">{resetMessage}</p>
+            )}
+
+            {!isRegistering && (
+              <div className="flex justify-between items-center pt-1">
+                <span className="text-xs text-gray-400">Problemas para acessar?</span>
+                <button
+                  type="button"
+                  onClick={handleResetPassword}
+                  disabled={isLoading}
+                  className="text-xs text-[#1D9E75] hover:text-[#0A865F] font-bold transition-colors underline decoration-[#1D9E75]/30 hover:decoration-[#1D9E75] underline-offset-2 flex items-center gap-1"
+                >
+                  Redefinir Senha
+                </button>
+              </div>
+            )}
+
+            <button 
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 bg-[#1D9E75] hover:bg-[#0A865F] disabled:opacity-50 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] mt-2"
+            >
+              {isLoading ? 'Carregando...' : (isRegistering ? 'Criar Conta' : 'Avançar')}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setErrorMsg('');
+                setResetMessage('');
+              }}
+              className="w-full text-center text-sm text-gray-500 hover:text-[#1D9E75] font-semibold pt-4 transition-colors"
+            >
+              {isRegistering ? 'Já tem uma conta? Entrar agora.' : 'Não possui acesso? Criar Conta.'}
+            </button>
+          </form>
+        </div>
+
+        <p className="text-center text-[10px] text-gray-400">
           Autenticação Segura via Firebase
         </p>
 

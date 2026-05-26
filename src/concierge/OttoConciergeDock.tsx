@@ -109,6 +109,26 @@ function getConversationalResponse(text: string): { text: string; actions: ChatA
     };
   }
 
+  // ─── Calculator Areas ──────────────────────────────────────────────────────
+  if (n.startsWith('concierge.calc_area.')) {
+    const area = text.substring('concierge.calc_area.'.length).trim();
+    const catalog = getCalcHubCatalogByArea();
+    const group = catalog.find((g) => g.area.toLowerCase() === area.toLowerCase());
+    if (group) {
+      return {
+        text: `🧮 **Calculadoras de ${group.area}**\n\nEscolha uma calculadora para abrir no CALC-HUB:\n\n${group.calculators.map(c => `- **${c.name}**: ${c.aliases.slice(0, 3).join(', ')}`).join('\n')}`,
+        actions: [
+          ...group.calculators.map(c => ({
+            label: `🚀 ${c.name}`,
+            command: `abrir ${c.name.toLowerCase()}`,
+            style: 'primary' as const
+          })),
+          { label: '⬅️ Outras Áreas', command: 'quais calculadoras', style: 'ghost' as const }
+        ]
+      };
+    }
+  }
+
   // ─── Conversational Responses ──────────────────────────────────────────────
   if (/^(oi|ola|hey|bom dia|boa tarde|boa noite|e ai|fala|salve)\b/.test(n)) {
     return {
@@ -281,24 +301,25 @@ export const OttoConciergeDock: React.FC = () => {
 
       await typeDelay(decision.userMessage);
 
-      // 3. Calc catalog → multi-bubble
+      // 3. Calc catalog → compact category menu
       if (decision.intentId === 'calc.list') {
-        const catalog = getCalcHubCatalogByArea();
-        const introText = '🧮 Temos calculadoras em várias áreas. Escolha uma categoria ou digite o nome:';
-        const categoryBubbles: Array<Omit<ChatMessage, 'id' | 'timestamp'>> = [
-          { variant: 'assistant', text: introText, bubbleStyle: 'card' },
-          ...catalog.map(g => ({
-            variant: 'assistant' as const,
-            text: `**${g.area}**\n${g.calculators.slice(0, 5).map(c => `- ${c.name}`).join('\n')}${g.calculators.length > 5 ? `\n_...e mais ${g.calculators.length - 5}_` : ''}`,
-            bubbleStyle: 'card' as BubbleStyle,
-            actions: g.calculators.slice(0, 3).map(c => ({
-              label: c.name,
-              command: `abrir ${c.name.toLowerCase()}`,
-            })),
-          })),
-        ];
         setIsProcessing(false);
-        await addMultiBubble(categoryBubbles);
+        addMsg({
+          variant: 'assistant',
+          text: '🧮 **Calculadoras Clínicas (CALC-HUB)**\n\nSelecione uma área abaixo para ver as calculadoras disponíveis:',
+          bubbleStyle: 'card',
+          actions: [
+            { label: '👃 Rinologia', command: 'concierge.calc_area.Rinologia', style: 'primary' },
+            { label: '🗣️ Laringologia', command: 'concierge.calc_area.Laringologia', style: 'primary' },
+            { label: '👂 Otologia', command: 'concierge.calc_area.Otologia', style: 'primary' },
+            { label: '😴 Sono', command: 'concierge.calc_area.Sono', style: 'primary' },
+            { label: '🧒 Aerodigestivo', command: 'concierge.calc_area.Aerodigestivo' },
+            { label: '🔊 Hipoacusia', command: 'concierge.calc_area.Hipoacusia' },
+            { label: '🩺 Geral', command: 'concierge.calc_area.Geral' },
+            { label: '🎗️ Oncologia', command: 'concierge.calc_area.Oncologia' },
+            { label: '🏥 Intensiva', command: 'concierge.calc_area.Intensiva' }
+          ]
+        });
         return;
       }
 

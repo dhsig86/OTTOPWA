@@ -20,7 +20,7 @@ export const ModuleFrame: React.FC = () => {
   const iframeLoadedRef = useRef(false);
 
   // Tempo mínimo garantido de exibição do splash (ms)
-  const MIN_SPLASH_MS = 8000;
+  const MIN_SPLASH_MS = 2500;
   
   const state = location.state as { url?: string };
   const targetUrl = state?.url;
@@ -35,8 +35,8 @@ export const ModuleFrame: React.FC = () => {
       return;
     }
 
-    // Fallback de segurança após 12s
-    const timer = setTimeout(() => setShowFallback(true), 12000);
+    // Fallback de segurança após 30s (permite acordar backends em cold start no Render)
+    const timer = setTimeout(() => setShowFallback(true), 30000);
 
     // Tempo mínimo de splash: só libera após MIN_SPLASH_MS
     const minTimer = setTimeout(() => {
@@ -162,14 +162,23 @@ export const ModuleFrame: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col">
-      <header className="h-14 bg-[#1D9E75] text-white flex items-center px-2 shrink-0 shadow-sm relative z-10">
+      <header className="h-14 bg-[#1D9E75] text-white flex items-center justify-between px-3 shrink-0 shadow-sm relative z-10">
         <button 
           onClick={() => navigate(-1)}
-          className="p-2 mr-2 hover:bg-[#0A865F] rounded-full transition flex items-center gap-1"
+          className="p-2 hover:bg-[#0A865F] rounded-full transition flex items-center gap-1"
         >
           <ArrowLeft size={20} />
           <span className="text-sm font-medium">Voltar</span>
         </button>
+        <a 
+          href={targetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-2 hover:bg-[#0A865F] rounded-lg transition flex items-center gap-1.5 text-xs font-bold text-white/90 hover:text-white"
+        >
+          <ExternalLink size={16} />
+          <span>Abrir em Nova Aba</span>
+        </a>
       </header>
       <div className="flex-1 w-full bg-gray-50 relative flex flex-col items-center justify-center">
         <AnimatePresence>
