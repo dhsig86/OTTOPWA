@@ -84,5 +84,45 @@ export const MODULE_CAPABILITIES_DB: Record<string, ModuleCapabilityInfo> = {
     description: 'Protocolo de triagem e admissão clínica ORL com IA conversacional. Gera prontuários pré-consulta estruturados.',
     targetProfile: 'ambos',
     mainFeatures: ['Triagem conversacional guiada por IA', 'Anamnese estruturada ORL', 'Geração de prontuário pré-consulta']
+  },
+  videos: {
+    description: 'Curadoria de vídeos educativos ORL do YouTube, organizados por especialidade e nível.',
+    targetProfile: 'ambos',
+    mainFeatures: ['Vídeos de otoscopia e exame físico', 'Aulas de anatomia ORL', 'Conteúdo para pacientes e profissionais']
+  },
+  aerodig: {
+    description: 'Hub clínico-editorial de medicina aerodigestiva pediátrica. Protocolos de via aérea e cânulas.',
+    targetProfile: 'medico',
+    mainFeatures: ['Guia de cânulas de traqueostomia', 'Protocolos de via aérea pediátrica', 'Calculadoras aerodigestivas']
+  },
+  imune: {
+    description: 'Calculadora de elegibilidade para imunobiológicos em rinossinusite crônica e outras indicações ORL.',
+    targetProfile: 'medico',
+    mainFeatures: ['Checklist de elegibilidade Dupilumabe', 'Critérios PCDT/CONITEC', 'Documentação para solicitação']
+  },
+  ottotests: {
+    description: 'Banco de questões de residência médica ORL com simulados cronometrados e exercícios discursivos.',
+    targetProfile: 'medico',
+    mainFeatures: ['Simulados de provas (FUNDATEC, IBFC, VUNESP)', 'Questões com imagens clínicas', 'Exercícios discursivos com correção IA']
+  },
+  atlas: {
+    description: 'Atlas digital de otoscopia com acervo público de imagens clínicas classificadas e quiz interativo.',
+    targetProfile: 'ambos',
+    mainFeatures: ['Galeria de imagens otoscópicas por diagnóstico', 'Quiz clínico e anatômico', 'Hub de curadoria colaborativa']
+  },
+  otoscopia: {
+    description: 'OTOSCOP-IA: classificador de imagens otoscópicas por inteligência artificial (9 categorias diagnósticas).',
+    targetProfile: 'medico',
+    mainFeatures: ['Upload de foto do tímpano', 'Classificação automática por IA (ResNet)', 'Feedback para retreinamento do modelo']
+  },
+  info: {
+    description: 'OTTO Update: pílulas científicas diárias baseadas em artigos reais do PubMed, resumidas por IA.',
+    targetProfile: 'medico',
+    mainFeatures: ['Pílulas científicas com evidência PubMed', 'Quiz de fixação por pílula', 'Gráficos de insight e favoritos']
+  },
+  feedback: {
+    description: 'Canal de feedback, sugestões e relato de bugs para o ecossistema OTTO.',
+    targetProfile: 'ambos',
+    mainFeatures: ['Envio de sugestões e bug reports', 'Classificação por módulo', 'Acompanhamento de status']
   }
 };

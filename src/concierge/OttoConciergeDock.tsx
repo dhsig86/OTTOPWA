@@ -24,24 +24,48 @@ interface ChatMessage {
 // ─── Help Response ───────────────────────────────────────────────────────────
 
 function getHelpResponse(profile: string | null): { text: string; actions: ChatAction[] } {
-  const modules = [
-    { label: '🧮 Calculadoras ORL', cmd: 'quais calculadoras' },
-    { label: '📋 Laudo por IA', cmd: 'abrir autolaudo' },
-    { label: '📰 Pílulas Científicas', cmd: 'abrir update' },
-    { label: '🔍 PROCOD (CID/TUSS)', cmd: 'abrir procod' },
-    { label: '📝 Prontuário PROTTO', cmd: 'abrir protto' },
-    { label: '📊 Cases Clínicos', cmd: 'abrir cases' },
-    { label: '🎬 Vídeos ORL', cmd: 'abrir videos' },
-    { label: '📖 LogBook Cirúrgico', cmd: 'abrir logbook' },
+  const isClinical = profile === 'medico' || profile === 'estudante' || profile === 'profissional';
+
+  const clinicalModules: ChatAction[] = [
+    { label: '📝 Prontuário PROTTO', command: 'abrir protto' },
+    { label: '🎙️ Whisper (Escriba)', command: 'abrir whisper' },
+    { label: '📋 Triagem IA', command: 'abrir triagem' },
+    { label: '📄 OCR de Laudos', command: 'abrir ocr' },
+    { label: '🧮 Calculadoras ORL', command: 'quais calculadoras' },
+    { label: '🔍 Otoscop.IA', command: 'abrir otoscopia' },
+    { label: '🔬 Atlas Otoscopia', command: 'abrir atlas' },
+    { label: '🤖 BOTTOK (Chatbot)', command: 'abrir bottok' },
+    { label: '🏷️ PROCOD (CID/TUSS)', command: 'abrir procod' },
+    { label: '✍️ Laudo-IA', command: 'abrir autolaudo' },
+    { label: '📊 Cases Clínicos', command: 'abrir cases' },
+    { label: '📖 LogBook Cirúrgico', command: 'abrir logbook' },
+    { label: '🎓 Acadêmico (MCQ)', command: 'abrir academico' },
+    { label: '📰 Pílulas Científicas', command: 'abrir update' },
+    { label: '🎬 Vídeos ORL', command: 'abrir videos' },
+    { label: '📖 Glossário ORL', command: 'abrir glossario' },
+    { label: '🌬️ Aerodigestivo Ped.', command: 'abrir aerodig' },
+    { label: '💉 Imunobiológicos', command: 'abrir imune' },
+    { label: '🏥 PeriOp (Cirurgias)', command: 'abrir periop' },
   ];
 
-  if (profile === 'estudante') {
-    modules.push({ label: '🎓 Simulado Acadêmico', cmd: 'abrir simulados' });
-  }
+  const patientModules: ChatAction[] = [
+    { label: '👂 Teste de Audição', command: 'abrir check' },
+    { label: '🔔 Terapia Zumbido', command: 'abrir zumbido' },
+    { label: '🗣️ Síntese Vocal', command: 'abrir voice' },
+    { label: '🏥 Orientações Cirúrgicas', command: 'abrir periop' },
+    { label: '🎮 Jogos Educativos', command: 'abrir games' },
+    { label: '🎬 Vídeos Educativos', command: 'abrir videos' },
+    { label: '📖 Glossário Médico', command: 'abrir glossario' },
+    { label: '📋 Preencher Triagem', command: 'abrir triagem' },
+  ];
+
+  const modules = isClinical ? clinicalModules : patientModules;
 
   return {
-    text: 'Posso te ajudar com qualquer módulo do ecossistema OTTO! Toque em uma opção ou digite o que precisa:',
-    actions: modules.map(m => ({ label: m.label, command: m.cmd })),
+    text: isClinical
+      ? '🩺 Posso ajudar com **24 módulos** do ecossistema OTTO! Toque em uma opção ou diga "como funciona [módulo]" para o tutorial:'
+      : '🩺 Bem-vindo ao OTTO! Estes módulos estão disponíveis para você — toque para abrir:',
+    actions: modules,
   };
 }
 

@@ -3,6 +3,7 @@ import { runModuleAdapter } from './adapters';
 import { getModuleById } from './registry';
 import { evaluateGuardrails } from './guardrails';
 import { MODULE_CAPABILITIES_DB } from './capabilities_db';
+import { OTTO_TUTORIALS } from './tutorials';
 import type { ActionKind, CommandSimulationResult, ConciergeDecision, ConciergeInput, IdentityContext, ModuleActivation } from './types';
 
 export function decide(input: ConciergeInput): ConciergeDecision {
@@ -235,10 +236,35 @@ function makeTraceId(input: ConciergeInput): string {
   return `${input.session.id}_${input.session.timestamp.replace(/[^0-9]/g, '')}`;
 }
 
+function findTutorial(text: string): typeof OTTO_TUTORIALS[number] | undefined {
+  const tutorialTriggers = ['como funciona', 'como usar', 'tutorial', 'como faz', 'ensina', 'passo a passo', 'me explica'];
+  const isTutorialRequest = tutorialTriggers.some(t => text.includes(t));
+  if (!isTutorialRequest) return undefined;
+  return OTTO_TUTORIALS.find(tut => {
+    const module = getModuleById(tut.id);
+    const displayName = (module?.displayName ?? '').toLowerCase();
+    return text.includes(tut.id) || text.includes(displayName) || text.includes(tut.title.toLowerCase().split('—')[0].trim().toLowerCase());
+  });
+}
+
 function handleHelpIntent(input: ConciergeInput, selected: any, traceId: string): ConciergeDecision {
   const text = (input.input.text ?? '').toLowerCase();
   const profile = input.identity.profile;
 
+  // ── Tutorial step-by-step ───────────────────────────────────────────────
+  const tutorial = findTutorial(text);
+  if (tutorial) {
+    const steps = tutorial.steps.map((s, i) => `${i + 1}. ${s}`).join('\n');
+    const message = `${tutorial.emoji} **${tutorial.title}**\n\n` +
+      `👥 _${tutorial.audience}_\n\n` +
+      `${tutorial.summary}\n\n` +
+      `**Passo a passo:**\n${steps}\n\n` +
+      `💡 **Dica:** ${tutorial.tip}\n\n` +
+      `Comando rápido: _"${tutorial.shortcutCommand}"_`;
+    return respondDecision(traceId, selected, message, tutorial.id);
+  }
+
+  // ── Module-specific help (capabilities_db) ──────────────────────────────
   const mentionedModuleId = Object.keys(MODULE_CAPABILITIES_DB).find((moduleId) => {
     const module = getModuleById(moduleId);
     const displayName = (module?.displayName ?? '').toLowerCase();
@@ -250,7 +276,7 @@ function handleHelpIntent(input: ConciergeInput, selected: any, traceId: string)
     const module = getModuleById(mentionedModuleId);
     if (module && info) {
       const bulletFeatures = info.mainFeatures.map((f: string) => `- ${f}`).join('\n');
-      const message = `O modulo **${module.displayName}** serve para: ${info.description}\n\n**Principais Recursos:**\n${bulletFeatures}`;
+      const message = `O modulo **${module.displayName}** serve para: ${info.description}\n\n**Principais Recursos:**\n${bulletFeatures}\n\n💡 _Diga "como funciona ${module.displayName.toLowerCase()}" para ver o tutorial passo a passo._`;
       return {
         decisionId: `decision_${traceId}`,
         intentId: selected.intent.id,
@@ -260,58 +286,83 @@ function handleHelpIntent(input: ConciergeInput, selected: any, traceId: string)
           kind: 'open_module',
           moduleId: module.id,
           url: module.currentUrl,
-          payload: {
-            isHelpResponse: true,
-            targetModule: module.id
-          },
+          payload: { isHelpResponse: true, targetModule: module.id },
           requiresConfirmation: false
         },
         audit: selected.intent.auditPolicy,
         userMessage: message,
-        debug: {
-          traceId,
-          selectedIntent: selected.intent.id,
-          guardrailDecision: 'allow'
-        }
+        debug: { traceId, selectedIntent: selected.intent.id, guardrailDecision: 'allow' }
       };
     }
   }
 
-  let message = 'Olá! Sou o OTTO Concierge, o seu assistente inteligente no ecossistema.\n\n';
+  // ── Full help listing by category ───────────────────────────────────────
+  let message = '🩺 **OTTO Concierge** — Seu assistente do ecossistema ORL\n\n';
   if (profile === 'medico' || profile === 'estudante') {
-    message += 'Como médico/estudante, você pode usar os seguintes módulos:\n' +
-      '- **CID & TUSS (PROCOD):** Para codificação e faturamento cirúrgico ORL.\n' +
-      '- **OTTO Cases:** Para redigir relatos de casos clínicos científicos.\n' +
-      '- **OTTO Log:** Para registrar sua casuística cirúrgica com sanitização de EXIF.\n' +
-      '- **PROTTO:** Prontuário inteligente com NLP.\n' +
-      '- **OTTO Whisper:** Escriba inteligente de consulta.\n' +
-      '- **CALC-HUB:** Calculadoras clínicas ORL.\n\n' +
-      'Digite por exemplo "abrir procod", "calcular SNOT-22" ou "criar caso".';
+    message +=
+      '**🏥 Atendimento Clínico:**\n' +
+      '- **PROTTO** — Prontuário inteligente com IA\n' +
+      '- **Whisper** — Escriba de consulta (transcrição por voz)\n' +
+      '- **Triagem** — Anamnese digital pré-consulta\n' +
+      '- **OCR** — Extrator de laudos e carteirinhas\n\n' +
+      '**🔬 Diagnóstico e IA:**\n' +
+      '- **CALC-HUB** — Calculadoras clínicas (SNOT-22, Epworth, VHI…)\n' +
+      '- **Otoscop.IA** — Classificação de otoscopia por IA\n' +
+      '- **Atlas** — Atlas de imagens otoscópicas + quiz\n' +
+      '- **BOTTOK** — Chatbot ORL com base de conhecimento\n\n' +
+      '**📋 Documentação:**\n' +
+      '- **PROCOD** — Codificação CID/TUSS e faturamento\n' +
+      '- **Laudo-IA** — Editor de laudos com autocompletar\n' +
+      '- **Cases** — Relatos de caso clínico para publicação\n' +
+      '- **LogBook** — Registro cirúrgico e casuística\n\n' +
+      '**🎓 Educação e Referência:**\n' +
+      '- **Acadêmico** — Simulados e questões de residência\n' +
+      '- **Update** — Pílulas científicas diárias\n' +
+      '- **Vídeos** — Acervo educativo ORL\n' +
+      '- **Glossário** — Minidicionário ORL\n\n' +
+      '**🏥 Especialidades:**\n' +
+      '- **Aerodig** — Hub aerodigestivo pediátrico\n' +
+      '- **Imune** — Imunobiológicos (Dupilumabe)\n' +
+      '- **PeriOp** — Protocolos pré/pós-operatórios\n\n' +
+      '**🧒 Para Pacientes:**\n' +
+      '- **Games** — Jogos educativos de saúde\n' +
+      '- **CHECK** — Triagem auditiva digital\n' +
+      '- **Zumbido** — Terapia sonora para tinnitus\n' +
+      '- **VOICE** — Síntese vocal para laringectomizados\n\n' +
+      '_Diga "abrir [módulo]", "como funciona [módulo]" ou pergunte algo!_ 💬';
   } else {
-    message += 'Você tem acesso aos seguintes módulos para sua saúde e bem-estar:\n' +
-      '- **Zumbido:** Player e Terapia Sonora para tinnitus.\n' +
-      '- **OTTO Check:** Testes e triagens de acuidade auditiva.\n' +
-      '- **Peri-op:** Orientações de jejum e pós-operatório de cirurgia.\n' +
-      '- **OTTO Games:** Jogos educativos de saúde.\n' +
-      '- **Voz:** Exercícios e análise de voz.\n\n' +
-      'Como posso te ajudar hoje?';
+    message +=
+      '**🩺 Sua Saúde:**\n' +
+      '- **CHECK** — Teste sua audição gratuitamente\n' +
+      '- **Zumbido** — Terapia sonora para alívio de zumbido\n' +
+      '- **VOICE** — Comunicação por voz para laringectomizados\n' +
+      '- **PeriOp** — Orientações pré e pós-cirúrgicas\n\n' +
+      '**🎮 Educação:**\n' +
+      '- **Games** — Jogos educativos de saúde ORL\n' +
+      '- **Vídeos** — Vídeos educativos sobre ouvido, nariz e garganta\n' +
+      '- **Glossário** — Dicionário de termos médicos\n\n' +
+      '**📋 Meus Atendimentos:**\n' +
+      '- **Triagem** — Preencher antes da consulta\n\n' +
+      '_Diga "abrir [módulo]" ou pergunte algo!_ 💬';
   }
 
+  return respondDecision(traceId, selected, message);
+}
+
+function respondDecision(traceId: string, selected: any, message: string, moduleId?: string): ConciergeDecision {
+  const module = moduleId ? getModuleById(moduleId) : undefined;
   return {
     decisionId: `decision_${traceId}`,
     intentId: selected.intent.id,
     confidence: selected.confidence,
     riskLevel: 'low',
     action: {
-      kind: 'respond',
+      kind: module ? 'open_module' : 'respond',
+      ...(module ? { moduleId: module.id, url: module.currentUrl } : {}),
       requiresConfirmation: false
     },
     audit: selected.intent.auditPolicy,
     userMessage: message,
-    debug: {
-      traceId,
-      selectedIntent: selected.intent.id,
-      guardrailDecision: 'allow'
-    }
+    debug: { traceId, selectedIntent: selected.intent.id, guardrailDecision: 'allow' }
   };
 }

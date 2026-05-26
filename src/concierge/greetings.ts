@@ -62,7 +62,12 @@ function buildContextTips(ctx: GreetingContext): string[] {
     const moduleNames: Record<string, string> = {
       calc: 'Calculadoras', procod: 'PROCOD', protto: 'PROTTO',
       autolaudo: 'Laudo-IA', cases: 'Cases', logbook: 'LogBook',
-      whisper: 'Whisper', info: 'OTTO Update',
+      whisper: 'Whisper', info: 'OTTO Update', bottok: 'BOTTOK',
+      triagem: 'Triagem', atlas: 'Atlas', otoscopia: 'Otoscop.IA',
+      aerodig: 'Aerodigestivo', imune: 'Imunobiológicos', check: 'CHECK Auditivo',
+      zumbido: 'Terapia Zumbido', voice: 'VOICE', games: 'Games',
+      ottotests: 'Acadêmico', periop: 'PeriOp', videos: 'Vídeos',
+      ottosig: 'Glossário', ocr: 'OCR', feedback: 'Feedback',
     };
     const moduleName = moduleNames[ctx.lastModule] || ctx.lastModule;
     tips.push(`↩️ Quer voltar ao ${moduleName}?`);
