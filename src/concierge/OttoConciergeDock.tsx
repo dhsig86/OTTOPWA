@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bot, X, Send } from 'lucide-react';
+import { X, Send, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ConciergeChatBubble, type ChatAction } from './ConciergeChatBubble';
+import { ConciergeChatBubble, type ChatAction, type BubbleStyle } from './ConciergeChatBubble';
 import { generateGreeting } from './greetings';
 import { simulateCommandActivation } from './core';
 import { createPwaLaunchPlan } from './bridge';
-import { getCalcHubCatalogByArea } from './registry';
+import { getCalcHubCatalogByArea, getModuleById } from './registry';
 import { useAuth } from '../contexts/AuthContext';
 import type { ConciergeInput } from './types';
 
@@ -18,77 +18,99 @@ interface ChatMessage {
   text: string;
   actions?: ChatAction[];
   timestamp: string;
+  bubbleStyle?: BubbleStyle;
 }
 
-// ─── Session Storage (R3) ────────────────────────────────────────────────────
+// ─── Session Storage ─────────────────────────────────────────────────────────
 
-const CHAT_STORAGE_KEY = 'otto_concierge_chat';
-const MAX_STORED_MESSAGES = 20;
+const CHAT_KEY = 'otto_concierge_chat';
+const MAX_MSGS = 30;
 
-function loadStoredMessages(): ChatMessage[] {
-  try {
-    const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
-  } catch { return []; }
+function loadChat(): ChatMessage[] {
+  try { return JSON.parse(sessionStorage.getItem(CHAT_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveChat(m: ChatMessage[]) {
+  try { sessionStorage.setItem(CHAT_KEY, JSON.stringify(m.slice(-MAX_MSGS))); }
+  catch { /* ignore */ }
 }
 
-function saveMessages(messages: ChatMessage[]) {
-  try {
-    sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-MAX_STORED_MESSAGES)));
-  } catch { /* quota exceeded — ignore */ }
-}
+// ─── Personality Layer ───────────────────────────────────────────────────────
 
-// ─── Conversational Responses ────────────────────────────────────────────────
+const GREETINGS_CASUAL = [
+  'Olá! 😊 Em que posso ajudar?',
+  'Oi! Me diz o que precisa 👋',
+  'Olá! Estou à disposição 🫡',
+];
+
+const THANKS_REPLIES = [
+  'Disponha! Precisa de mais alguma coisa? 🫡',
+  'Por nada! Estou sempre aqui 😊',
+  'Fico feliz em ajudar! Mais algo?',
+];
+
+const OPENER_LINES: Record<string, string> = {
+  ready: 'Preparei tudo pra você!',
+  handoff_required: 'Precisa de acesso seguro — toque para continuar:',
+  confirmation_required: 'Precisa de uma confirmação antes:',
+};
+
+function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function getConversationalResponse(text: string): { text: string; actions: ChatAction[] } | null {
-  const normalized = text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
+  const n = text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
 
-  // Greetings
-  if (/^(oi|ola|hey|bom dia|boa tarde|boa noite|e ai|fala|salve)\b/.test(normalized)) {
+  if (/^(oi|ola|hey|bom dia|boa tarde|boa noite|e ai|fala|salve)\b/.test(n)) {
     return {
-      text: 'Olá! 😊 Estou aqui para ajudar. O que você precisa?',
+      text: pick(GREETINGS_CASUAL),
       actions: [
-        { label: '❓ O que posso fazer?', command: 'ajuda' },
+        { label: '🧭 O que posso fazer?', command: 'ajuda', style: 'primary' },
         { label: '📰 Novidades', command: 'abrir update' },
       ],
     };
   }
 
-  // Thanks
-  if (/^(obrigad|valeu|vlw|thanks|brigad)/.test(normalized)) {
-    return {
-      text: 'De nada! 🫡 Estou sempre por aqui. Precisa de mais alguma coisa?',
-      actions: [],
-    };
+  if (/^(obrigad|valeu|vlw|thanks|brigad)/.test(n)) {
+    return { text: pick(THANKS_REPLIES), actions: [] };
   }
 
-  // Who are you?
-  if (/quem (e |eh )?(voce|vc|tu)|o que (e |eh )?o? ?concierge|se apresent/.test(normalized)) {
+  if (/quem (e |eh )?(voce|vc|tu)|o que (e |eh )?o? ?concierge|se apresent/.test(n)) {
     return {
-      text: '🤖 Sou o **OTTO Concierge** — seu assistente inteligente dentro do ecossistema OTTO.\n\nPosso navegar para qualquer módulo, abrir calculadoras, buscar códigos TUSS/CID, e muito mais! Sou movido por IA mas todas as decisões clínicas são do médico.',
-      actions: [{ label: '❓ Ver tudo que posso fazer', command: 'ajuda' }],
+      text: '🤖 Sou o **OTTO Concierge** — seu assistente pessoal dentro do ecossistema OTTO.\n\nNavego entre módulos, abro calculadoras, explico funcionalidades e guio você pelo sistema. Todas as decisões clínicas são do médico — eu facilito o caminho.',
+      actions: [{ label: '🧭 Ver o que posso fazer', command: 'ajuda', style: 'primary' }],
     };
   }
 
   return null;
 }
 
-// ─── Build ConciergeInput from chat context (R1) ────────────────────────────
+// ─── Build ConciergeInput ────────────────────────────────────────────────────
 
-function buildConciergeInput(text: string, userId: string | null, profile: string | null): ConciergeInput {
+function buildInput(text: string, uid: string | null, profile: string | null): ConciergeInput {
   return {
     surface: 'pwa',
     input: { kind: 'text', text },
-    identity: {
-      uid: userId || 'anonymous',
-      profile: (profile || 'medico') as any,
-    },
-    session: {
-      id: `session_${Date.now()}`,
-      timestamp: new Date().toISOString(),
-      locale: 'pt-BR',
-    },
+    identity: { uid: uid || 'anonymous', profile: (profile || 'medico') as any },
+    session: { id: `s_${Date.now()}`, timestamp: new Date().toISOString(), locale: 'pt-BR' },
   };
+}
+
+// ─── Contextual Follow-ups ───────────────────────────────────────────────────
+
+function getContextualActions(moduleId: string): ChatAction[] {
+  const related: Record<string, ChatAction[]> = {
+    protto:   [{ label: '🎙️ Ditar consulta', command: 'abrir whisper' }, { label: '📋 Ver triagem', command: 'abrir triagem' }],
+    whisper:  [{ label: '📝 Prontuário', command: 'abrir protto' }, { label: '✍️ Laudo-IA', command: 'abrir autolaudo' }],
+    procod:   [{ label: '📊 Cases clínicos', command: 'abrir cases' }, { label: '📖 LogBook', command: 'abrir logbook' }],
+    calchub:  [{ label: '📊 Ver outra calc', command: 'quais calculadoras' }, { label: '📝 Prontuário', command: 'abrir protto' }],
+    cases:    [{ label: '🏷️ Codificar TUSS', command: 'abrir procod' }, { label: '📖 LogBook', command: 'abrir logbook' }],
+    logbook:  [{ label: '📊 Cases', command: 'abrir cases' }, { label: '🏷️ PROCOD', command: 'abrir procod' }],
+    triagem:  [{ label: '📝 Prontuário', command: 'abrir protto' }, { label: '🧮 Calculadoras', command: 'quais calculadoras' }],
+    autolaudo:[{ label: '🎙️ Whisper', command: 'abrir whisper' }, { label: '📋 Triagem', command: 'abrir triagem' }],
+    atlas:    [{ label: '🔍 Otoscop.IA', command: 'abrir otoscopia' }, { label: '🎓 Acadêmico', command: 'abrir academico' }],
+    games:    [{ label: '🔔 Zumbido', command: 'abrir zumbido' }, { label: '👂 Teste auditivo', command: 'abrir check' }],
+  };
+  return related[moduleId] || [{ label: '🧭 Mais opções', command: 'ajuda', style: 'ghost' as const }];
 }
 
 // ─── Main Component ──────────────────────────────────────────────────────────
@@ -98,220 +120,252 @@ export const OttoConciergeDock: React.FC = () => {
   const { userName, profile, userId } = useAuth();
   
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>(loadStoredMessages); // R3
+  const [messages, setMessages] = useState<ChatMessage[]>(loadChat);
   const [inputValue, setInputValue] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [hasGreeted, setHasGreeted] = useState(() => loadStoredMessages().length > 0); // R3: skip greeting if chat restored
+  const [hasGreeted, setHasGreeted] = useState(() => loadChat().length > 0);
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // R3: Persist messages on change
-  useEffect(() => { saveMessages(messages); }, [messages]);
+  useEffect(() => { saveChat(messages); }, [messages]);
 
   const scrollToBottom = useCallback(() => {
-    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+    setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 60);
   }, []);
 
-  const addMessage = useCallback((msg: Omit<ChatMessage, 'id' | 'timestamp'>) => {
-    const newMsg: ChatMessage = {
+  const addMsg = useCallback((msg: Omit<ChatMessage, 'id' | 'timestamp'>) => {
+    const m: ChatMessage = {
       ...msg,
-      id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     };
-    setMessages(prev => [...prev, newMsg]);
+    setMessages(prev => [...prev, m]);
     scrollToBottom();
-    return newMsg;
+    return m;
   }, [scrollToBottom]);
 
-  // ─── Generate greeting on open ──────────────────────────────────────────────
+  // Multi-bubble delivery: shows typing → adds bubble → repeats
+  const addMultiBubble = useCallback(async (
+    bubbles: Array<Omit<ChatMessage, 'id' | 'timestamp'>>
+  ) => {
+    for (let i = 0; i < bubbles.length; i++) {
+      if (i > 0) {
+        setIsProcessing(true);
+        await new Promise(r => setTimeout(r, 350 + Math.min(400, (bubbles[i].text?.length || 0) * 1.2)));
+      }
+      setIsProcessing(false);
+      addMsg(bubbles[i]);
+    }
+  }, [addMsg]);
+
+  // ─── Greeting ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isOpen && !hasGreeted) {
       const lastModule = localStorage.getItem('otto_last_module') || undefined;
-      const pillsReadStr = localStorage.getItem('otto_pills_read_count');
-      const totalPillsRead = pillsReadStr ? parseInt(pillsReadStr, 10) : 0;
-      const favsStr = localStorage.getItem('otto_favs_count');
-      const favoritesCount = favsStr ? parseInt(favsStr, 10) : 0;
-
       const greeting = generateGreeting({
         userName: userName || 'Doutor(a)',
         profile: profile as any,
         hour: new Date().getHours(),
         unreadPills: 0,
         lastModule,
-        totalPillsRead,
-        favoritesCount,
+        totalPillsRead: parseInt(localStorage.getItem('otto_pills_read_count') || '0'),
+        favoritesCount: parseInt(localStorage.getItem('otto_favs_count') || '0'),
       });
 
-      addMessage({
+      addMsg({
         variant: 'assistant',
         text: greeting.message,
+        bubbleStyle: 'hero',
         actions: greeting.suggestions.map(s => ({
           label: `${s.icon} ${s.label}`,
           command: s.command,
+          style: 'primary' as const,
         })),
       });
-
       setHasGreeted(true);
     }
-  }, [isOpen, hasGreeted, userName, profile, addMessage]);
+  }, [isOpen, hasGreeted, userName, profile, addMsg]);
 
-  // ─── Focus input on open ────────────────────────────────────────────────────
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 200);
-    }
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 200);
   }, [isOpen]);
 
-  // ─── Process command (R1: uses core.ts) ─────────────────────────────────────
+  // ─── Process command ───────────────────────────────────────────────────────
   const processCommand = useCallback(async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    addMessage({ variant: 'user', text: trimmed });
+    addMsg({ variant: 'user', text: trimmed });
     setIsProcessing(true);
 
     try {
-      // 1. Conversational check (saudações, agradecimentos, etc.)
-      const conversational = getConversationalResponse(trimmed);
-      if (conversational) {
-        await typingDelay(conversational.text);
-        addMessage({ variant: 'assistant', text: conversational.text, actions: conversational.actions });
+      // 1. Conversational check
+      const conv = getConversationalResponse(trimmed);
+      if (conv) {
+        await typeDelay(conv.text);
         setIsProcessing(false);
+        addMsg({ variant: 'assistant', text: conv.text, actions: conv.actions });
         return;
       }
 
-      // 2. Build formal ConciergeInput and run through core.ts decision engine
-      //    This activates: guardrails, tutorials, capabilities_db help, NLU
-      const input = buildConciergeInput(trimmed, userId, profile);
+      // 2. Core.ts decision engine
+      const input = buildInput(trimmed, userId, profile);
       const simResult = await simulateCommandActivation(input);
       const decision = simResult.decision;
 
-      // R6: Proportional typing delay
-      await typingDelay(decision.userMessage);
+      await typeDelay(decision.userMessage);
 
-      // 3. Special case: calc.list (catalog display)
+      // 3. Calc catalog → multi-bubble
       if (decision.intentId === 'calc.list') {
         const catalog = getCalcHubCatalogByArea();
-        const catalogText = catalog.map(g =>
-          `**${g.area}:**\n${g.calculators.map(c => `- ${c.name}`).join('\n')}`
-        ).join('\n\n');
+        const introText = '🧮 Temos calculadoras em várias áreas. Escolha uma categoria ou digite o nome:';
+        const categoryBubbles: Array<Omit<ChatMessage, 'id' | 'timestamp'>> = [
+          { variant: 'assistant', text: introText, bubbleStyle: 'card' },
+          ...catalog.map(g => ({
+            variant: 'assistant' as const,
+            text: `**${g.area}**\n${g.calculators.slice(0, 5).map(c => `- ${c.name}`).join('\n')}${g.calculators.length > 5 ? `\n_...e mais ${g.calculators.length - 5}_` : ''}`,
+            bubbleStyle: 'card' as BubbleStyle,
+            actions: g.calculators.slice(0, 3).map(c => ({
+              label: c.name,
+              command: `abrir ${c.name.toLowerCase()}`,
+            })),
+          })),
+        ];
+        setIsProcessing(false);
+        await addMultiBubble(categoryBubbles);
+        return;
+      }
 
-        addMessage({
+      // 4. Refuse
+      if (decision.action.kind === 'refuse') {
+        setIsProcessing(false);
+        addMsg({
           variant: 'assistant',
-          text: `🧮 Calculadoras disponíveis no OTTO CALC-HUB:\n\n${catalogText}\n\nDigite o nome de uma calculadora para abrir.`,
+          text: `🤔 ${decision.userMessage}`,
           actions: [
-            { label: 'SNOT-22', command: 'abrir snot-22' },
-            { label: 'Epworth', command: 'abrir epworth' },
-            { label: 'THI Zumbido', command: 'abrir thi' },
+            { label: '🧭 Ver opções', command: 'ajuda', style: 'primary' },
+            { label: '🤖 BOTTOK', command: `perguntar bottok ${trimmed}` },
           ],
         });
-        setIsProcessing(false);
         return;
       }
 
-      // 4. Handle decision based on guardrail outcome
-      if (decision.action.kind === 'refuse') {
-        addMessage({
-          variant: 'assistant',
-          text: decision.userMessage,
-          actions: [{ label: '❓ Ver opções', command: 'ajuda' }],
-        });
-        setIsProcessing(false);
-        return;
-      }
-
-      // 5. Respond-only decisions (help, tutorials, capabilities)
+      // 5. Respond-only (help, tutorials, capabilities)
       if (decision.action.kind === 'respond') {
-        addMessage({
-          variant: 'assistant',
-          text: decision.userMessage,
-          actions: [{ label: '❓ Mais opções', command: 'ajuda' }],
-        });
-        setIsProcessing(false);
+        // Split long help into multi-bubble by double-newline sections
+        const sections = decision.userMessage.split(/\n\n(?=\*\*[🏥🔬📋🎓🩺🧒🎮])/);
+        if (sections.length > 2) {
+          const bubbles: Array<Omit<ChatMessage, 'id' | 'timestamp'>> = sections.map((section, i) => ({
+            variant: 'assistant' as const,
+            text: section.trim(),
+            bubbleStyle: (i === 0 ? 'hero' : 'card') as BubbleStyle,
+            ...(i === sections.length - 1 ? {
+              actions: [{ label: '💬 Como funciona um módulo?', command: 'como funciona protto', style: 'ghost' as const }]
+            } : {}),
+          }));
+          setIsProcessing(false);
+          await addMultiBubble(bubbles);
+        } else {
+          // Tutorial or short help — single bubble with card style
+          setIsProcessing(false);
+          const isTutorial = decision.userMessage.includes('Passo a passo');
+          addMsg({
+            variant: 'assistant',
+            text: decision.userMessage,
+            bubbleStyle: isTutorial ? 'card' : 'default',
+            actions: decision.action.moduleId
+              ? [
+                  { label: `🚀 Abrir ${decision.action.moduleId}`, command: `abrir ${decision.action.moduleId}`, style: 'primary' },
+                  ...getContextualActions(decision.action.moduleId).slice(0, 1),
+                ]
+              : [{ label: '🧭 Mais opções', command: 'ajuda', style: 'ghost' }],
+          });
+        }
         return;
       }
 
-      // 6. Module navigation — create launch plan
+      // 6. Module navigation
       const plan = createPwaLaunchPlan(simResult);
-      const moduleName = decision.action.moduleId || 'módulo';
-      const actions: ChatAction[] = [];
+      const moduleId = decision.action.moduleId || '';
+      const module = getModuleById(moduleId);
+      const moduleName = module?.displayName || moduleId;
+      const status = plan.status || 'ready';
 
-      if (plan.route && plan.status === 'ready') {
-        actions.push({
-          label: `🚀 Abrir ${moduleName}`,
-          command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}`,
-        });
-      } else if (plan.status === 'handoff_required') {
-        actions.push({
-          label: `🔐 Continuar no PWA`,
-          command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}`,
-        });
+      const navAction: ChatAction = {
+        label: `🚀 Abrir ${moduleName}`,
+        command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}`,
+        style: 'primary',
+      };
+      if (status === 'handoff_required') {
+        navAction.label = `🔐 Continuar seguro`;
       }
 
-      actions.push({ label: '❓ Mais opções', command: 'ajuda' });
+      // Response text — concierge tone
+      const summary = simResult.adapterResponse?.summary || '';
+      const opener = OPENER_LINES[status] || 'Aqui está:';
+      const responseText = summary
+        ? `${opener}\n\n${summary}`
+        : `${opener} **${moduleName}** está pronto.`;
 
-      // Humanized response
-      let responseText = decision.userMessage;
-      if (!responseText || responseText.length < 5) {
-        if (plan.status === 'ready') {
-          responseText = `✅ **${moduleName}** está pronto!`;
-        } else if (plan.status === 'handoff_required') {
-          responseText = `🔐 **${moduleName}** precisa de acesso seguro.`;
-        } else {
-          responseText = `ℹ️ Módulo preparado.`;
-        }
-      }
+      setIsProcessing(false);
 
-      localStorage.setItem('otto_last_module', decision.action.moduleId || '');
-      addMessage({ variant: 'assistant', text: responseText, actions });
+      // Deliver as: response bubble + tip with contextual follow-ups
+      await addMultiBubble([
+        {
+          variant: 'assistant',
+          text: responseText,
+          bubbleStyle: 'card',
+          actions: [navAction],
+        },
+        {
+          variant: 'assistant',
+          text: `💡 _Relacionados que podem te interessar:_`,
+          bubbleStyle: 'tip',
+          actions: getContextualActions(moduleId),
+        },
+      ]);
+
+      localStorage.setItem('otto_last_module', moduleId);
 
     } catch (err) {
       console.error('Concierge error:', err);
-      addMessage({
-        variant: 'assistant',
-        text: '❌ Ops, algo deu errado. Tente novamente ou use o menu principal.',
-        actions: [{ label: '❓ Ver opções', command: 'ajuda' }],
-      });
-    } finally {
       setIsProcessing(false);
+      addMsg({
+        variant: 'assistant',
+        text: '😅 Algo não saiu como esperado. Vamos tentar de novo?',
+        actions: [
+          { label: '🧭 Ver opções', command: 'ajuda', style: 'primary' },
+        ],
+      });
     }
-  }, [addMessage, profile, userId]);
+  }, [addMsg, addMultiBubble, profile, userId]);
 
-  // ─── Listen to global open event ───────────────────────────────────────────
+  // ─── Events ────────────────────────────────────────────────────────────────
   useEffect(() => {
     const handleOpen = (e: Event) => {
-      const customEvent = e as CustomEvent<{ command?: string }>;
+      const ce = e as CustomEvent<{ command?: string }>;
       setIsOpen(true);
-      if (customEvent.detail?.command) {
-        void processCommand(customEvent.detail.command);
-      }
+      if (ce.detail?.command) void processCommand(ce.detail.command);
     };
     window.addEventListener('otto-open-concierge', handleOpen as EventListener);
     return () => window.removeEventListener('otto-open-concierge', handleOpen as EventListener);
   }, [processCommand]);
 
-  // ─── Handle action clicks ──────────────────────────────────────────────────
   const handleAction = useCallback((command: string) => {
     if (command.startsWith('__navigate__')) {
       const parts = command.split('__');
       const route = parts[2] || '/';
       const url = parts[3] || '';
-
-      if (route === '/modules/webview' && url) {
-        navigate(route, { state: { url } });
-      } else if (route.startsWith('/')) {
-        navigate(route);
-      }
+      if (route === '/modules/webview' && url) navigate(route, { state: { url } });
+      else if (route.startsWith('/')) navigate(route);
       setIsOpen(false);
       return;
     }
-
     setInputValue('');
     processCommand(command);
   }, [navigate, processCommand]);
 
-  // ─── Handle submit ─────────────────────────────────────────────────────────
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isProcessing) return;
@@ -319,116 +373,123 @@ export const OttoConciergeDock: React.FC = () => {
     setInputValue('');
   };
 
+  // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <>
-      {/* ═══ Chat Panel ═══ */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop (mobile) */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none sm:pointer-events-none"
-            />
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm sm:bg-transparent sm:backdrop-blur-none sm:pointer-events-none"
+          />
 
-            {/* Panel */}
-            <motion.div
-              initial={{ x: '100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed z-50
-                inset-0 sm:inset-auto
-                sm:right-0 sm:top-0 sm:bottom-0 sm:w-[380px]
-                bg-white border-l border-gray-200
-                flex flex-col shadow-2xl"
-            >
-              {/* Panel Header */}
-              <header className="h-14 bg-[#1D9E75] border-b border-[#0A865F] px-4 flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shadow-md">
-                    <Bot size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-extrabold text-white leading-none">
-                      OTTO Concierge
-                    </h2>
-                    <span className="text-[9px] text-emerald-100 font-semibold">Assistente Inteligente</span>
-                  </div>
+          {/* Panel */}
+          <motion.div
+            initial={{ x: '100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.1}
+            onDragEnd={(_, info) => { if (info.offset.x > 120) setIsOpen(false); }}
+            className="fixed z-50
+              inset-0 sm:inset-auto
+              sm:right-0 sm:top-0 sm:bottom-0 sm:w-[400px]
+              bg-white border-l border-gray-200
+              flex flex-col shadow-2xl"
+          >
+            {/* Header */}
+            <header className="h-14 bg-gradient-to-r from-[#1D9E75] to-[#15876a] px-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shadow-md backdrop-blur-sm">
+                  <Sparkles size={16} className="text-white" />
                 </div>
+                <div>
+                  <h2 className="text-sm font-extrabold text-white leading-none tracking-tight">
+                    OTTO Concierge
+                  </h2>
+                  <span className="text-[9px] text-emerald-200 font-medium">Assistente do Ecossistema</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+                <span className="text-[9px] text-emerald-200 font-medium mr-2">Online</span>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-white/20 rounded-full transition-colors text-emerald-100 hover:text-white"
+                  className="p-2 hover:bg-white/15 rounded-full transition-all text-emerald-200 hover:text-white"
                 >
                   <X size={18} />
                 </button>
-              </header>
-
-              {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300">
-                {messages.map((msg) => (
-                  <ConciergeChatBubble
-                    key={msg.id}
-                    variant={msg.variant}
-                    text={msg.text}
-                    actions={msg.actions}
-                    timestamp={msg.timestamp}
-                    onAction={handleAction}
-                  />
-                ))}
-
-                {isProcessing && (
-                  <ConciergeChatBubble variant="assistant" text="" isTyping />
-                )}
-
-                <div ref={chatEndRef} />
               </div>
+            </header>
 
-              {/* Input Bar */}
-              <div className="shrink-0 bg-gray-50 border-t border-gray-200 p-3">
-                <form onSubmit={handleSubmit} className="flex gap-2">
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Digite um comando ou pergunta..."
-                    disabled={isProcessing}
-                    className="flex-1 bg-white border border-gray-300 rounded-xl px-3.5 py-2.5
-                      text-[13px] text-gray-800 placeholder-gray-400
-                      focus:outline-none focus:border-[#1D9E75] focus:ring-1 focus:ring-[#1D9E75]/30
-                      disabled:opacity-50 transition-colors"
-                  />
-                  <button
-                    type="submit"
-                    disabled={!inputValue.trim() || isProcessing}
-                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700
-                      flex items-center justify-center text-white
-                      hover:from-emerald-500 hover:to-teal-600
-                      disabled:opacity-30 disabled:cursor-not-allowed
-                      transition-all active:scale-95 shadow-md"
-                  >
-                    <Send size={16} />
-                  </button>
-                </form>
-                <p className="text-[9px] text-gray-400 text-center mt-1.5">
-                  Decisões clínicas são sempre do médico · LGPD compliant
-                </p>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+            {/* Chat */}
+            <div className="flex-1 overflow-y-auto px-3 py-4 space-y-3 bg-gradient-to-b from-gray-50/50 to-white scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300">
+              {messages.map((msg) => (
+                <ConciergeChatBubble
+                  key={msg.id}
+                  variant={msg.variant}
+                  text={msg.text}
+                  actions={msg.actions}
+                  timestamp={msg.timestamp}
+                  bubbleStyle={msg.bubbleStyle}
+                  onAction={handleAction}
+                />
+              ))}
+
+              {isProcessing && (
+                <ConciergeChatBubble variant="assistant" text="" isTyping />
+              )}
+
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input */}
+            <div className="shrink-0 bg-white border-t border-gray-100 p-3 shadow-[0_-2px_10px_rgba(0,0,0,0.04)]">
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Ex: abrir protto, como funciona calc..."
+                  disabled={isProcessing}
+                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5
+                    text-[13px] text-gray-800 placeholder-gray-400
+                    focus:outline-none focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/15 focus:bg-white
+                    disabled:opacity-40 transition-all"
+                />
+                <button
+                  type="submit"
+                  disabled={!inputValue.trim() || isProcessing}
+                  className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1D9E75] to-teal-700
+                    flex items-center justify-center text-white
+                    hover:shadow-lg hover:shadow-emerald-500/25
+                    disabled:opacity-20 disabled:cursor-not-allowed
+                    transition-all active:scale-90 shadow-md"
+                >
+                  <Send size={16} />
+                </button>
+              </form>
+              <p className="text-[8px] text-gray-400 text-center mt-1.5 tracking-wide">
+                Decisões clínicas são do médico · LGPD compliant
+              </p>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
-// ─── R6: Proportional typing delay ──────────────────────────────────────────
+// ─── Typing delay ────────────────────────────────────────────────────────────
 
-function typingDelay(text: string): Promise<void> {
-  const ms = Math.min(800, 200 + (text?.length || 0) * 1.5);
+function typeDelay(text: string): Promise<void> {
+  const ms = Math.min(800, 250 + (text?.length || 0) * 1);
   return new Promise(r => setTimeout(r, ms));
 }
