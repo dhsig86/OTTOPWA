@@ -21,6 +21,18 @@ export interface ConciergeBubbleProps {
   onAction?: (command: string) => void;
 }
 
+// ─── Mini Markdown Renderer ──────────────────────────────────────────────────
+
+function miniMarkdown(text: string): string {
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') // sanitize
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/_(.+?)_/g, '<em class="text-gray-500">$1</em>')
+    .replace(/^- (.+)/gm, '<span class="flex gap-1.5"><span class="opacity-50">•</span><span>$1</span></span>')
+    .replace(/^\d+\. (.+)/gm, '<span class="flex gap-1.5"><span class="opacity-50 font-bold tabular-nums">$&</span></span>')
+    .replace(/\n/g, '<br/>');
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export const ConciergeChatBubble: React.FC<ConciergeBubbleProps> = ({
@@ -54,7 +66,7 @@ export const ConciergeChatBubble: React.FC<ConciergeBubbleProps> = ({
 
       <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} max-w-[85%] min-w-0`}>
         {/* Bubble */}
-        <div className={`rounded-2xl px-3.5 py-2.5 text-[12px] sm:text-[13px] leading-relaxed whitespace-pre-line break-words ${
+        <div className={`rounded-2xl px-3.5 py-2.5 text-[12px] sm:text-[13px] leading-relaxed break-words ${
           isSystem
             ? 'bg-amber-50 border border-amber-200 text-amber-800 text-[11px] text-center px-4 rounded-full'
             : isUser
@@ -70,8 +82,10 @@ export const ConciergeChatBubble: React.FC<ConciergeBubbleProps> = ({
               </span>
               Pensando...
             </span>
+          ) : isUser ? (
+            <span className="whitespace-pre-line">{text}</span>
           ) : (
-            text
+            <span dangerouslySetInnerHTML={{ __html: miniMarkdown(text) }} />
           )}
         </div>
 

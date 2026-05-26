@@ -4,12 +4,11 @@ import { Bot, X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConciergeChatBubble, type ChatAction } from './ConciergeChatBubble';
 import { generateGreeting } from './greetings';
-import { classifyIntent } from './intents';
-import { runModuleAdapter } from './adapters';
+import { simulateCommandActivation } from './core';
 import { createPwaLaunchPlan } from './bridge';
-import { getModuleById, getCalcHubCatalogByArea } from './registry';
+import { getCalcHubCatalogByArea } from './registry';
 import { useAuth } from '../contexts/AuthContext';
-import type { CommandSimulationResult, ModuleActivation, ConciergeDecision } from './types';
+import type { ConciergeInput } from './types';
 
 // ─── Chat Message Type ───────────────────────────────────────────────────────
 
@@ -21,52 +20,22 @@ interface ChatMessage {
   timestamp: string;
 }
 
-// ─── Help Response ───────────────────────────────────────────────────────────
+// ─── Session Storage (R3) ────────────────────────────────────────────────────
 
-function getHelpResponse(profile: string | null): { text: string; actions: ChatAction[] } {
-  const isClinical = profile === 'medico' || profile === 'estudante' || profile === 'profissional';
+const CHAT_STORAGE_KEY = 'otto_concierge_chat';
+const MAX_STORED_MESSAGES = 20;
 
-  const clinicalModules: ChatAction[] = [
-    { label: '📝 Prontuário PROTTO', command: 'abrir protto' },
-    { label: '🎙️ Whisper (Escriba)', command: 'abrir whisper' },
-    { label: '📋 Triagem IA', command: 'abrir triagem' },
-    { label: '📄 OCR de Laudos', command: 'abrir ocr' },
-    { label: '🧮 Calculadoras ORL', command: 'quais calculadoras' },
-    { label: '🔍 Otoscop.IA', command: 'abrir otoscopia' },
-    { label: '🔬 Atlas Otoscopia', command: 'abrir atlas' },
-    { label: '🤖 BOTTOK (Chatbot)', command: 'abrir bottok' },
-    { label: '🏷️ PROCOD (CID/TUSS)', command: 'abrir procod' },
-    { label: '✍️ Laudo-IA', command: 'abrir autolaudo' },
-    { label: '📊 Cases Clínicos', command: 'abrir cases' },
-    { label: '📖 LogBook Cirúrgico', command: 'abrir logbook' },
-    { label: '🎓 Acadêmico (MCQ)', command: 'abrir academico' },
-    { label: '📰 Pílulas Científicas', command: 'abrir update' },
-    { label: '🎬 Vídeos ORL', command: 'abrir videos' },
-    { label: '📖 Glossário ORL', command: 'abrir glossario' },
-    { label: '🌬️ Aerodigestivo Ped.', command: 'abrir aerodig' },
-    { label: '💉 Imunobiológicos', command: 'abrir imune' },
-    { label: '🏥 PeriOp (Cirurgias)', command: 'abrir periop' },
-  ];
+function loadStoredMessages(): ChatMessage[] {
+  try {
+    const saved = sessionStorage.getItem(CHAT_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch { return []; }
+}
 
-  const patientModules: ChatAction[] = [
-    { label: '👂 Teste de Audição', command: 'abrir check' },
-    { label: '🔔 Terapia Zumbido', command: 'abrir zumbido' },
-    { label: '🗣️ Síntese Vocal', command: 'abrir voice' },
-    { label: '🏥 Orientações Cirúrgicas', command: 'abrir periop' },
-    { label: '🎮 Jogos Educativos', command: 'abrir games' },
-    { label: '🎬 Vídeos Educativos', command: 'abrir videos' },
-    { label: '📖 Glossário Médico', command: 'abrir glossario' },
-    { label: '📋 Preencher Triagem', command: 'abrir triagem' },
-  ];
-
-  const modules = isClinical ? clinicalModules : patientModules;
-
-  return {
-    text: isClinical
-      ? '🩺 Posso ajudar com **24 módulos** do ecossistema OTTO! Toque em uma opção ou diga "como funciona [módulo]" para o tutorial:'
-      : '🩺 Bem-vindo ao OTTO! Estes módulos estão disponíveis para você — toque para abrir:',
-    actions: modules,
-  };
+function saveMessages(messages: ChatMessage[]) {
+  try {
+    sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages.slice(-MAX_STORED_MESSAGES)));
+  } catch { /* quota exceeded — ignore */ }
 }
 
 // ─── Conversational Responses ────────────────────────────────────────────────
@@ -104,6 +73,24 @@ function getConversationalResponse(text: string): { text: string; actions: ChatA
   return null;
 }
 
+// ─── Build ConciergeInput from chat context (R1) ────────────────────────────
+
+function buildConciergeInput(text: string, userId: string | null, profile: string | null): ConciergeInput {
+  return {
+    surface: 'pwa',
+    input: { kind: 'text', text },
+    identity: {
+      uid: userId || 'anonymous',
+      profile: (profile || 'medico') as any,
+    },
+    session: {
+      id: `session_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      locale: 'pt-BR',
+    },
+  };
+}
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export const OttoConciergeDock: React.FC = () => {
@@ -111,13 +98,16 @@ export const OttoConciergeDock: React.FC = () => {
   const { userName, profile, userId } = useAuth();
   
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(loadStoredMessages); // R3
   const [inputValue, setInputValue] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [hasGreeted, setHasGreeted] = useState(false);
+  const [hasGreeted, setHasGreeted] = useState(() => loadStoredMessages().length > 0); // R3: skip greeting if chat restored
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // R3: Persist messages on change
+  useEffect(() => { saveMessages(messages); }, [messages]);
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
@@ -147,7 +137,7 @@ export const OttoConciergeDock: React.FC = () => {
         userName: userName || 'Doutor(a)',
         profile: profile as any,
         hour: new Date().getHours(),
-        unreadPills: 0, // TODO: compute from Firestore
+        unreadPills: 0,
         lastModule,
         totalPillsRead,
         favoritesCount,
@@ -173,61 +163,38 @@ export const OttoConciergeDock: React.FC = () => {
     }
   }, [isOpen]);
 
-  // ─── Process command ────────────────────────────────────────────────────────
+  // ─── Process command (R1: uses core.ts) ─────────────────────────────────────
   const processCommand = useCallback(async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    // Add user message
     addMessage({ variant: 'user', text: trimmed });
     setIsProcessing(true);
 
-    // Small delay for natural feel
-    await new Promise(r => setTimeout(r, 300));
-
     try {
-      // 1. Check for conversational responses first
+      // 1. Conversational check (saudações, agradecimentos, etc.)
       const conversational = getConversationalResponse(trimmed);
       if (conversational) {
+        await typingDelay(conversational.text);
         addMessage({ variant: 'assistant', text: conversational.text, actions: conversational.actions });
         setIsProcessing(false);
         return;
       }
 
-      // 2. Check for help command
-      const normalizedCmd = trimmed.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
-      if (/^(ajuda|help|menu|o que (voce|vc) (faz|pode)|opcoes|comandos)/.test(normalizedCmd)) {
-        const help = getHelpResponse(profile);
-        addMessage({ variant: 'assistant', text: help.text, actions: help.actions });
-        setIsProcessing(false);
-        return;
-      }
+      // 2. Build formal ConciergeInput and run through core.ts decision engine
+      //    This activates: guardrails, tutorials, capabilities_db help, NLU
+      const input = buildConciergeInput(trimmed, userId, profile);
+      const simResult = await simulateCommandActivation(input);
+      const decision = simResult.decision;
 
-      // 3. Classify intent
-      const candidates = classifyIntent(trimmed);
-      
-      if (candidates.length === 0) {
-        addMessage({
-          variant: 'assistant',
-          text: `🤔 Não encontrei um módulo para "${trimmed}". Posso te ajudar de outra forma?`,
-          actions: [
-            { label: '❓ Ver opções', command: 'ajuda' },
-            { label: '🤖 Perguntar ao BOTTOK', command: `perguntar bottok ${trimmed}` },
-          ],
-        });
-        setIsProcessing(false);
-        return;
-      }
+      // R6: Proportional typing delay
+      await typingDelay(decision.userMessage);
 
-      const topCandidate = candidates[0];
-      const intentEntry = topCandidate.intent;
-      const module = getModuleById(intentEntry.moduleId);
-
-      // 4. Catalog request (special case)
-      if (intentEntry.id === 'calc.list') {
+      // 3. Special case: calc.list (catalog display)
+      if (decision.intentId === 'calc.list') {
         const catalog = getCalcHubCatalogByArea();
         const catalogText = catalog.map(g =>
-          `**${g.area}:**\n${g.calculators.map(c => `  • ${c.name}`).join('\n')}`
+          `**${g.area}:**\n${g.calculators.map(c => `- ${c.name}`).join('\n')}`
         ).join('\n\n');
 
         addMessage({
@@ -243,60 +210,31 @@ export const OttoConciergeDock: React.FC = () => {
         return;
       }
 
-      // 5. Run adapter and create launch plan
-      const traceId = `trace_${Date.now()}`;
-      const adapterRequest = {
-        moduleId: intentEntry.moduleId,
-        intentId: intentEntry.id,
-        surface: 'pwa' as const,
-        input: { text: trimmed },
-        identity: userId ? {
-          uid: userId,
-          profile: (profile || 'medico') as any,
-        } : undefined,
-        traceId,
-      };
+      // 4. Handle decision based on guardrail outcome
+      if (decision.action.kind === 'refuse') {
+        addMessage({
+          variant: 'assistant',
+          text: decision.userMessage,
+          actions: [{ label: '❓ Ver opções', command: 'ajuda' }],
+        });
+        setIsProcessing(false);
+        return;
+      }
 
-      const adapterResponse = await runModuleAdapter(adapterRequest);
+      // 5. Respond-only decisions (help, tutorials, capabilities)
+      if (decision.action.kind === 'respond') {
+        addMessage({
+          variant: 'assistant',
+          text: decision.userMessage,
+          actions: [{ label: '❓ Mais opções', command: 'ajuda' }],
+        });
+        setIsProcessing(false);
+        return;
+      }
 
-      const decision: ConciergeDecision = {
-        decisionId: traceId,
-        intentId: intentEntry.id,
-        confidence: topCandidate.confidence,
-        riskLevel: intentEntry.riskLevel,
-        action: {
-          kind: intentEntry.actionKind,
-          moduleId: intentEntry.moduleId,
-          url: module?.currentUrl,
-        },
-        audit: intentEntry.auditPolicy,
-        userMessage: adapterResponse.summary,
-        debug: {
-          traceId,
-          selectedIntent: intentEntry.id,
-          guardrailDecision: 'allow',
-        },
-      };
-
-      const activation: ModuleActivation = {
-        shouldActivate: true,
-        moduleId: intentEntry.moduleId,
-        mode: intentEntry.actionKind === 'deep_link' ? 'deep_link' : 'open_module',
-        url: module?.currentUrl,
-        reason: 'Intent classified with high confidence',
-      };
-
-      const simResult: CommandSimulationResult = {
-        decision,
-        activation,
-        adapterResponse,
-        durationMs: 0,
-      };
-
+      // 6. Module navigation — create launch plan
       const plan = createPwaLaunchPlan(simResult);
-
-      // 6. Build response
-      const moduleName = module?.displayName || intentEntry.displayName;
+      const moduleName = decision.action.moduleId || 'módulo';
       const actions: ChatAction[] = [];
 
       if (plan.route && plan.status === 'ready') {
@@ -311,24 +249,21 @@ export const OttoConciergeDock: React.FC = () => {
         });
       }
 
-      // Add contextual follow-up
       actions.push({ label: '❓ Mais opções', command: 'ajuda' });
 
       // Humanized response
-      let responseText = '';
-      if (plan.status === 'ready') {
-        responseText = `✅ **${moduleName}** está pronto! ${adapterResponse.summary}`;
-      } else if (plan.status === 'handoff_required') {
-        responseText = `🔐 **${moduleName}** precisa de acesso seguro. ${adapterResponse.summary}`;
-      } else if (plan.status === 'confirmation_required') {
-        responseText = `⚠️ **${moduleName}** precisa de confirmação. ${plan.helperMessage}`;
-      } else {
-        responseText = `ℹ️ ${adapterResponse.summary}`;
+      let responseText = decision.userMessage;
+      if (!responseText || responseText.length < 5) {
+        if (plan.status === 'ready') {
+          responseText = `✅ **${moduleName}** está pronto!`;
+        } else if (plan.status === 'handoff_required') {
+          responseText = `🔐 **${moduleName}** precisa de acesso seguro.`;
+        } else {
+          responseText = `ℹ️ Módulo preparado.`;
+        }
       }
 
-      // Track last module
-      localStorage.setItem('otto_last_module', intentEntry.moduleId);
-
+      localStorage.setItem('otto_last_module', decision.action.moduleId || '');
       addMessage({ variant: 'assistant', text: responseText, actions });
 
     } catch (err) {
@@ -341,7 +276,7 @@ export const OttoConciergeDock: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [addMessage, profile, userId, navigate]);
+  }, [addMessage, profile, userId]);
 
   // ─── Listen to global open event ───────────────────────────────────────────
   useEffect(() => {
@@ -490,3 +425,10 @@ export const OttoConciergeDock: React.FC = () => {
     </>
   );
 };
+
+// ─── R6: Proportional typing delay ──────────────────────────────────────────
+
+function typingDelay(text: string): Promise<void> {
+  const ms = Math.min(800, 200 + (text?.length || 0) * 1.5);
+  return new Promise(r => setTimeout(r, ms));
+}
