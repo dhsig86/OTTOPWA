@@ -46,7 +46,11 @@ export const CALC_HUB_CATALOG: CalcHubCalculator[] = [
   { id: 'pediatria', name: 'Doses Pediatricas', area: 'Geral', medicoOnly: false, aliases: ['doses pediatricas', 'dose pediatrica', 'pediatria'] },
   { id: 'myercotton', name: 'Myer-Cotton - Estenose Subglotica', area: 'Aerodigestivo', medicoOnly: false, aliases: ['myer cotton', 'myer-cotton', 'estenose subglotica'] },
   { id: 'pedieat10', name: 'Pedi-EAT-10 - Disfagia Pediatrica', area: 'Aerodigestivo', medicoOnly: false, aliases: ['pedi eat', 'pedi-eat-10', 'pedieat10', 'disfagia pediatrica'] },
-  { id: 'trachconverter', name: 'Conversor de Canulas', area: 'Aerodigestivo', medicoOnly: false, aliases: ['conversor de canulas', 'canula', 'traqueostomia', 'trach converter'] }
+  { id: 'trachconverter', name: 'Conversor de Canulas', area: 'Aerodigestivo', medicoOnly: false, aliases: ['conversor de canulas', 'canula', 'traqueostomia', 'trach converter'] },
+  // Lote 8 — Novas Calculadoras
+  { id: 'grbas', name: 'GRBAS - Voz Perceptual', area: 'Laringologia', medicoOnly: true, aliases: ['grbas', 'grbas-i', 'escala grbas', 'voz perceptual', 'qualidade vocal'] },
+  { id: 'rfs', name: 'RFS - Reflux Finding Score', area: 'Laringologia', medicoOnly: true, aliases: ['rfs', 'reflux finding', 'reflux finding score', 'achados refluxo'] },
+  { id: 'hb', name: 'House-Brackmann - Paralisia Facial', area: 'Otologia', medicoOnly: false, aliases: ['hb', 'house-brackmann', 'house brackmann', 'paralisia facial', 'escala house brackmann'] }
 ];
 
 export function getCalcHubCatalogByArea(): Array<{ area: string; calculators: CalcHubCalculator[] }> {
