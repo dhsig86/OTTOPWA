@@ -66,7 +66,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (snap.exists()) {
             const d = snap.data();
             setUserName(d.displayName || user.email || 'Usuário');
-            setProfile(d.profile || storedProfile || 'medico');
+            const finalProfile = d.profile || storedProfile || null;
+            setProfile(finalProfile);
+            if (finalProfile) {
+              localStorage.setItem('otto_profile', finalProfile);
+            } else {
+              localStorage.removeItem('otto_profile');
+            }
             setIsPremium(!!d.premiumActive);
             setSubscriptionPlan(d.subscriptionPlan || null);
             // Trust Firestore OR localStorage — handles case where Firestore write
@@ -79,7 +85,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             if (oc) localStorage.setItem('otto_onboarding_completed', 'true');
           } else {
             setUserName(storedName || user.email || 'Usuário');
-            setProfile(storedProfile || 'medico');
+            const finalProfile = storedProfile || null;
+            setProfile(finalProfile);
+            if (finalProfile) {
+              localStorage.setItem('otto_profile', finalProfile);
+            } else {
+              localStorage.removeItem('otto_profile');
+            }
             setIsPremium(false);
             setSubscriptionPlan(null);
             setProfileCompleted(false);
@@ -88,7 +100,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } catch (e) {
           console.warn('Firestore unavailable, falling back to localStorage', e);
           setUserName(storedName || user.email || 'Usuário');
-          setProfile(storedProfile || 'medico');
+          const finalProfile = storedProfile || null;
+          setProfile(finalProfile);
+          if (finalProfile) {
+            localStorage.setItem('otto_profile', finalProfile);
+          } else {
+            localStorage.removeItem('otto_profile');
+          }
           setIsPremium(false);
           setSubscriptionPlan(null);
           setProfileCompleted(localStorage.getItem('otto_profile_completed') === 'true');
@@ -126,25 +144,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const snap = await getDoc(doc(db, 'users', id));
       if (snap.exists()) {
         const d = snap.data();
-        const finalProfile = d.profile || profileType || 'medico';
+        const finalProfile = d.profile || profileType || null;
         setProfile(finalProfile);
-        localStorage.setItem('otto_profile', finalProfile);
+        if (finalProfile) {
+          localStorage.setItem('otto_profile', finalProfile);
+        } else {
+          localStorage.removeItem('otto_profile');
+        }
         setProfileCompleted(!!d.profileCompleted);
         setOnboardingCompleted(!!d.onboardingCompleted);
         setIsPremium(!!d.premiumActive);
         if (d.profileCompleted) localStorage.setItem('otto_profile_completed', 'true');
         if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
       } else {
-        const finalProfile = profileType || 'medico';
+        const finalProfile = profileType || null;
         setProfile(finalProfile);
-        localStorage.setItem('otto_profile', finalProfile);
+        if (finalProfile) {
+          localStorage.setItem('otto_profile', finalProfile);
+        } else {
+          localStorage.removeItem('otto_profile');
+        }
         setProfileCompleted(false);
         setOnboardingCompleted(false);
       }
     } catch (e) {
-      const finalProfile = profileType || (localStorage.getItem('otto_profile') as UserProfile) || 'medico';
+      const finalProfile = profileType || (localStorage.getItem('otto_profile') as UserProfile) || null;
       setProfile(finalProfile);
-      localStorage.setItem('otto_profile', finalProfile);
+      if (finalProfile) {
+        localStorage.setItem('otto_profile', finalProfile);
+      } else {
+        localStorage.removeItem('otto_profile');
+      }
       setProfileCompleted(localStorage.getItem('otto_profile_completed') === 'true');
       setOnboardingCompleted(localStorage.getItem('otto_onboarding_completed') === 'true');
     }

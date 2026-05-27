@@ -71,7 +71,7 @@ export const Login: React.FC = () => {
       const token = await user.getIdToken();
       // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
       // antes de navegar — evita race condition que redirecionava para /complete-profile
-      await login(user.uid, user.email || 'Usuário', 'medico', token);
+      await login(user.uid, user.email || 'Usuário', null, token);
       fireWarmUpPings(); // acorda backends enquanto navega
       navigate('/');
     } catch (error: any) {
@@ -117,7 +117,7 @@ export const Login: React.FC = () => {
       const token = await user.getIdToken();
       // Aguarda login() completar (inclui getDoc Firestore para ler profileCompleted)
       // antes de navegar — evita race condition que redirecionava para /complete-profile
-      await login(user.uid, user.displayName || user.email || 'Usuário', 'medico', token);
+      await login(user.uid, user.displayName || user.email || 'Usuário', null, token);
       fireWarmUpPings(); // acorda backends enquanto navega
       navigate('/');
     } catch (error: any) {
@@ -149,7 +149,7 @@ export const Login: React.FC = () => {
             type="button"
             onClick={handleGoogleLogin}
             disabled={isLoading}
-            className="w-full h-12 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-3 transition-all shadow-sm active:scale-[0.98]"
+            className="w-full h-12 bg-white border-2 border-slate-200 hover:border-[#1D9E75]/50 hover:bg-[#CDF0E3]/10 text-gray-700 font-bold rounded-xl flex items-center justify-center gap-3 transition-all shadow-sm hover:shadow active:scale-[0.98]"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
