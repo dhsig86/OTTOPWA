@@ -38,7 +38,7 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'abrir calculadora',
     'calculadora'
   ]),
-  intent('calc.open', 'Abrir calculadora', 'calc', 'deep_link', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'], false, false, 'low', calcOpenExamples()),
+  intent('calc.open', 'Abrir calculadora', 'calc', 'deep_link', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'], false, false, 'low', [...calcOpenExamples(), 'snot-22', 'epworth', 'dhi', 'tnm', 'house-brackmann', 'comq-12', 'centor']),
   intent('procod.search_code', 'Buscar codigo PROCOD', 'procod', 'call_tool', 'medium', ['medico', 'estudante'], ['pwa', 'zap', 'test'], false, false, 'low', [
     'cid rinossinusite',
     'tuss septoplastia',
@@ -67,7 +67,10 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'perguntar bottok',
     'red flags otite',
     'diferencial vertigem',
-    'disfonia persistente'
+    'disfonia persistente',
+    'o que é otosclerose',
+    'como tratar epistaxe',
+    'dose de amoxicilina para OMA'
   ]),
   intent('whisper.transcribe', 'Transcrever consulta', 'whisper', 'handoff_to_pwa', 'high', ['medico'], ['pwa', 'zap', 'test'], true, false, 'high_phi', [
     'transcrever consulta',
@@ -101,7 +104,10 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'case report',
     'rascunho de caso',
     'montar caso clinico',
-    'gerar caso'
+    'gerar caso',
+    'relato de caso ORL',
+    'caso clinico de otite',
+    'publicar caso de sinusite'
   ]),
   intent('protto.search_protocol', 'Buscar protocolo PROTTO', 'protto', 'deep_link', 'medium', ['medico'], ['pwa', 'zap', 'test'], false, false, 'low', [
     'protocolo rinossinusite',
@@ -116,7 +122,11 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'protocolo disfonia',
     'protocolo vertigem',
     'protocolo apneia',
-    'buscar protocolo no protto'
+    'buscar protocolo no protto',
+    'protocolo de sinusite',
+    'conduta para otite',
+    'tratamento de rinite',
+    'guideline de VPPB'
   ]),
   intent('procod.open', 'Abrir CID & TUSS', 'procod', 'open_module', 'low', ['medico', 'estudante'], ['pwa', 'test'], false, false, 'none', [
     'abrir procod',
@@ -255,7 +265,19 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'protocolo triagem',
     'anamnese ia',
     'triagem do paciente',
-    'admissao do paciente'
+    'admissao do paciente',
+    'nariz entupido',
+    'dor de ouvido',
+    'tontura',
+    'dor de garganta',
+    'ouvido de nadador',
+    'ouvido vazando',
+    'não consigo ouvir',
+    'sangramento nasal',
+    'voz rouca',
+    'rosto caído',
+    'roncando muito',
+    'apneia do sono'
   ])
 ];
 

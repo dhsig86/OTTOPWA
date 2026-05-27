@@ -142,13 +142,28 @@ export const ModuleFrame: React.FC = () => {
       trackModuleOpened(moduleInfo.id, moduleInfo.name, profile ?? null);
     }
 
-    // Reenviamos o contexto até 3 vezes com intervalo de 2s.
-    // Isso garante que o Cases receba mesmo que a SPA ainda não tenha montado
-    // o addEventListener('message') no momento exato do onLoad.
+    // Sprint S1: Handshake reativo — escuta otto-*-ready antes de enviar contexto.
+    // Envia imediatamente no onLoad + escuta ready para reenviar sob demanda.
+    // Fallback de 4s para módulos legados que não emitem ready.
     sendContext();
-    const t1 = setTimeout(() => sendContext(), 2000);
-    const t2 = setTimeout(() => sendContext(), 4000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    let readyReceived = false;
+
+    const handleReady = (event: MessageEvent) => {
+      const type = event.data?.type;
+      if (typeof type === 'string' && type.match(/^otto-\w+-ready$/)) {
+        readyReceived = true;
+        sendContext();
+      }
+    };
+    window.addEventListener('message', handleReady);
+
+    // Fallback: se o módulo não emitir ready em 4s, reenvia uma última vez
+    const fallback = setTimeout(() => {
+      if (!readyReceived) sendContext();
+      window.removeEventListener('message', handleReady);
+    }, 4000);
+
+    return () => { clearTimeout(fallback); window.removeEventListener('message', handleReady); };
   };
 
   if (!targetUrl) {

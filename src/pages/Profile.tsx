@@ -260,6 +260,18 @@ export const Profile: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Link para Termos de Uso */}
+          <button
+            onClick={() => navigate('/terms')}
+            className="w-full flex items-center gap-3 px-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:bg-gray-50 transition-colors text-left mt-2"
+          >
+            <ShieldCheck size={15} className="text-[#1D9E75] shrink-0" />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-700">Termos de Uso e Disclaimer Clínico</span>
+              <span className="text-xs text-gray-400">Política de uso, privacidade e responsabilidade</span>
+            </div>
+          </button>
         </div>
 
         {/* Logout */}

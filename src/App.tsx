@@ -21,6 +21,7 @@ const Profile           = lazyWithRetry(() => import('./pages/Profile').then(m =
 const CompleteProfile   = lazyWithRetry(() => import('./pages/CompleteProfile').then(m => ({ default: m.CompleteProfile })));
 const NotFound          = lazyWithRetry(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 const PremiumPage       = lazyWithRetry(() => import('./pages/modules/PremiumPage').then(m => ({ default: m.PremiumPage })));
+const TermsOfUse        = lazyWithRetry(() => import('./pages/TermsOfUse').then(m => ({ default: m.TermsOfUse })));
 
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { WarmUpSplash } from './components/WarmUpSplash';
@@ -88,6 +89,7 @@ function AppRoutes() {
 
         <Route path="modules/info" element={<InfoPage />} />
         <Route path="modules/premium" element={<PremiumPage />} />  {/* BUG-04: conectado — não mais redirect silencioso */}
+        <Route path="terms" element={<TermsOfUse />} />
         
         <Route path="*" element={<NotFound />} />
       </Route>

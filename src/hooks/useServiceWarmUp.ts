@@ -34,6 +34,11 @@ export const WAKE_ENDPOINTS: { url: string; label: string }[] = [
     url: 'https://OtoAi-bottok-orl-api.hf.space/status',
     label: 'BOTTOK (HuggingFace)',
   },
+  // ── Render (Whisper) ────────────────────────────────────────────────────
+  {
+    url: 'https://otto-whisper.onrender.com/health',
+    label: 'OTTO Whisper API',
+  },
 ];
 
 /** Dispara pings fire-and-forget em todos os backends. Seguro para chamar a qualquer momento. */
