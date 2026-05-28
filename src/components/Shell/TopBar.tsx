@@ -30,12 +30,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 pt-10 bg-[#1D9E75] text-white flex flex-col z-40 shadow-sm">
+      <header className="sticky top-0 left-0 right-0 bg-[#1D9E75] text-white flex flex-col z-40 shadow-sm" style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 2.5rem)' }}>
         <div className="flex flex-row items-center justify-between px-5 pb-5 w-full relative">
           <div className="flex items-center gap-2 z-10">
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent('otto-open-concierge'))} 
-              className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto"
+              className="p-2.5 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto"
               title="OTTO Concierge"
             >
               <Sparkles size={18} />
@@ -45,10 +45,10 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
             <h1 className="text-2xl font-extrabold tracking-tight leading-none text-center">HART'S OTTO</h1>
           </div>
           <div className="flex items-center gap-2 z-10">
-            <button onClick={() => navigate('/notifications')} className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
+            <button onClick={() => navigate('/notifications')} className="p-2.5 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
               <Bell size={18} />
             </button>
-            <button onClick={onMenuClick} className="p-2 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
+            <button onClick={onMenuClick} className="p-2.5 bg-white/20 rounded-full hover:bg-white/30 transition-colors pointer-events-auto">
               <Menu size={18} />
             </button>
           </div>

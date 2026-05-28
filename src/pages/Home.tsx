@@ -104,7 +104,7 @@ export const Home: React.FC = () => {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-3 gap-y-6 gap-x-2 px-3"
+          className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-y-6 gap-x-2 px-3"
         >
           <AnimatePresence mode='popLayout'>
             {modules.map(mod => {
@@ -139,7 +139,7 @@ export const Home: React.FC = () => {
                     <span className="text-[13px] font-bold text-gray-800 leading-tight">
                       {mod.name}
                     </span>
-                    <span className="text-[10px] text-gray-500 leading-tight mt-0.5 truncate w-full">
+                    <span className="text-[10px] text-gray-500 leading-tight mt-0.5 line-clamp-2 w-full">
                       {mod.description}
                     </span>
                   </div>
@@ -161,7 +161,7 @@ export const Home: React.FC = () => {
             <button
               key={f}
               onClick={() => { setActiveFilter(f); trackProfileFilterChanged(f); }}
-              className={`flex-1 py-1.5 px-1 rounded-full text-xs font-bold transition-all ${
+              className={`flex-1 py-2.5 px-1.5 rounded-full text-xs font-bold transition-all ${
                 activeFilter === f
                   ? f === 'medico'
                       ? 'bg-[#E1F7EE] text-[#1D9E75] ring-1 ring-[#1D9E75]/20'

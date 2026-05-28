@@ -195,7 +195,7 @@ export const ModuleFrame: React.FC = () => {
           <span>Abrir em Nova Aba</span>
         </a>
       </header>
-      <div className="flex-1 w-full bg-gray-50 relative flex flex-col items-center justify-center">
+      <div className="flex-1 w-full bg-gray-50 relative flex flex-col items-center justify-center overflow-hidden">
         <AnimatePresence>
           {isLoading && !showFallback && (
             <ModuleSplash 
