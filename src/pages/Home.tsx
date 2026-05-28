@@ -247,8 +247,8 @@ export const Home: React.FC = () => {
       {/* Academia */}
       {renderModulesCategory('academia', 'Academia')}
 
-      {/* Público */}
-      {renderModulesCategory('publico', 'Público')}
+      {/* Educação & Pacientes */}
+      {renderModulesCategory('publico', 'Educação & Pacientes')}
     </div>
   );
 };

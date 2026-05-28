@@ -33,9 +33,10 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
 
   const getCategoryColor = (category: string) => {
     switch(category) {
-      case 'clinico':          return 'bg-[#E1F7EE] text-[#0A865F]';
-      case 'educacao_paciente': return 'bg-[#E6EDFB] text-[#4068B2]';
-      default:                  return 'bg-gray-100 text-gray-600';
+      case 'clinico':  return 'bg-[#E1F7EE] text-[#0A865F]';
+      case 'academia': return 'bg-[#E6EDFB] text-[#4068B2]';
+      case 'publico':  return 'bg-[#F2EFFC] text-[#6A47C9]';
+      default:         return 'bg-gray-100 text-gray-600';
     }
   };
 
@@ -77,7 +78,8 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
               <div className="space-y-6">
                 {[
                   { id: 'clinico', label: 'Ferramentas Clínicas' },
-                  { id: 'educacao_paciente', label: 'Educação & Pacientes' }
+                  { id: 'academia', label: 'Academia' },
+                  { id: 'publico', label: 'Educação & Pacientes' }
                 ].map((category) => {
                   const categoryModules = OTTO_MODULES.filter(m => m.category === category.id);
                   if (categoryModules.length === 0) return null;

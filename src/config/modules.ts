@@ -101,7 +101,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: true,
     status: 'live',
-    category: 'publico',
+    category: 'clinico',
     tags: ['ia', 'diagnostico', 'imagem', 'ouvido', 'otoscop', 'ml', 'classificacao'],
     iconBg: 'bg-[#E5F5FA] text-[#2C95B5]',
     hasIA: true
@@ -116,7 +116,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'publico',
+    category: 'clinico',
     tags: ['triagem', 'admissao', 'protocolo', 'ia', 'anamnese', 'cdss'],
     iconBg: 'bg-[#FAEEDA] text-[#D58C20]',
     hasIA: true
@@ -131,7 +131,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'beta',
-    category: 'publico',
+    category: 'clinico',
     tags: ['triagem', 'audiometria', 'zumbido', 'tinnitus', 'teste', 'audicao', 'som'],
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
   },
@@ -147,7 +147,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'publico',
+    category: 'clinico',
     tags: ['calcula', 'score', 'snot', 'tnm', 'nose', 'epworth', 'stop-bang', 'vhi', 'eat', 'dhi', 'thi', 'dose'],
     iconBg: 'bg-[#FEF1E2] text-[#E08A27]'
   },
@@ -220,7 +220,7 @@ export const OTTO_MODULES: OttoModule[] = [
     profiles: ['medico', 'estudante', 'profissional', 'paciente'],
     premium: false,
     status: 'live',
-    category: 'publico',
+    category: 'clinico',
     tags: ['cirurgia', 'preoperatorio', 'posoperatorio', 'jejum', 'medicacao', 'protocolo', 'orientacao'],
     iconBg: 'bg-[#FBEBF3] text-[#D84989]'
   },
