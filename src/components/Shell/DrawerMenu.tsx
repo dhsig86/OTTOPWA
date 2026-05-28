@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, LogOut } from 'lucide-react';
+import { X, LogOut, User } from 'lucide-react';
 import { OTTO_MODULES } from '../../config/modules';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -130,8 +130,15 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
             
-            {/* Botão de Logout Fixo no Rodapé */}
-            <div className="p-4 border-t border-gray-100 shrink-0">
+            {/* Botão de Perfil + Logout Fixos no Rodapé */}
+            <div className="p-4 border-t border-gray-100 shrink-0 space-y-1">
+              <button
+                onClick={() => { onClose(); navigate('/profile'); }}
+                className="w-full flex items-center gap-3 p-3 rounded-xl text-gray-600 hover:bg-[#E1F7EE] hover:text-[#1D9E75] transition-all"
+              >
+                <User size={18} />
+                <span className="text-sm font-semibold">Meu Perfil</span>
+              </button>
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 p-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all"

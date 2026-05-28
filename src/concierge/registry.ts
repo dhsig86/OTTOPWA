@@ -611,6 +611,26 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
       supportsPostMessage: false,
       requiresConfirmationForPersist: false
     }
+  },
+  {
+    id: 'profile',
+    displayName: 'Meu Perfil',
+    currentUrl: '/profile',
+    category: 'operacional',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'low',
+    dataSensitivity: 'low',
+    capabilities: ['profile.open'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 1000 },
+    policies: {
+      requiresAuth: true,
+      allowsIframe: false,
+      supportsDeepLink: true,
+      supportsPostMessage: false,
+      requiresConfirmationForPersist: false
+    }
   }
 ];
 

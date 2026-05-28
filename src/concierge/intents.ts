@@ -278,6 +278,23 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'rosto caído',
     'roncando muito',
     'apneia do sono'
+  ]),
+  intent('profile.open', 'Abrir Perfil', 'profile', 'open_module', 'low',
+    ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'],
+    false, false, 'none', [
+    'abrir perfil',
+    'meu perfil',
+    'minha conta',
+    'meus dados',
+    'editar cadastro',
+    'editar perfil',
+    'configuracoes',
+    'exportar dados',
+    'baixar dados',
+    'lgpd',
+    'excluir conta',
+    'deletar conta',
+    'area do usuario'
   ])
 ];
 
