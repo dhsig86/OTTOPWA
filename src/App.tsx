@@ -1,5 +1,6 @@
 import React, { Suspense, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { PatientProvider } from './contexts/PatientContext';
 import { Layout } from './components/Shell/Layout';
@@ -108,6 +109,7 @@ function App() {
         <Router>
           <AppRoutes />
         </Router>
+        <Analytics />
       </PatientProvider>
     </AuthProvider>
   );
