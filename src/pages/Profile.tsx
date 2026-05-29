@@ -645,6 +645,15 @@ export const Profile: React.FC = () => {
               <span className="text-sm text-gray-700">Plataforma</span>
               <span className="text-sm text-gray-500">OTTO Ecosystem</span>
             </div>
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-sm text-gray-700">Idealizado por</span>
+              <span className="text-sm font-semibold text-gray-600">Dr. Dario Hart Signorini</span>
+            </div>
+            <div className="px-4 py-2.5">
+              <span className="text-[10px] text-gray-400 leading-relaxed">
+                Otorrinolaringologista · Cirurgião de Cabeça e Pescoço
+              </span>
+            </div>
             <a
               href="mailto:dr.dhsig@gmail.com"
               className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"

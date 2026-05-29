@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Send, Sparkles } from 'lucide-react';
+import { X, Send, Sparkles, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConciergeChatBubble, type ChatAction, type BubbleStyle } from './ConciergeChatBubble';
 import { generateGreeting } from './greetings';
@@ -148,6 +148,49 @@ function getConversationalResponse(text: string): { text: string; actions: ChatA
     return {
       text: '🤖 Sou o **OTTO Concierge** — seu assistente pessoal dentro do ecossistema OTTO.\n\nNavego entre módulos, abro calculadoras, explico funcionalidades e guio você pelo sistema. Todas as decisões clínicas são do médico — eu facilito o caminho.',
       actions: [{ label: '🧭 Ver o que posso fazer', command: 'ajuda', style: 'primary' }],
+    };
+  }
+
+  // ─── Share / Indicar ──────────────────────────────────────────────────────
+  if (/compartilh|indicar|enviar link|share|whatsapp|divulgar/.test(n)) {
+    const shareText = encodeURIComponent(
+      '🩺 Conheça o HART\'s OTTO — plataforma clínica digital gratuita para ORL e CCP.\n'
+      + 'Triagem com IA, calculadoras validadas, logbook cirúrgico e muito mais.\n\n'
+      + '👉 https://ottopwa.vercel.app'
+    );
+    const waUrl = `https://wa.me/?text=${shareText}`;
+    return {
+      text: '📤 **Compartilhar OTTO**\n\nEnvie o link da plataforma para colegas via WhatsApp:',
+      actions: [
+        { label: '📲 Enviar via WhatsApp', command: `__external__${waUrl}`, style: 'primary' },
+        { label: '📋 Copiar link', command: '__copy__https://ottopwa.vercel.app' },
+      ],
+    };
+  }
+
+  // ─── Feedback redirect ──────────────────────────────────────────────────────
+  if (/feedback|bug|erro|problema|sugest|reportar|report/.test(n)) {
+    return {
+      text: '📝 **Feedback & Suporte**\n\nSeu feedback é essencial para melhorar o ecossistema. Pode enviar bugs, sugestões ou elogios:',
+      actions: [
+        { label: '📝 Abrir Formulário', command: '__navigate__/modules/feedback__', style: 'primary' },
+      ],
+    };
+  }
+
+  // ─── About / Sobre / Criador ───────────────────────────────────────────────
+  if (/sobre|about|quem (criou|fez|desenvolveu)|criador|dr\.? ?dario/.test(n)) {
+    return {
+      text: '🩺 **Sobre o HART\'s OTTO**\n\n'
+        + 'Plataforma clínica digital em ORL e CCP, idealizada por **Dr. Dario Hart Signorini** — otorrinolaringologista e desenvolvedor.\n\n'
+        + '🔬 +20 módulos integrados\n'
+        + '🤖 IA clínica especializada\n'
+        + '🔒 LGPD compliant\n\n'
+        + '_"Ferramentas que o médico precisa, do jeito que o médico precisa."_',
+      actions: [
+        { label: '📝 Enviar Feedback', command: 'feedback', style: 'primary' },
+        { label: '📤 Compartilhar', command: 'compartilhar' },
+      ],
     };
   }
 
@@ -460,9 +503,22 @@ export const OttoConciergeDock: React.FC = () => {
       setIsOpen(false);
       return;
     }
+    if (command.startsWith('__external__')) {
+      window.open(command.replace('__external__', ''), '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (command.startsWith('__copy__')) {
+      const textToCopy = command.replace('__copy__', '');
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        addMsg({ variant: 'system', text: '✅ Link copiado!' });
+      }).catch(() => {
+        addMsg({ variant: 'system', text: '⚠️ Não foi possível copiar. Tente manualmente: ' + textToCopy });
+      });
+      return;
+    }
     setInputValue('');
     processCommand(command);
-  }, [navigate, processCommand]);
+  }, [navigate, processCommand, addMsg]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -513,8 +569,15 @@ export const OttoConciergeDock: React.FC = () => {
                   </h2>
                   <span className="text-[9px] text-emerald-200 font-medium">Assistente do Ecossistema</span>
                 </div>
-              </div>
+            </div>
               <div className="flex items-center gap-1">
+                <button
+                  onClick={() => processCommand('compartilhar')}
+                  className="p-2 hover:bg-white/15 rounded-full transition-all text-emerald-200 hover:text-white"
+                  title="Compartilhar OTTO"
+                >
+                  <Share2 size={15} />
+                </button>
                 <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
                 <span className="text-[9px] text-emerald-200 font-medium mr-2">Online</span>
                 <button

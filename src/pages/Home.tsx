@@ -249,6 +249,37 @@ export const Home: React.FC = () => {
 
       {/* Educação & Pacientes */}
       {renderModulesCategory('publico', 'Educação & Pacientes')}
+
+      {/* Footer — About */}
+      <footer className="mt-8 mb-24 px-6 py-6 text-center space-y-2.5 border-t border-gray-100">
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="text-[11px] font-bold text-[#1D9E75] tracking-wider uppercase">HART's OTTO</span>
+          <span className="text-[9px] text-gray-300">•</span>
+          <span className="text-[9px] text-gray-400 font-medium">v2.0</span>
+        </div>
+        <p className="text-[10px] text-gray-400 leading-relaxed max-w-xs mx-auto">
+          Plataforma clínica digital em ORL e CCP
+        </p>
+        <p className="text-[10px] text-gray-400">
+          Idealizado por{' '}
+          <span className="font-semibold text-gray-500">Dr. Dario Hart Signorini</span>
+        </p>
+        <div className="flex items-center justify-center gap-4 pt-1">
+          <button
+            onClick={() => navigate('/modules/feedback')}
+            className="text-[10px] text-gray-400 hover:text-[#1D9E75] transition-colors font-medium"
+          >
+            Feedback & Suporte
+          </button>
+          <span className="text-[8px] text-gray-200">|</span>
+          <button
+            onClick={() => navigate('/terms')}
+            className="text-[10px] text-gray-400 hover:text-[#1D9E75] transition-colors font-medium"
+          >
+            Termos de Uso
+          </button>
+        </div>
+      </footer>
     </div>
   );
 };
