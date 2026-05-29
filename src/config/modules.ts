@@ -50,7 +50,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'bottok',
     name: 'BOTTOK',
-    description: 'OtoConsult IA',
+    description: 'Assistente ORL',
     icon: Brain,
     url: 'https://bottok-orcin.vercel.app/',
     external: true,
@@ -65,7 +65,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'atlas',
     name: 'Atlas',
-    description: 'OtoAtlas IA',
+    description: 'Atlas Visual',
     icon: ScanSearch,
     url: 'https://atlas.drdariohart.com/',
     external: true,
@@ -80,7 +80,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'procod',
     name: 'CID & TUSS',
-    description: 'Codificação',
+    description: 'Laudos Cirúrgicos',
     icon: Tags,
     url: 'https://procod.drdariohart.com/',
     external: true,
@@ -94,7 +94,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'otoscopia',
     name: 'Otoscop.IA',
-    description: 'Diagnóstico',
+    description: 'Diagnóstico IA',
     icon: Aperture,
     url: 'https://atlas.drdariohart.com/?tab=ia&embed=true',
     external: true,
@@ -109,7 +109,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'triagem',
     name: 'Triagem OS',
-    description: 'Protocolo de admissão clínica',
+    description: 'Triagem Inteligente',
     url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/',
     icon: ClipboardList,
     external: true,
@@ -124,7 +124,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'check',
     name: 'OTTO Check',
-    description: 'Triagem Auditiva Web',
+    description: 'Audiometria Web',
     url: 'https://otto-check.vercel.app/',
     icon: Ear,
     external: true,
@@ -140,7 +140,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'calc',
     name: 'Calculadoras',
-    description: '8 ferramentas',
+    description: 'Scores Clínicos',
     icon: Calculator,
     url: 'https://otto-calc-hub.vercel.app/',
     external: true,
@@ -154,7 +154,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'imune',
     name: 'Imunobio.',
-    description: 'Portal completo',
+    description: 'Imunobiológicos',
     icon: Syringe,
     url: 'https://otto-imune.vercel.app/',
     external: true,
@@ -168,7 +168,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'ocr',
     name: 'OTTO OCR',
-    description: 'Extrator de Laudos',
+    description: 'Leitor de Laudos',
     icon: ScanText,
     url: 'https://otto-ocr-web.vercel.app',
     external: true,
@@ -183,7 +183,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'aerodig',
     name: 'Aerodigestive',
-    description: 'Hub de via aérea pediátrica',
+    description: 'Via Aérea Pediátrica',
     icon: Wind,
     url: 'https://otto-aerodig.vercel.app/',
     external: true,
@@ -197,7 +197,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'logbook',
     name: 'OTTO Log',
-    description: 'Logbook Cirúrgico',
+    description: 'Registro Cirúrgico',
     icon: ClipboardSignature,
     url: 'https://otto-log.vercel.app/',
     external: true,
@@ -213,7 +213,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'periop',
     name: 'Peri-op.',
-    description: 'Protocolos',
+    description: 'Peri-operatório',
     icon: Activity,
     url: '/modules/periop',
     external: false,
@@ -229,7 +229,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'games',
     name: 'OTTO Games',
-    description: 'Jogos da Saúde',
+    description: 'Educação Lúdica',
     icon: Gamepad2,
     url: 'https://otto-games.vercel.app/',
     external: true,
@@ -243,7 +243,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'ottotests',
     name: 'OTTO Acadêmico',
-    description: 'Simulados & Provas',
+    description: 'Questões & Provas',
     icon: GraduationCap,
     url: 'https://test-pg-bice.vercel.app/',
     external: true,
@@ -257,7 +257,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'zumbido',
     name: 'Zumbido',
-    description: 'Terapia sonora',
+    description: 'Mascaramento Sonoro',
     icon: AudioWaveform,
     url: 'https://otto-check.vercel.app/?tool=zumbido',
     external: true,
@@ -271,7 +271,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'videos',
     name: 'Vídeos',
-    description: 'Canal ORL',
+    description: 'Videoaulas ORL',
     icon: MonitorPlay,
     url: '/modules/videos',
     external: false,
@@ -285,7 +285,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'voice',
     name: 'Voz',
-    description: 'Gerador IA',
+    description: 'Síntese Vocal IA',
     icon: AudioLines,
     url: 'https://otto-voice-one.vercel.app/',
     external: true,
@@ -300,7 +300,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'cases',
     name: 'OTTO Cases',
-    description: 'Relatos de Caso',
+    description: 'Casos Clínicos',
     icon: FolderHeart,
     url: 'https://otto-cases.vercel.app/',
     external: true,
@@ -314,7 +314,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'info',
     name: 'OTTO Update',
-    description: 'Pílulas Clínicas',
+    description: 'Pílulas & Evidências',
     icon: Library,
     url: '/modules/info',
     external: false,
@@ -331,7 +331,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'ottosig',
     name: 'OTTO DIC',
-    description: 'Mini glossário',
+    description: 'Glossário ORL',
     icon: BookA,
     url: 'https://dhsig86.github.io/minidic/',
     external: true,
@@ -346,7 +346,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'whisper',
     name: 'OTTO Whisper',
-    description: 'Escrivão Médico IA',
+    description: 'Transcrição Médica',
     icon: PenLine,
     url: 'https://otto-whisper.netlify.app',
     external: true,
@@ -361,7 +361,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'protto',
     name: 'PROTTO',
-    description: 'Prontuário ORL IA',
+    description: 'Prontuário Inteligente',
     icon: FileSignature,
     url: 'https://otto-protto.vercel.app',
 
@@ -377,7 +377,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'autolaudo',
     name: 'AUTOLAUDO',
-    description: 'Laudos por IA e Voz',
+    description: 'Laudos por Voz',
     icon: FilePen,
     url: 'https://otto-laudo-ia.vercel.app',
     external: true,
