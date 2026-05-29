@@ -261,7 +261,7 @@ export const Home: React.FC = () => {
           Plataforma clínica digital em ORL e CCP
         </p>
         <p className="text-[10px] text-gray-400">
-          Idealizado por{' '}
+          Idealizado e realizado por{' '}
           <span className="font-semibold text-gray-500">Dr. Dario Hart Signorini</span>
         </p>
         <div className="flex items-center justify-center gap-4 pt-1">

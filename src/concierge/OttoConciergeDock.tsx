@@ -156,14 +156,14 @@ function getConversationalResponse(text: string): { text: string; actions: ChatA
     const shareText = encodeURIComponent(
       '🩺 Conheça o HART\'s OTTO — plataforma clínica digital gratuita para ORL e CCP.\n'
       + 'Triagem com IA, calculadoras validadas, logbook cirúrgico e muito mais.\n\n'
-      + '👉 https://ottopwa.vercel.app'
+      + '👉 https://otto.drdariohart.com'
     );
     const waUrl = `https://wa.me/?text=${shareText}`;
     return {
       text: '📤 **Compartilhar OTTO**\n\nEnvie o link da plataforma para colegas via WhatsApp:',
       actions: [
         { label: '📲 Enviar via WhatsApp', command: `__external__${waUrl}`, style: 'primary' },
-        { label: '📋 Copiar link', command: '__copy__https://ottopwa.vercel.app' },
+        { label: '📋 Copiar link', command: '__copy__https://otto.drdariohart.com' },
       ],
     };
   }
@@ -182,7 +182,7 @@ function getConversationalResponse(text: string): { text: string; actions: ChatA
   if (/sobre|about|quem (criou|fez|desenvolveu)|criador|dr\.? ?dario/.test(n)) {
     return {
       text: '🩺 **Sobre o HART\'s OTTO**\n\n'
-        + 'Plataforma clínica digital em ORL e CCP, idealizada por **Dr. Dario Hart Signorini** — otorrinolaringologista e desenvolvedor.\n\n'
+        + 'Plataforma clínica digital em ORL e CCP, idealizada e realizada por **Dr. Dario Hart Signorini** — otorrinolaringologista e desenvolvedor.\n\n'
         + '🔬 +20 módulos integrados\n'
         + '🤖 IA clínica especializada\n'
         + '🔒 LGPD compliant\n\n'
