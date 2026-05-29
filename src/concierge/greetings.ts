@@ -73,6 +73,22 @@ function buildContextTips(ctx: GreetingContext): string[] {
     tips.push(`↩️ Quer voltar ao ${moduleName}?`);
   }
 
+  // Dica ORL do dia — curiosidades rotativas
+  const ORL_DAILY_TIPS = [
+    '💡 Dica ORL: O estribo (≈3mm) é o menor osso do corpo humano!',
+    '💡 Dica ORL: O nariz produz quase 1 litro de muco por dia.',
+    '💡 Dica ORL: Um espirro expele ar a até 160 km/h!',
+    '💡 Dica ORL: A cóclea tem formato de caracol — do grego \"kochlos\".',
+    '💡 Dica ORL: A fala humana ocorre entre 250 e 4000 Hz.',
+    '💡 Dica ORL: Os ossículos auditivos já estão formados ao nascer!',
+    '💡 Dica ORL: Temos ~10 milhões de receptores olfativos.',
+    '💡 Dica ORL: O cerume protege contra bactérias e fungos.',
+    '💡 Dica ORL: O reflexo vestíbulo-ocular estabiliza sua visão ao andar.',
+    '💡 Dica ORL: Desvio de septo afeta ~80% da população.',
+  ];
+  const dayIdx = Math.floor(Date.now() / 86400000) % ORL_DAILY_TIPS.length;
+  tips.push(ORL_DAILY_TIPS[dayIdx]);
+
   return tips;
 }
 

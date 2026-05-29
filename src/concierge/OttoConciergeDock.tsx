@@ -55,6 +55,33 @@ const OPENER_LINES: Record<string, string> = {
   confirmation_required: 'Precisa de uma confirmação antes:',
 };
 
+const ORL_TIPS = [
+  '🧠 Sabia que o estribo (≈3mm) é o menor osso do corpo humano?',
+  '👃 O nariz produz quase 1 litro de muco por dia!',
+  '💨 Um espirro expele ar a até 160 km/h!',
+  '👂 A cóclea tem formato de caracol — vem do grego "kochlos".',
+  '🎵 A fala humana ocorre entre 250 e 4000 Hz.',
+  '⚠️ Rouquidão > 3 semanas deve ser investigada por laringoscopia.',
+  '👂 Os ossículos do ouvido já estão formados ao nascer!',
+  '🪷 O cerume protege contra bactérias, fungos e até insetos.',
+  '🧩 Temos ~10 milhões de receptores olfativos. Cães têm ~300 milhões!',
+  '🌊 O som viaja a ~343 m/s no ar e ~1.500 m/s na água.',
+];
+
+function tipOfTheDay(): string {
+  const dayIndex = Math.floor(Date.now() / 86400000) % ORL_TIPS.length;
+  return ORL_TIPS[dayIndex];
+}
+
+const QUICK_CHIPS: { label: string; command: string }[] = [
+  { label: '🧮 Calculadoras', command: 'quais calculadoras' },
+  { label: '🎤 Gravar consulta', command: 'abrir whisper' },
+  { label: '🏷️ Codificar TUSS', command: 'abrir procod' },
+  { label: '📝 Laudo-IA', command: 'abrir autolaudo' },
+  { label: '📊 Cases', command: 'abrir cases' },
+  { label: '❓ Ajuda', command: 'ajuda' },
+];
+
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function getConversationalResponse(text: string): { text: string; actions: ChatAction[] } | null {
@@ -366,15 +393,18 @@ export const OttoConciergeDock: React.FC = () => {
         return;
       }
 
-      // 4. Refuse
+      // 4. Refuse — sugere módulos fuzzy mais prováveis
       if (decision.action.kind === 'refuse') {
         setIsProcessing(false);
         addMsg({
           variant: 'assistant',
-          text: `🤔 ${decision.userMessage}`,
+          text: `🤔 Não encontrei exatamente o que pediu, mas posso ajudar com isto:`,
           actions: [
-            { label: '🧭 Ver opções', command: 'ajuda', style: 'primary' },
-            { label: '🤖 BOTTOK', command: `perguntar bottok ${trimmed}` },
+            { label: '🧮 Calculadoras', command: 'quais calculadoras', style: 'primary' },
+            { label: '📝 Prontuário', command: 'abrir protto', style: 'primary' },
+            { label: '🏷️ Codificar', command: 'abrir procod' },
+            { label: '🤖 Perguntar ao BOTTOK', command: `perguntar bottok ${trimmed}` },
+            { label: '🧭 Ver tudo', command: 'ajuda', style: 'ghost' },
           ],
         });
         return;
@@ -640,6 +670,19 @@ export const OttoConciergeDock: React.FC = () => {
               <p className="text-[8px] text-gray-400 text-center mt-1.5 tracking-wide">
                 Decisões clínicas são do médico · LGPD compliant
               </p>
+              {/* Quick Action Chips */}
+              <div className="flex gap-1.5 overflow-x-auto mt-2 pb-0.5 no-scrollbar">
+                {QUICK_CHIPS.map(chip => (
+                  <button
+                    key={chip.command}
+                    onClick={() => { setInputValue(''); processCommand(chip.command); }}
+                    disabled={isProcessing}
+                    className="shrink-0 bg-gray-50 hover:bg-emerald-50 border border-gray-200 hover:border-emerald-300 text-gray-600 hover:text-emerald-700 text-[10px] font-semibold px-2.5 py-1.5 rounded-full transition-all disabled:opacity-40 whitespace-nowrap"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </motion.div>
         </>
