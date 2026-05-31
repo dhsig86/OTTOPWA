@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { OTTO_MODULES } from '../config/modules';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -130,7 +130,7 @@ export const Home: React.FC = () => {
                   <div className={`relative w-16 h-16 rounded-[22px] flex items-center justify-center mb-2 shadow-sm ${mod.iconBg || 'bg-gray-100 text-gray-600'}`}>
                     <Icon size={28} strokeWidth={2.2} />
                     {mod.hasIA && (
-                      <div className="absolute -top-1 -right-1 bg-otto-teal text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm border border-white">
+                      <div className="absolute -top-1 -right-1 bg-otto-teal text-white text-[10px] font-black px-1.5 py-0.5 rounded-md shadow-sm border border-white">
                         IA
                       </div>
                     )}
@@ -254,8 +254,8 @@ export const Home: React.FC = () => {
       <footer className="mt-8 mb-24 px-6 py-6 text-center space-y-2.5 border-t border-gray-100">
         <div className="flex items-center justify-center gap-1.5">
           <span className="text-[11px] font-bold text-[#1D9E75] tracking-wider uppercase">HART's OTTO</span>
-          <span className="text-[9px] text-gray-300">•</span>
-          <span className="text-[9px] text-gray-400 font-medium">v2.0</span>
+          <span className="text-[10px] text-gray-300">•</span>
+          <span className="text-[10px] text-gray-400 font-medium">v2.0</span>
         </div>
         <p className="text-[10px] text-gray-400 leading-relaxed max-w-xs mx-auto">
           Plataforma clínica digital em ORL e CCP

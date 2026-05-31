@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Send, Sparkles, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -582,7 +582,7 @@ export const OttoConciergeDock: React.FC = () => {
                   <h2 className="text-sm font-extrabold text-white leading-none tracking-tight">
                     OTTO Concierge
                   </h2>
-                  <span className="text-[9px] text-emerald-200 font-medium">Assistente do Ecossistema</span>
+                  <span className="text-[10px] text-emerald-200 font-medium">Assistente do Ecossistema</span>
                 </div>
             </div>
               <div className="flex items-center gap-1">
@@ -594,7 +594,7 @@ export const OttoConciergeDock: React.FC = () => {
                   <Share2 size={15} />
                 </button>
                 <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-                <span className="text-[9px] text-emerald-200 font-medium mr-2">Online</span>
+                <span className="text-[10px] text-emerald-200 font-medium mr-2">Online</span>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-2 hover:bg-white/15 rounded-full transition-all text-emerald-200 hover:text-white"

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'framer-motion';
 import { Bot, User, ThumbsUp, ThumbsDown } from 'lucide-react';
 
@@ -150,7 +150,7 @@ export const ConciergeChatBubble: React.FC<ConciergeBubbleProps> = ({
         {!isTyping && !isSystem && (
           <div className={`flex items-center gap-2 mt-1 px-1 ${isUser ? 'flex-row-reverse' : ''}`}>
             {timestamp && (
-              <span className="text-[9px] text-gray-400">{timestamp}</span>
+              <span className="text-[10px] text-gray-400">{timestamp}</span>
             )}
             {/* Feedback for assistant messages */}
             {!isUser && text && (

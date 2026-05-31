@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { X, LogOut, User } from 'lucide-react';
 import { OTTO_MODULES } from '../../config/modules';
 import { useNavigate } from 'react-router-dom';
@@ -115,7 +115,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({ isOpen, onClose }) => {
                                 <div className="text-sm font-semibold text-otto-text flex items-center gap-2 truncate">
                                   {mod.name}
                                   {mod.status === 'beta' && (
-                                    <span className="text-[9px] bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Beta</span>
+                                    <span className="text-[10px] bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Beta</span>
                                   )}
                                 </div>
                                 <div className="text-[11px] text-otto-muted truncate mt-0.5">{mod.description}</div>

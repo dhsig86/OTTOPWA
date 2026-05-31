@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, 
@@ -141,7 +141,7 @@ function InsightChart({ data }: { data: InsightChartData }) {
             const pct = (d.valor / maxVal) * 100;
             return (
               <div key={i} className="flex flex-col items-center flex-1 gap-1">
-                <span className="text-[9px] font-bold text-gray-900">{d.valor}{d.unidade || ''}</span>
+                <span className="text-[10px] font-bold text-gray-900">{d.valor}{d.unidade || ''}</span>
                 <motion.div
                   initial={{ height: 0 }}
                   animate={{ height: `${Math.max(pct, 8)}%` }}
@@ -424,7 +424,7 @@ export const InfoPage: React.FC = () => {
                   </div>
                 </div>
                 {realPills > 0 && (
-                  <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg flex items-center gap-1">
+                  <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg flex items-center gap-1">
                     <TrendingUp size={10} />
                     {realPills} PubMed
                   </span>
@@ -435,19 +435,19 @@ export const InfoPage: React.FC = () => {
               <div className="grid grid-cols-4 gap-2">
                 <div className="text-center py-2">
                   <span className="text-2xl font-black text-emerald-600 block">{totalLidos}</span>
-                  <span className="text-[9px] text-gray-400 font-medium">Lidas</span>
+                  <span className="text-[10px] text-gray-400 font-medium">Lidas</span>
                 </div>
                 <div className="text-center py-2">
                   <span className="text-2xl font-black text-gray-800 block">{totalPills}</span>
-                  <span className="text-[9px] text-gray-400 font-medium">Acervo</span>
+                  <span className="text-[10px] text-gray-400 font-medium">Acervo</span>
                 </div>
                 <div className="text-center py-2">
                   <span className="text-2xl font-black text-cyan-600 block">{specialtiesCovered}</span>
-                  <span className="text-[9px] text-gray-400 font-medium">Áreas</span>
+                  <span className="text-[10px] text-gray-400 font-medium">Áreas</span>
                 </div>
                 <div className="text-center py-2">
                   <span className="text-2xl font-black text-amber-500 block">{favorites.length}</span>
-                  <span className="text-[9px] text-gray-400 font-medium">Favoritos</span>
+                  <span className="text-[10px] text-gray-400 font-medium">Favoritos</span>
                 </div>
               </div>
             </div>
@@ -468,7 +468,7 @@ export const InfoPage: React.FC = () => {
                         <Zap size={16} className="text-emerald-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Revelação Central</p>
+                        <p className="text-[10px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Revelação Central</p>
                         <p className="text-sm sm:text-base font-extrabold text-gray-900 leading-snug">
                           {activePill.revelacao_central}
                         </p>
@@ -487,15 +487,15 @@ export const InfoPage: React.FC = () => {
                 <div className="p-4 sm:p-6 bg-gradient-to-b from-emerald-50/50 via-white to-white border-b border-gray-200">
                   <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[9px] sm:text-xs font-black uppercase tracking-wider bg-emerald-100 border border-emerald-300 text-emerald-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-emerald-100 border border-emerald-300 text-emerald-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                         {activePill.especialidade}
                       </span>
-                      <span className="text-[9px] sm:text-xs text-gray-400 flex items-center gap-1">
+                      <span className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-1">
                         <Calendar size={10} />
                         {activePill.data_exibicao}
                       </span>
                       {activePill.fonte === 'pubmed_real' && (
-                        <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                        <span className="text-[8px] sm:text-[10px] font-bold uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
                           PubMed ✓
                         </span>
                       )}
@@ -584,13 +584,13 @@ export const InfoPage: React.FC = () => {
                                 <div>
                                   <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
                                     <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 bg-gray-100 border border-gray-200 px-1.5 sm:px-2 py-0.5 rounded-md">Estudo {idx + 1}</span>
-                                    <span className="text-[9px] sm:text-xs font-semibold text-emerald-600 truncate ml-1">{art.revista} · {art.ano}</span>
+                                    <span className="text-[10px] sm:text-xs font-semibold text-emerald-600 truncate ml-1">{art.revista} · {art.ano}</span>
                                   </div>
                                   <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 leading-snug line-clamp-3 mb-1.5 sm:mb-2">{art.titulo}</h4>
-                                  <p className="text-[9px] sm:text-[10px] text-gray-400 italic mb-2 sm:mb-3">Autores: {art.autores}</p>
+                                  <p className="text-[10px] sm:text-[10px] text-gray-400 italic mb-2 sm:mb-3">Autores: {art.autores}</p>
                                 </div>
                                 <a href={art.link} target="_blank" rel="noopener noreferrer"
-                                  className="text-[9px] sm:text-[10px] text-[#1D9E75] hover:text-emerald-600 font-bold flex items-center gap-1 self-start group">
+                                  className="text-[10px] sm:text-[10px] text-[#1D9E75] hover:text-emerald-600 font-bold flex items-center gap-1 self-start group">
                                   Acessar Artigo Original
                                   <ExternalLink size={9} className="group-hover:translate-x-0.5 transition-transform" />
                                 </a>
@@ -611,7 +611,7 @@ export const InfoPage: React.FC = () => {
                         </div>
                         <div className="bg-gray-50 border border-gray-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3">
                           <Bookmark className="text-[#1D9E75] shrink-0" size={18} />
-                          <p className="text-[9px] sm:text-xs text-gray-500 leading-snug">
+                          <p className="text-[10px] sm:text-xs text-gray-500 leading-snug">
                             Pílula sintetizada de meta-análises e ensaios controlados para aplicação imediata no consultório.
                           </p>
                         </div>
@@ -728,12 +728,12 @@ export const InfoPage: React.FC = () => {
                           {/* Content */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 mb-1">
-                              <span className={`text-[9px] font-bold ${sc.text}`}>{pill.especialidade}</span>
+                              <span className={`text-[10px] font-bold ${sc.text}`}>{pill.especialidade}</span>
                               {pill.fonte === 'pubmed_real' && (
                                 <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">PubMed</span>
                               )}
                               {isFav && <Star size={10} className="text-amber-500 fill-amber-500" />}
-                              <span className="text-[9px] text-gray-300 ml-auto shrink-0">{pill.data_exibicao}</span>
+                              <span className="text-[10px] text-gray-300 ml-auto shrink-0">{pill.data_exibicao}</span>
                             </div>
                             <h4 className="font-bold text-[13px] text-gray-800 leading-snug line-clamp-2">{pill.tema}</h4>
                             {pill.revelacao_central && (
