@@ -26,9 +26,11 @@ const TermsOfUse        = lazyWithRetry(() => import('./pages/TermsOfUse').then(
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { WarmUpSplash } from './components/WarmUpSplash';
 
+import { SkeletonPage } from './components/Skeleton';
+
 const PageLoader = () => (
   <div className="flex items-center justify-center h-full min-h-[40vh]">
-    <div className="w-8 h-8 rounded-full border-4 border-[#1D9E75] border-t-transparent animate-spin" />
+    <SkeletonPage />
   </div>
 );
 
