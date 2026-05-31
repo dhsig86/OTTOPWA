@@ -32,3 +32,6 @@ dist-ssr
 *adminsdk*.json
 otto-ecosystem*.json
 service-account*.json
+
+# Cygwin grep crashes
+*.stackdump
