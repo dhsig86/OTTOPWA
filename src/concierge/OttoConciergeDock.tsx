@@ -55,23 +55,8 @@ const OPENER_LINES: Record<string, string> = {
   confirmation_required: 'Precisa de uma confirmação antes:',
 };
 
-const ORL_TIPS = [
-  '🧠 Sabia que o estribo (≈3mm) é o menor osso do corpo humano?',
-  '👃 O nariz produz quase 1 litro de muco por dia!',
-  '💨 Um espirro expele ar a até 160 km/h!',
-  '👂 A cóclea tem formato de caracol — vem do grego "kochlos".',
-  '🎵 A fala humana ocorre entre 250 e 4000 Hz.',
-  '⚠️ Rouquidão > 3 semanas deve ser investigada por laringoscopia.',
-  '👂 Os ossículos do ouvido já estão formados ao nascer!',
-  '🪷 O cerume protege contra bactérias, fungos e até insetos.',
-  '🧩 Temos ~10 milhões de receptores olfativos. Cães têm ~300 milhões!',
-  '🌊 O som viaja a ~343 m/s no ar e ~1.500 m/s na água.',
-];
 
-function _tipOfTheDay(): string {
-  const dayIndex = Math.floor(Date.now() / 86400000) % ORL_TIPS.length;
-  return ORL_TIPS[dayIndex];
-}
+
 
 const QUICK_CHIPS: { label: string; command: string }[] = [
   { label: '🧮 Calculadoras', command: 'quais calculadoras' },
