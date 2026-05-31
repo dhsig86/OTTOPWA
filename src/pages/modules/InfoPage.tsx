@@ -326,6 +326,17 @@ export const InfoPage: React.FC = () => {
     return ['Todas', ...cats, 'Favoritos'];
   }, [pills]);
 
+  // Mapa de cores por especialidade para accent visual nas pílulas
+  const SPECIALTY_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
+    'Rinologia': { bg: 'bg-sky-50', border: 'border-l-sky-500', text: 'text-sky-700', dot: 'bg-sky-500' },
+    'Otologia': { bg: 'bg-violet-50', border: 'border-l-violet-500', text: 'text-violet-700', dot: 'bg-violet-500' },
+    'Laringologia': { bg: 'bg-amber-50', border: 'border-l-amber-500', text: 'text-amber-700', dot: 'bg-amber-500' },
+    'Cabeça e Pescoço': { bg: 'bg-rose-50', border: 'border-l-rose-500', text: 'text-rose-700', dot: 'bg-rose-500' },
+    'Pediatria ORL': { bg: 'bg-teal-50', border: 'border-l-teal-500', text: 'text-teal-700', dot: 'bg-teal-500' },
+    'Sono': { bg: 'bg-indigo-50', border: 'border-l-indigo-500', text: 'text-indigo-700', dot: 'bg-indigo-500' },
+  };
+  const getSpecColor = (spec: string) => SPECIALTY_COLORS[spec] || { bg: 'bg-gray-50', border: 'border-l-emerald-500', text: 'text-emerald-700', dot: 'bg-emerald-500' };
+
   // Stats
   const totalLidos = readPills.length;
   const totalPills = pills.length;
@@ -402,57 +413,43 @@ export const InfoPage: React.FC = () => {
             )}
 
             {/* ═══ DASHBOARD ═══ */}
-            <div className="bg-gradient-to-br from-white via-gray-50 to-emerald-50/30 border border-gray-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-2xl relative overflow-hidden">
-              <div className="absolute right-0 top-0 w-24 h-24 bg-emerald-50/50 blur-2xl rounded-full" />
-              <div className="absolute left-1/3 bottom-0 w-32 h-12 bg-[#1D9E75]/5 blur-2xl rounded-full" />
-
-              <div className="flex items-center justify-between mb-3 sm:mb-4">
-                <div>
-                  <h2 className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
-                    <BarChart3 size={13} className="text-[#1D9E75]" />
-                    Performance Científica
-                  </h2>
-                  <p className="text-lg sm:text-xl font-black text-gray-900 mt-0.5">Cérebro Afiado 🧠</p>
+            <div className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                    <BarChart3 size={20} className="text-emerald-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-extrabold text-gray-900">Seu Progresso</h2>
+                    <p className="text-[10px] text-gray-400">Level {Math.max(1, Math.floor(totalLidos / 3))} · Atualizado {lastUpdate}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="bg-emerald-100 text-emerald-600 border border-gray-200 text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-full font-bold">
-                    Level {Math.max(1, Math.floor(totalLidos / 3))}
-                  </span>
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">Pílulas Lidas</span>
-                  <span className="text-xl sm:text-2xl font-black text-emerald-600">{totalLidos}</span>
-                </div>
-                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">No Acervo</span>
-                  <span className="text-xl sm:text-2xl font-black text-teal-600">{totalPills}</span>
-                </div>
-                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">Especialidades</span>
-                  <span className="text-xl sm:text-2xl font-black text-cyan-600">{specialtiesCovered}</span>
-                </div>
-                <div className="bg-gray-100 border border-gray-200 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl text-center">
-                  <span className="text-[9px] sm:text-xs text-gray-400 block mb-0.5">Favoritos</span>
-                  <span className="text-xl sm:text-2xl font-black text-amber-600">{favorites.length}</span>
-                </div>
-              </div>
-
-              {/* Last update info */}
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                <span className="text-[9px] sm:text-[10px] text-gray-400 flex items-center gap-1">
-                  <Clock size={10} />
-                  Última atualização: {lastUpdate}
-                </span>
                 {realPills > 0 && (
-                  <span className="text-[9px] sm:text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                  <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg flex items-center gap-1">
                     <TrendingUp size={10} />
-                    {realPills} artigos PubMed verificados
+                    {realPills} PubMed
                   </span>
                 )}
+              </div>
+
+              {/* Stats Row — compact horizontal */}
+              <div className="grid grid-cols-4 gap-2">
+                <div className="text-center py-2">
+                  <span className="text-2xl font-black text-emerald-600 block">{totalLidos}</span>
+                  <span className="text-[9px] text-gray-400 font-medium">Lidas</span>
+                </div>
+                <div className="text-center py-2">
+                  <span className="text-2xl font-black text-gray-800 block">{totalPills}</span>
+                  <span className="text-[9px] text-gray-400 font-medium">Acervo</span>
+                </div>
+                <div className="text-center py-2">
+                  <span className="text-2xl font-black text-cyan-600 block">{specialtiesCovered}</span>
+                  <span className="text-[9px] text-gray-400 font-medium">Áreas</span>
+                </div>
+                <div className="text-center py-2">
+                  <span className="text-2xl font-black text-amber-500 block">{favorites.length}</span>
+                  <span className="text-[9px] text-gray-400 font-medium">Favoritos</span>
+                </div>
               </div>
             </div>
 
@@ -666,71 +663,95 @@ export const InfoPage: React.FC = () => {
             )}
 
             {/* ═══ ACERVO ═══ */}
-            <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 border-b border-gray-200 pb-2 sm:pb-3">
-                <h2 className="text-sm sm:text-base font-extrabold text-gray-900 flex items-center gap-1.5">
+            <div className="space-y-3 pt-2">
+              {/* Section header + filters */}
+              <div className="space-y-3">
+                <h2 className="text-sm font-extrabold text-gray-900 flex items-center gap-1.5">
                   <ListFilter size={16} className="text-[#1D9E75]" />
                   Acervo de Pílulas
+                  <span className="text-[10px] font-medium text-gray-400 ml-1">({filteredPills.length})</span>
                 </h2>
-                <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {categories.map(cat => (
-                    <button key={cat} onClick={() => setSelectedCategory(cat)}
-                      className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border transition-all shrink-0 ${
-                        selectedCategory === cat
-                          ? 'bg-[#1D9E75] border-[#1D9E75] text-white'
-                          : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-800'
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
+                {/* Category pills — horizontal scroll with fade edges */}
+                <div className="relative">
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
+                    {categories.map(cat => {
+                      const specColor = getSpecColor(cat);
+                      const isActive = selectedCategory === cat;
+                      return (
+                        <button key={cat} onClick={() => setSelectedCategory(cat)}
+                          className={`text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all shrink-0 ${
+                            isActive
+                              ? cat === 'Todas' || cat === 'Favoritos'
+                                ? 'bg-gray-900 border-gray-900 text-white'
+                                : `${specColor.bg} ${specColor.text} border-current`
+                              : 'bg-white border-gray-200 text-gray-400 hover:text-gray-700 hover:border-gray-300'
+                          }`}
+                        >
+                          {cat === 'Favoritos' ? '⭐ Favoritos' : cat}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2 sm:space-y-3">
+              {/* Pill list */}
+              <div className="space-y-2">
                 {filteredPills.length === 0 ? (
-                  <div className="bg-gray-100 border border-gray-200 p-6 sm:p-8 rounded-2xl sm:rounded-3xl text-center text-gray-400">
-                    <Search size={28} className="mx-auto text-gray-500 mb-2" />
-                    <p className="text-xs sm:text-sm">Nenhuma pílula nesta subárea no momento.</p>
+                  <div className="bg-white border border-gray-200 p-8 rounded-2xl text-center">
+                    <Search size={28} className="mx-auto text-gray-300 mb-2" />
+                    <p className="text-xs text-gray-400">Nenhuma pílula nesta subárea.</p>
                   </div>
                 ) : (
-                  filteredPills.map((pill, i) => (
-                    <motion.div key={pill.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                      onClick={() => selectPill(pill)}
-                      className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border cursor-pointer transition-all flex items-center justify-between gap-3 sm:gap-4 ${
-                        activePill?.id === pill.id
-                          ? 'bg-[#1D9E75]/10 border-[#1D9E75]/80 shadow-md'
-                          : 'bg-gray-100 border-gray-200 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex-1 min-w-0 pr-1">
-                        <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 flex-wrap">
-                          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-gray-50 border border-gray-200 text-gray-500 px-1.5 sm:px-2 py-0.5 rounded-md">
-                            {pill.especialidade}
-                          </span>
-                          {pill.fonte === 'pubmed_real' && (
-                            <span className="text-[7px] sm:text-[8px] font-bold text-emerald-600">PubMed✓</span>
-                          )}
-                          {readPills.includes(pill.id) && (
-                            <span className="text-[8px] sm:text-[9px] font-bold uppercase text-emerald-600 flex items-center gap-0.5">
-                              <CheckCircle2 size={9} /> Lido
-                            </span>
-                          )}
-                          {favorites.includes(pill.id) && (
-                            <Star size={9} className="text-amber-600 fill-amber-600" />
-                          )}
+                  filteredPills.map((pill, i) => {
+                    const sc = getSpecColor(pill.especialidade);
+                    const isActive = activePill?.id === pill.id;
+                    const isRead = readPills.includes(pill.id);
+                    const isFav = favorites.includes(pill.id);
+                    return (
+                      <motion.div key={pill.id}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.03 }}
+                        onClick={() => selectPill(pill)}
+                        className={`group rounded-xl border-l-[3px] border border-gray-200 cursor-pointer transition-all overflow-hidden ${
+                          isActive
+                            ? `${sc.border} bg-white shadow-md ring-1 ring-gray-200`
+                            : `${sc.border} bg-white hover:shadow-sm`
+                        } ${isRead ? 'opacity-75' : ''}`}
+                      >
+                        <div className="flex items-center gap-3 p-3 sm:p-4">
+                          {/* Specialty dot */}
+                          <div className="flex flex-col items-center gap-1 shrink-0">
+                            <div className={`w-2.5 h-2.5 rounded-full ${sc.dot}`} />
+                            {isRead && <CheckCircle2 size={10} className="text-emerald-500" />}
+                          </div>
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className={`text-[9px] font-bold ${sc.text}`}>{pill.especialidade}</span>
+                              {pill.fonte === 'pubmed_real' && (
+                                <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded">PubMed</span>
+                              )}
+                              {isFav && <Star size={10} className="text-amber-500 fill-amber-500" />}
+                              <span className="text-[9px] text-gray-300 ml-auto shrink-0">{pill.data_exibicao}</span>
+                            </div>
+                            <h4 className="font-bold text-[13px] text-gray-800 leading-snug line-clamp-2">{pill.tema}</h4>
+                            {pill.revelacao_central && (
+                              <p className="text-[10px] text-gray-500 mt-1 line-clamp-1 flex items-center gap-1">
+                                <Zap size={10} className="text-amber-500 shrink-0" />
+                                {pill.revelacao_central}
+                              </p>
+                            )}
+                          </div>
+                          {/* Arrow */}
+                          <ChevronRight size={16} className={`shrink-0 transition-colors ${
+                            isActive ? 'text-emerald-600' : 'text-gray-300 group-hover:text-gray-500'
+                          }`} />
                         </div>
-                        <h4 className="font-bold text-xs sm:text-sm text-gray-700 leading-snug line-clamp-2">{pill.tema}</h4>
-                        {pill.revelacao_central && (
-                          <p className="text-[9px] sm:text-[10px] text-emerald-600 mt-0.5 line-clamp-1 italic">💡 {pill.revelacao_central}</p>
-                        )}
-                      </div>
-                      <ChevronRight size={16} className="text-gray-400 shrink-0" />
-                    </motion.div>
-                  ))
+                      </motion.div>
+                    );
+                  })
                 )}
               </div>
             </div>
