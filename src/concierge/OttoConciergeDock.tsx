@@ -68,7 +68,7 @@ const ORL_TIPS = [
   '🌊 O som viaja a ~343 m/s no ar e ~1.500 m/s na água.',
 ];
 
-function tipOfTheDay(): string {
+function _tipOfTheDay(): string {
   const dayIndex = Math.floor(Date.now() / 86400000) % ORL_TIPS.length;
   return ORL_TIPS[dayIndex];
 }

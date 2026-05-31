@@ -15,8 +15,7 @@ import {
   RefreshCw,
   TrendingUp,
   Zap,
-  BarChart3,
-  Clock
+  BarChart3
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '../../lib/firebase';
