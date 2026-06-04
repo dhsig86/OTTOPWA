@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OTTO_MODULES } from '../config/modules';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +37,7 @@ export const Home: React.FC = () => {
       actCmd = 'abrir procod';
     } else {
       greet = 'Boa noite';
-      sug = 'Aproveite o final do dia para conferir as novas pílulas literárias no OTTO Update.';
+      sug = 'Aproveite o final do dia para conferir as novas pílulas literárias no OTTO NEWS.';
       actLbl = 'Ver Literatura';
       actCmd = 'abrir update';
     }

@@ -199,7 +199,7 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'otoscopia ia',
     'classificar otoscopia'
   ]),
-  intent('info.open', 'Abrir OTTO Update', 'info', 'open_module', 'low', ['medico', 'estudante', 'profissional'], ['pwa', 'test'], false, false, 'none', [
+  intent('info.open', 'Abrir OTTO NEWS', 'info', 'open_module', 'low', ['medico', 'estudante', 'profissional'], ['pwa', 'test'], false, false, 'none', [
     'abrir update',
     'abrir info',
     'abrir news',

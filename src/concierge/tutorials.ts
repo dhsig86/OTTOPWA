@@ -72,12 +72,12 @@ export const OTTO_TUTORIALS: OttoTutorial[] = [
   },
   {
     id: 'info',
-    title: 'OTTO Update — Pílulas de Literatura Científica',
+    title: 'OTTO NEWS — Pílulas de Literatura Científica',
     emoji: '📚',
     audience: 'Médicos, Residentes e Estudantes de Medicina',
     summary: 'Atualize-se em poucos minutos com consensos e condutas práticas baseadas nas publicações científicas mais influentes de ORL.',
     steps: [
-      'Abra o OTTO Update no menu de Academia ou solicite ao assistente ("abrir update").',
+      'Abra o OTTO NEWS no menu de Academia ou solicite ao assistente ("abrir update").',
       'Selecione a pílula do dia na especialidade desejada (Rinologia, Otologia, Laringologia, etc.).',
       'Navegue pelas abas: Duelo de Evidências (ciência), Pílula Prática (conduta) e Quiz de Fixação.',
       'Marque como lido para progredir no ranking clínico e favorite as pílulas para consulta rápida.'

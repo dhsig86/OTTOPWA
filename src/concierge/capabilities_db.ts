@@ -116,7 +116,7 @@ export const MODULE_CAPABILITIES_DB: Record<string, ModuleCapabilityInfo> = {
     mainFeatures: ['Upload de foto do tímpano', 'Classificação automática por IA (ResNet)', 'Feedback para retreinamento do modelo']
   },
   info: {
-    description: 'OTTO Update: pílulas científicas diárias baseadas em artigos reais do PubMed, resumidas por IA.',
+    description: 'OTTO NEWS: pílulas científicas diárias baseadas em artigos reais do PubMed, resumidas por IA.',
     targetProfile: 'medico',
     mainFeatures: ['Pílulas científicas com evidência PubMed', 'Quiz de fixação por pílula', 'Gráficos de insight e favoritos']
   },

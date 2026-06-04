@@ -494,7 +494,7 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
   },
   {
     id: 'info',
-    displayName: 'OTTO Update',
+    displayName: 'OTTO NEWS',
     currentUrl: '/modules/info',
     category: 'clinico',
     profiles: ['medico', 'estudante', 'profissional'],

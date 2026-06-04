@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, 
@@ -286,7 +286,7 @@ export const InfoPage: React.FC = () => {
         if (readSnap.exists()) setReadPills(readSnap.data().ids || []);
       }
     } catch (err) {
-      console.error("Erro ao carregar OTTO Update:", err);
+      console.error("Erro ao carregar OTTO NEWS:", err);
       setPills(MOCK_PILLS);
       setActivePill(MOCK_PILLS[0]);
       setIsMockData(true);
@@ -348,7 +348,7 @@ export const InfoPage: React.FC = () => {
     setActiveTab('evidencia');
     setSelectedAlternative(null);
     setQuizAnswered(false);
-    const el = document.getElementById('otto-update-scrollable-content');
+    const el = document.getElementById('otto-news-scrollable-content');
     if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -373,7 +373,7 @@ export const InfoPage: React.FC = () => {
       <div className="px-4 pt-4 pb-2 flex items-center justify-between">
         <h1 className="text-lg font-extrabold text-gray-800 flex items-center gap-2">
           <Sparkles size={18} className="text-[#1D9E75]" />
-          OTTO Update
+          OTTO NEWS
         </h1>
         <button
           onClick={() => fetchData(true)}
@@ -391,7 +391,7 @@ export const InfoPage: React.FC = () => {
           <span className="text-sm font-medium text-gray-500">Analisando literatura científica...</span>
         </div>
       ) : (
-        <div id="otto-update-scrollable-content" className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24">
+        <div id="otto-news-scrollable-content" className="flex-1 overflow-y-auto p-3 sm:p-4 pb-24">
           <div className="max-w-4xl mx-auto w-full space-y-4 sm:space-y-6">
 
             {/* Mock Data Banner */}

@@ -313,7 +313,7 @@ export const OTTO_MODULES: OttoModule[] = [
   },
   {
     id: 'info',
-    name: 'OTTO Update',
+    name: 'OTTO NEWS',
     description: 'Pílulas & Evidências',
     icon: Library,
     url: '/modules/info',
