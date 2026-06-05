@@ -252,6 +252,9 @@ export const InfoPage: React.FC = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [readPills, setReadPills] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas');
+  
+  // Controle de exibição da gaveta de detalhes em celulares/telas menores
+  const [isMobilePillOpen, setIsMobilePillOpen] = useState(false);
 
   const fetchData = async (showRefreshAnim = false) => {
     try {
@@ -261,9 +264,20 @@ export const InfoPage: React.FC = () => {
       const q = query(collection(db, 'otto_pills'), orderBy('data_exibicao', 'desc'), limit(30));
       const snap = await getDocs(q);
       const list: PillData[] = [];
+      const seenIds = new Set<string>();
+      const seenTemas = new Set<string>();
       
       snap.forEach((d) => {
-        list.push({ id: d.id, ...d.data() } as PillData);
+        const id = d.id;
+        const data = d.data() as Omit<PillData, 'id'>;
+        const temaNormalizado = (data.tema || '').trim().toLowerCase();
+        
+        // Evita a presença de duplicatas tanto de ID quanto de TÍTULO (tema)
+        if (!seenIds.has(id) && !seenTemas.has(temaNormalizado)) {
+          seenIds.add(id);
+          seenTemas.add(temaNormalizado);
+          list.push({ id, ...data } as PillData);
+        }
       });
 
       if (list.length === 0) {
@@ -325,7 +339,6 @@ export const InfoPage: React.FC = () => {
     return ['Todas', ...cats, 'Favoritos'];
   }, [pills]);
 
-  // Mapa de cores por especialidade para accent visual nas pílulas
   const SPECIALTY_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
     'Rinologia': { bg: 'bg-sky-50', border: 'border-l-sky-500', text: 'text-sky-700', dot: 'bg-sky-500' },
     'Otologia': { bg: 'bg-violet-50', border: 'border-l-violet-500', text: 'text-violet-700', dot: 'bg-violet-500' },
@@ -348,8 +361,221 @@ export const InfoPage: React.FC = () => {
     setActiveTab('evidencia');
     setSelectedAlternative(null);
     setQuizAnswered(false);
-    const el = document.getElementById('otto-news-scrollable-content');
-    if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Se a tela for menor que md (768px), abre como gaveta lateral / tela cheia modal
+    if (window.innerWidth < 768) {
+      setIsMobilePillOpen(true);
+    } else {
+      const el = document.getElementById('otto-news-scrollable-content');
+      if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Renderizador do Conteúdo da Pílula (isolado para uso em Desktop e Mobile)
+  const renderPillContent = (pill: PillData) => {
+    return (
+      <div className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-md">
+        {/* Revelação Central Hero */}
+        {pill.revelacao_central && (
+          <div className="bg-gradient-to-r from-emerald-50 via-white to-teal-50 border-b border-gray-200 p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center shrink-0">
+                <Zap size={16} className="text-emerald-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Revelação Central</p>
+                <p className="text-sm sm:text-base font-extrabold text-gray-900 leading-snug">
+                  {pill.revelacao_central}
+                </p>
+              </div>
+            </div>
+            {/* Insight Chart */}
+            {pill.insight_grafico && (
+              <div className="mt-3 bg-gray-50 border border-gray-100 rounded-xl p-3">
+                <InsightChart data={pill.insight_grafico} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Pill Header */}
+        <div className="p-4 sm:p-6 bg-gradient-to-b from-emerald-50/50 via-white to-white border-b border-gray-200">
+          <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-emerald-100 border border-emerald-300 text-emerald-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
+                {pill.especialidade}
+              </span>
+              <span className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-1">
+                <Calendar size={10} />
+                {pill.data_exibicao}
+              </span>
+              {pill.fonte === 'pubmed_real' && (
+                <span className="text-[8px] sm:text-[10px] font-bold uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                  PubMed ✓
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button 
+                onClick={() => toggleFavorite(pill.id)}
+                className={`p-1.5 sm:p-2 rounded-full border transition-all ${
+                  favorites.includes(pill.id)
+                    ? 'bg-amber-50 border-amber-300 text-amber-600'
+                    : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-900'
+                }`}
+              >
+                <Star size={15} fill={favorites.includes(pill.id) ? "currentColor" : "none"} />
+              </button>
+              <button 
+                onClick={() => toggleRead(pill.id)}
+                className={`p-1.5 sm:p-2 rounded-full border transition-all ${
+                  readPills.includes(pill.id)
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-600'
+                    : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-900'
+                }`}
+                title={readPills.includes(pill.id) ? "Lido" : "Marcar como lido"}
+              >
+                <CheckCircle2 size={15} />
+              </button>
+            </div>
+          </div>
+          
+          <h1 className="text-base sm:text-lg font-extrabold text-gray-900 leading-snug">{pill.tema}</h1>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2 flex items-center gap-1.5">
+            <BookOpen size={12} className="text-[#1D9E75]" />
+            Leitura: <strong className="text-gray-700">{pill.tempo_leitura_min} min</strong>
+            {pill.artigos.length > 0 && (
+              <span className="ml-2">· {pill.artigos.length} artigos</span>
+            )}
+          </p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-gray-200 bg-white px-2 sm:px-4">
+          <button
+            onClick={() => setActiveTab('evidencia')}
+            className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
+              activeTab === 'evidencia' ? 'border-[#1D9E75] text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
+            }`}
+          >
+            Evidências
+          </button>
+          <button
+            onClick={() => setActiveTab('pratica')}
+            className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
+              activeTab === 'pratica' ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
+            }`}
+          >
+            Pílula Prática
+          </button>
+          {pill.quiz_curiosidade && (
+            <button
+              onClick={() => setActiveTab('quiz')}
+              className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
+                activeTab === 'quiz' ? 'border-teal-400 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
+              }`}
+            >
+              Quiz
+            </button>
+          )}
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-4 sm:p-6">
+          <AnimatePresence mode="wait">
+            {activeTab === 'evidencia' && (
+              <motion.div key="ev" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-6">
+                <div>
+                  <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-700 tracking-wider mb-2">Consenso e Integração Científica</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-gray-100 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
+                    {pill.consenso_cientifico}
+                  </p>
+                </div>
+                <div className="space-y-2 sm:space-y-3">
+                  <h3 className="text-[10px] sm:text-xs font-black uppercase text-gray-500 tracking-wider">Artigos Analisados</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    {pill.artigos.map((art, idx) => (
+                      <div key={idx} className="bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 flex flex-col justify-between hover:border-[#1D9E75]/50 transition-colors">
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
+                            <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 bg-gray-100 border border-gray-200 px-1.5 sm:px-2 py-0.5 rounded-md">Estudo {idx + 1}</span>
+                            <span className="text-[10px] sm:text-xs font-semibold text-emerald-600 truncate ml-1">{art.revista} · {art.ano}</span>
+                          </div>
+                          <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 leading-snug line-clamp-3 mb-1.5 sm:mb-2">{art.titulo}</h4>
+                          <p className="text-[10px] sm:text-[10px] text-gray-400 italic mb-2 sm:mb-3">Autores: {art.autores}</p>
+                        </div>
+                        <a href={art.link} target="_blank" rel="noopener noreferrer"
+                          className="text-[10px] sm:text-[10px] text-[#1D9E75] hover:text-emerald-600 font-bold flex items-center gap-1 self-start group">
+                          Acessar Artigo Original
+                          <ExternalLink size={9} className="group-hover:translate-x-0.5 transition-transform" />
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'pratica' && (
+              <motion.div key="pr" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
+                <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-600 tracking-wider">Takeaway Clínico (Conduta do Otorrino)</h3>
+                <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 sm:p-5 rounded-r-xl sm:rounded-r-2xl space-y-3">
+                  <p className="text-gray-700 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line">
+                    {pill.pratica_clinica}
+                  </p>
+                </div>
+                <div className="bg-gray-50 border border-gray-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3">
+                  <Bookmark className="text-[#1D9E75] shrink-0" size={18} />
+                  <p className="text-[10px] sm:text-xs text-gray-500 leading-snug">
+                    Pílula sintetizada de meta-análises e ensaios controlados para aplicação imediata no consultório.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'quiz' && pill.quiz_curiosidade && (
+              <motion.div key="qz" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-5">
+                <div className="bg-emerald-50 border border-emerald-200 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2">
+                  <Award className="text-emerald-600 shrink-0 animate-bounce" size={18} />
+                  <span className="text-[10px] sm:text-xs font-bold text-emerald-600">Quiz de Fixação Clínica</span>
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-gray-900 leading-relaxed">{pill.quiz_curiosidade.pergunta}</h3>
+                <div className="space-y-2">
+                  {pill.quiz_curiosidade.alternativas.map((alt, i) => {
+                    const isSelected = selectedAlternative === alt;
+                    const isCorrect = alt === pill.quiz_curiosidade?.resposta_correta;
+                    let btnStyle = "bg-gray-50 hover:bg-gray-50 border-gray-200 text-gray-600";
+                    if (quizAnswered) {
+                      if (isCorrect) btnStyle = "bg-emerald-50 border-emerald-500 text-emerald-600";
+                      else if (isSelected) btnStyle = "bg-rose-50 border-rose-400 text-rose-600";
+                      else btnStyle = "bg-gray-50 border-gray-200 text-gray-400 opacity-60";
+                    }
+                    return (
+                      <button key={i} disabled={quizAnswered}
+                        onClick={() => { setSelectedAlternative(alt); setQuizAnswered(true); }}
+                        className={`w-full text-left p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-[10px] sm:text-xs font-medium transition-all flex items-center justify-between ${btnStyle}`}
+                      >
+                        <span>{alt}</span>
+                        {quizAnswered && isCorrect && <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                <AnimatePresence>
+                  {quizAnswered && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 border border-gray-200 p-3 sm:p-4 rounded-xl sm:rounded-2xl">
+                      <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1">Explicação:</h4>
+                      <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">{pill.quiz_curiosidade.explicacao}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    );
   };
 
   // Block patients
@@ -431,7 +657,7 @@ export const InfoPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Stats Row — compact horizontal */}
+              {/* Stats Row */}
               <div className="grid grid-cols-4 gap-2">
                 <div className="text-center py-2">
                   <span className="text-2xl font-black text-emerald-600 block">{totalLidos}</span>
@@ -452,225 +678,28 @@ export const InfoPage: React.FC = () => {
               </div>
             </div>
 
-            {/* ═══ HERO CARD — Revelação Central ═══ */}
+            {/* ═══ HERO CARD — Revelação Central (Apenas Desktop) ═══ */}
             {activePill && (
-              <motion.div
-                key={activePill.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl"
-              >
-                {/* Revelação Central Hero */}
-                {activePill.revelacao_central && (
-                  <div className="bg-gradient-to-r from-emerald-50 via-white to-teal-50 border-b border-gray-200 p-4 sm:p-5">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center shrink-0">
-                        <Zap size={16} className="text-emerald-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] sm:text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Revelação Central</p>
-                        <p className="text-sm sm:text-base font-extrabold text-gray-900 leading-snug">
-                          {activePill.revelacao_central}
-                        </p>
-                      </div>
-                    </div>
-                    {/* Insight Chart */}
-                    {activePill.insight_grafico && (
-                      <div className="mt-3 bg-gray-100 border border-gray-100 rounded-xl p-3">
-                        <InsightChart data={activePill.insight_grafico} />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Pill Header */}
-                <div className="p-4 sm:p-6 bg-gradient-to-b from-emerald-50/50 via-white to-white border-b border-gray-200">
-                  <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider bg-emerald-100 border border-emerald-300 text-emerald-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
-                        {activePill.especialidade}
-                      </span>
-                      <span className="text-[10px] sm:text-xs text-gray-400 flex items-center gap-1">
-                        <Calendar size={10} />
-                        {activePill.data_exibicao}
-                      </span>
-                      {activePill.fonte === 'pubmed_real' && (
-                        <span className="text-[8px] sm:text-[10px] font-bold uppercase text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
-                          PubMed ✓
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <button 
-                        onClick={() => toggleFavorite(activePill.id)}
-                        className={`p-1.5 sm:p-2 rounded-full border transition-all ${
-                          favorites.includes(activePill.id)
-                            ? 'bg-amber-50 border-amber-300 text-amber-600'
-                            : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-900'
-                        }`}
-                      >
-                        <Star size={15} fill={favorites.includes(activePill.id) ? "currentColor" : "none"} />
-                      </button>
-                      <button 
-                        onClick={() => toggleRead(activePill.id)}
-                        className={`p-1.5 sm:p-2 rounded-full border transition-all ${
-                          readPills.includes(activePill.id)
-                            ? 'bg-emerald-50 border-emerald-300 text-emerald-600'
-                            : 'bg-gray-100 border-gray-200 text-gray-400 hover:text-gray-900'
-                        }`}
-                        title={readPills.includes(activePill.id) ? "Lido" : "Marcar como lido"}
-                      >
-                        <CheckCircle2 size={15} />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <h1 className="text-base sm:text-xl font-extrabold text-gray-900 leading-snug">{activePill.tema}</h1>
-                  <p className="text-[10px] sm:text-xs text-gray-500 mt-1.5 sm:mt-2 flex items-center gap-1.5">
-                    <BookOpen size={12} className="text-[#1D9E75]" />
-                    Leitura: <strong className="text-gray-700">{activePill.tempo_leitura_min} min</strong>
-                    {activePill.artigos.length > 0 && (
-                      <span className="ml-2">· {activePill.artigos.length} artigos</span>
-                    )}
-                  </p>
-                </div>
-
-                {/* Tabs */}
-                <div className="flex border-b border-gray-200 bg-white px-2 sm:px-4">
-                  <button
-                    onClick={() => setActiveTab('evidencia')}
-                    className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
-                      activeTab === 'evidencia' ? 'border-[#1D9E75] text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
-                    }`}
-                  >
-                    Evidências
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('pratica')}
-                    className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
-                      activeTab === 'pratica' ? 'border-emerald-500 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
-                    }`}
-                  >
-                    Pílula Prática
-                  </button>
-                  {activePill.quiz_curiosidade && (
-                    <button
-                      onClick={() => setActiveTab('quiz')}
-                      className={`flex-1 py-2.5 sm:py-3 text-center text-[10px] sm:text-xs font-bold border-b-2 transition-all ${
-                        activeTab === 'quiz' ? 'border-teal-400 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-800'
-                      }`}
-                    >
-                      Quiz
-                    </button>
-                  )}
-                </div>
-
-                {/* Tab Content */}
-                <div className="p-4 sm:p-6">
-                  <AnimatePresence mode="wait">
-                    {activeTab === 'evidencia' && (
-                      <motion.div key="ev" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-6">
-                        <div>
-                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-700 tracking-wider mb-2">Consenso e Integração Científica</h3>
-                          <p className="text-gray-600 text-xs sm:text-sm leading-relaxed whitespace-pre-line bg-gray-100 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200">
-                            {activePill.consenso_cientifico}
-                          </p>
-                        </div>
-                        <div className="space-y-2 sm:space-y-3">
-                          <h3 className="text-[10px] sm:text-xs font-black uppercase text-gray-500 tracking-wider">Artigos Analisados</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                            {activePill.artigos.map((art, idx) => (
-                              <div key={idx} className="bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-200 flex flex-col justify-between hover:border-[#1D9E75]/50 transition-colors">
-                                <div>
-                                  <div className="flex items-center justify-between gap-1 mb-1.5 sm:mb-2">
-                                    <span className="text-[8px] sm:text-[10px] font-bold text-gray-400 bg-gray-100 border border-gray-200 px-1.5 sm:px-2 py-0.5 rounded-md">Estudo {idx + 1}</span>
-                                    <span className="text-[10px] sm:text-xs font-semibold text-emerald-600 truncate ml-1">{art.revista} · {art.ano}</span>
-                                  </div>
-                                  <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 leading-snug line-clamp-3 mb-1.5 sm:mb-2">{art.titulo}</h4>
-                                  <p className="text-[10px] sm:text-[10px] text-gray-400 italic mb-2 sm:mb-3">Autores: {art.autores}</p>
-                                </div>
-                                <a href={art.link} target="_blank" rel="noopener noreferrer"
-                                  className="text-[10px] sm:text-[10px] text-[#1D9E75] hover:text-emerald-600 font-bold flex items-center gap-1 self-start group">
-                                  Acessar Artigo Original
-                                  <ExternalLink size={9} className="group-hover:translate-x-0.5 transition-transform" />
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {activeTab === 'pratica' && (
-                      <motion.div key="pr" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
-                        <h3 className="text-[10px] sm:text-xs font-black uppercase text-emerald-600 tracking-wider">Takeaway Clínico (Conduta do Otorrino)</h3>
-                        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 sm:p-5 rounded-r-xl sm:rounded-r-2xl space-y-3">
-                          <p className="text-gray-700 text-xs sm:text-sm font-medium leading-relaxed whitespace-pre-line">
-                            {activePill.pratica_clinica}
-                          </p>
-                        </div>
-                        <div className="bg-gray-50 border border-gray-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center gap-3">
-                          <Bookmark className="text-[#1D9E75] shrink-0" size={18} />
-                          <p className="text-[10px] sm:text-xs text-gray-500 leading-snug">
-                            Pílula sintetizada de meta-análises e ensaios controlados para aplicação imediata no consultório.
-                          </p>
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {activeTab === 'quiz' && activePill.quiz_curiosidade && (
-                      <motion.div key="qz" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4 sm:space-y-5">
-                        <div className="bg-emerald-50 border border-emerald-200 p-3 sm:p-4 rounded-xl sm:rounded-2xl flex items-center gap-2">
-                          <Award className="text-emerald-600 shrink-0 animate-bounce" size={18} />
-                          <span className="text-[10px] sm:text-xs font-bold text-emerald-600">Quiz de Fixação Clínica</span>
-                        </div>
-                        <h3 className="text-xs sm:text-sm font-bold text-gray-900 leading-relaxed">{activePill.quiz_curiosidade.pergunta}</h3>
-                        <div className="space-y-2">
-                          {activePill.quiz_curiosidade.alternativas.map((alt, i) => {
-                            const isSelected = selectedAlternative === alt;
-                            const isCorrect = alt === activePill.quiz_curiosidade?.resposta_correta;
-                            let btnStyle = "bg-gray-50 hover:bg-gray-50 border-gray-200 text-gray-600";
-                            if (quizAnswered) {
-                              if (isCorrect) btnStyle = "bg-emerald-50 border-emerald-500 text-emerald-600";
-                              else if (isSelected) btnStyle = "bg-rose-50 border-rose-400 text-rose-600";
-                              else btnStyle = "bg-gray-50 border-gray-200 text-gray-400 opacity-60";
-                            }
-                            return (
-                              <button key={i} disabled={quizAnswered}
-                                onClick={() => { setSelectedAlternative(alt); setQuizAnswered(true); }}
-                                className={`w-full text-left p-3 sm:p-3.5 rounded-xl sm:rounded-2xl border text-[10px] sm:text-xs font-medium transition-all flex items-center justify-between ${btnStyle}`}
-                              >
-                                <span>{alt}</span>
-                                {quizAnswered && isCorrect && <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        <AnimatePresence>
-                          {quizAnswered && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-gray-50 border border-gray-200 p-3 sm:p-4 rounded-xl sm:rounded-2xl">
-                              <h4 className="text-[10px] sm:text-xs font-bold text-gray-900 mb-1">Explicação:</h4>
-                              <p className="text-[10px] sm:text-xs text-gray-500 leading-relaxed">{activePill.quiz_curiosidade.explicacao}</p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </motion.div>
+              <div className="hidden md:block">
+                <motion.div
+                  key={activePill.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  {renderPillContent(activePill)}
+                </motion.div>
+              </div>
             )}
 
             {/* ═══ ACERVO ═══ */}
             <div className="space-y-3 pt-2">
-              {/* Section header + filters */}
               <div className="space-y-3">
                 <h2 className="text-sm font-extrabold text-gray-900 flex items-center gap-1.5">
                   <ListFilter size={16} className="text-[#1D9E75]" />
                   Acervo de Pílulas
                   <span className="text-[10px] font-medium text-gray-400 ml-1">({filteredPills.length})</span>
                 </h2>
-                {/* Category pills — horizontal scroll with fade edges */}
+                {/* Category pills */}
                 <div className="relative">
                   <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none -mx-1 px-1">
                     {categories.map(cat => {
@@ -758,6 +787,35 @@ export const InfoPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ═══ GAVETA MOBILE / DRAWER MODAL (Apenas Telas Menores) ═══ */}
+      <AnimatePresence>
+        {isMobilePillOpen && activePill && (
+          <motion.div
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+            className="fixed inset-0 z-50 bg-white flex flex-col md:hidden"
+          >
+            {/* Header Gaveta Mobile */}
+            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50 shrink-0 shadow-sm">
+              <button
+                onClick={() => setIsMobilePillOpen(false)}
+                className="flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800"
+              >
+                ← Voltar para a lista
+              </button>
+              <span className="text-xs font-black text-gray-500 uppercase tracking-widest">OTTO NEWS</span>
+            </div>
+
+            {/* Scroll Gaveta Mobile */}
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 pb-20">
+              {renderPillContent(activePill)}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

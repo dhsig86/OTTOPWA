@@ -15,6 +15,33 @@
   <div class="icon">O</div>
   <h1>Você está offline</h1>
   <p>Parece que sua conexão com a internet caiu.<br>O aplicativo HART'S OTTO precisa de conexão para carregar novos módulos.</p>
-  <p style="font-size: 0.9em; margin-top: 20px;"><button onclick="window.location.reload()" style="background-color: #1D9E75; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">Tentar Novamente</button></p>
+  <p style="font-size: 0.9em; margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <button onclick="window.location.reload()" style="background-color: #1D9E75; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">Tentar Novamente</button>
+    <button onclick="forceReset()" style="background-color: transparent; color: #7F8C8D; border: 1px solid #BDC3C7; padding: 8px 16px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 500;">Limpar Cache e Forçar Atualização</button>
+  </p>
+
+  <script>
+    async function forceReset() {
+      try {
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          for (const key of keys) {
+            await caches.delete(key);
+          }
+        }
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.unregister();
+          }
+        }
+        alert('Caches e Service Workers limpos com sucesso. O aplicativo tentará recarregar agora.');
+        window.location.reload(true);
+      } catch (e) {
+        console.error(e);
+        window.location.reload(true);
+      }
+    }
+  </script>
 </body>
 </html>

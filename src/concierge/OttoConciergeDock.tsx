@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Send, Sparkles, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -437,6 +437,38 @@ export const OttoConciergeDock: React.FC = () => {
       const status = plan.status || 'ready';
 
       const postMsgStr = plan.postMessage ? btoa(encodeURIComponent(JSON.stringify(plan.postMessage))) : '';
+
+      // Navegação direta reativa se for uma intenção clara de abertura (ex: "abrir whisper", "calcular stop bang")
+      const isDirectNav = /^(abrir|ir|acessar|navegar|calcular|ditar|gravar|laudar|exibir|ver|play|iniciar|run|open|go)\b/i.test(trimmed);
+      if (isDirectNav && status === 'ready' && plan.route) {
+        setIsProcessing(false);
+        addMsg({
+          variant: 'assistant',
+          text: `Entendido! Redirecionando você para o módulo **${moduleName}**... 🚀`,
+          bubbleStyle: 'card'
+        });
+
+        if (postMsgStr) {
+          try {
+            const decoded = decodeURIComponent(atob(postMsgStr));
+            sessionStorage.setItem('otto_concierge_pending_message', decoded);
+          } catch (e) {
+            console.error('Failed to parse encoded postMessage:', e);
+          }
+        }
+
+        setTimeout(() => {
+          const targetUrl = plan.navigationState?.url || '';
+          if (plan.route === '/modules/webview' && targetUrl) {
+            navigate(plan.route, { state: { url: targetUrl } });
+          } else if (plan.route?.startsWith('/')) {
+            navigate(plan.route);
+          }
+          setIsOpen(false);
+        }, 800);
+        return;
+      }
+
       const navAction: ChatAction = {
         label: `🚀 Abrir ${moduleName}`,
         command: `__navigate__${plan.route}__${plan.navigationState?.url || ''}__${postMsgStr}`,
@@ -500,9 +532,15 @@ export const OttoConciergeDock: React.FC = () => {
   const handleAction = useCallback((command: string) => {
     if (command.startsWith('__navigate__')) {
       const parts = command.split('__');
-      const route = parts[2] || '/';
-      const url = parts[3] || '';
+      let route = parts[2] || '/';
+      let url = parts[3] || '';
       const postMsgEncoded = parts[4] || '';
+
+      // Suporte tolerante para links legados do tipo "__navigate__/modules/feedback__"
+      if (parts[1] && parts[1].startsWith('navigate/')) {
+        route = '/' + parts[1].replace('navigate/', '');
+        route = route.replace(/__+$/, '');
+      }
 
       if (postMsgEncoded) {
         try {
