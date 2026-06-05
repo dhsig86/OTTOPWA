@@ -50,7 +50,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'bottok',
     name: 'BOTTOK',
-    description: 'Assistente ORL',
+    description: 'Tire dúvidas ORL com IA',
     icon: Brain,
     url: 'https://bottok-orcin.vercel.app/',
     external: true,
@@ -65,7 +65,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'atlas',
     name: 'Atlas',
-    description: 'Atlas Visual',
+    description: 'Imagens clínicas + ML',
     icon: ScanSearch,
     url: 'https://atlas.drdariohart.com/',
     external: true,
@@ -80,7 +80,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'procod',
     name: 'CID & TUSS',
-    description: 'Laudos Cirúrgicos',
+    description: 'CID + TUSS + OPME rápido',
     icon: Tags,
     url: 'https://procod.drdariohart.com/',
     external: true,
@@ -94,7 +94,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'otoscopia',
     name: 'Otoscop.IA',
-    description: 'Diagnóstico IA',
+    description: 'Classifique otoscopias',
     icon: Aperture,
     url: 'https://atlas.drdariohart.com/?tab=ia&embed=true',
     external: true,
@@ -109,7 +109,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'triagem',
     name: 'Triagem OS',
-    description: 'Triagem Inteligente',
+    description: 'Anamnese guiada por IA',
     url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/',
     icon: ClipboardList,
     external: true,
@@ -124,7 +124,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'check',
     name: 'OTTO Check',
-    description: 'Audiometria Web',
+    description: 'Teste auditivo domiciliar',
     url: 'https://otto-check.vercel.app/',
     icon: Ear,
     external: true,
@@ -140,7 +140,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'calc',
     name: 'Calculadoras',
-    description: 'Scores Clínicos',
+    description: '29 PROMs e escores',
     icon: Calculator,
     url: 'https://otto-calc-hub.vercel.app/',
     external: true,
@@ -154,7 +154,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'imune',
     name: 'Imunobio.',
-    description: 'Imunobiológicos',
+    description: 'Elegibilidade Dupilumabe',
     icon: Syringe,
     url: 'https://otto-imune.vercel.app/',
     external: true,
@@ -168,7 +168,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'ocr',
     name: 'OTTO OCR',
-    description: 'Leitor de Laudos',
+    description: 'Extraia dados de PDFs',
     icon: ScanText,
     url: 'https://otto-ocr-web.vercel.app',
     external: true,
@@ -183,7 +183,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'aerodig',
     name: 'Aerodigestive',
-    description: 'Via Aérea Pediátrica',
+    description: 'Protocolos via aérea',
     icon: Wind,
     url: 'https://otto-aerodig.vercel.app/',
     external: true,
@@ -197,7 +197,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'logbook',
     name: 'OTTO Log',
-    description: 'Registro Cirúrgico',
+    description: 'Registre suas cirurgias',
     icon: ClipboardSignature,
     url: 'https://otto-log.vercel.app/',
     external: true,
@@ -213,7 +213,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'periop',
     name: 'Peri-op.',
-    description: 'Peri-operatório',
+    description: 'Pré e pós-operatório',
     icon: Activity,
     url: '/modules/periop',
     external: false,
@@ -229,7 +229,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'games',
     name: 'OTTO Games',
-    description: 'Educação Lúdica',
+    description: 'Jogos para crianças',
     icon: Gamepad2,
     url: 'https://otto-games.vercel.app/',
     external: true,
@@ -243,7 +243,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'ottotests',
     name: 'OTTO Acadêmico',
-    description: 'Questões & Provas',
+    description: 'Simulados e provas',
     icon: GraduationCap,
     url: 'https://test-pg-bice.vercel.app/',
     external: true,
@@ -257,7 +257,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'zumbido',
     name: 'Zumbido',
-    description: 'Mascaramento Sonoro',
+    description: 'Terapia para zumbido',
     icon: AudioWaveform,
     url: 'https://otto-check.vercel.app/?tool=zumbido',
     external: true,
@@ -271,7 +271,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'videos',
     name: 'Vídeos',
-    description: 'Videoaulas ORL',
+    description: 'Aulas e tutoriais',
     icon: MonitorPlay,
     url: '/modules/videos',
     external: false,
@@ -285,7 +285,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'voice',
     name: 'Voz',
-    description: 'Síntese Vocal IA',
+    description: 'Voz para laringectomia',
     icon: AudioLines,
     url: 'https://otto-voice-one.vercel.app/',
     external: true,
@@ -300,7 +300,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'cases',
     name: 'OTTO Cases',
-    description: 'Casos Clínicos',
+    description: 'Relatos com IA',
     icon: FolderHeart,
     url: 'https://otto-cases.vercel.app/',
     external: true,
@@ -314,7 +314,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'info',
     name: 'OTTO NEWS',
-    description: 'Pílulas & Evidências',
+    description: 'Evidências em destaque',
     icon: Library,
     url: '/modules/info',
     external: false,
@@ -331,7 +331,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'ottosig',
     name: 'OTTO DIC',
-    description: 'Glossário ORL',
+    description: 'Termos e definições',
     icon: BookA,
     url: 'https://dhsig86.github.io/minidic/',
     external: true,
@@ -346,7 +346,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'whisper',
     name: 'OTTO Whisper',
-    description: 'Transcrição Médica',
+    description: 'Dite e transcreva',
     icon: PenLine,
     url: 'https://otto-whisper.netlify.app',
     external: true,
@@ -361,7 +361,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'protto',
     name: 'PROTTO',
-    description: 'Prontuário Inteligente',
+    description: 'Prontuário com CDSS',
     icon: FileSignature,
     url: 'https://otto-protto.vercel.app',
 
@@ -377,7 +377,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'autolaudo',
     name: 'AUTOLAUDO',
-    description: 'Laudos por Voz',
+    description: 'Dite e gere laudos',
     icon: FilePen,
     url: 'https://otto-laudo-ia.vercel.app',
     external: true,
@@ -392,7 +392,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'feedback',
     name: 'Feedback',
-    description: 'Reporte bugs e sugestões',
+    description: 'Reporte e sugira',
     icon: MessageCircleQuestion,
     url: '/modules/feedback',
     external: false,
