@@ -215,7 +215,23 @@ function buildInput(text: string, uid: string | null, profile: string | null): C
   return {
     surface: 'pwa',
     input: { kind: 'text', text },
-    identity: { uid: uid || 'anonymous', profile: (profile || 'medico') as any },
+    identity: {
+      uid: uid || 'anonymous',
+      profile: (profile || 'medico') as any,
+      ...(uid ? {
+        verification: {
+          status: 'verified' as const,
+          method: 'firebase_token' as const,
+          resolvedBy: 'pwa_auth' as const
+        }
+      } : {
+        verification: {
+          status: 'unverified' as const,
+          method: 'anonymous' as const,
+          resolvedBy: 'none' as const
+        }
+      })
+    },
     session: { id: `s_${Date.now()}`, timestamp: new Date().toISOString(), locale: 'pt-BR' },
   };
 }
@@ -438,8 +454,12 @@ export const OttoConciergeDock: React.FC = () => {
 
       const postMsgStr = plan.postMessage ? btoa(encodeURIComponent(JSON.stringify(plan.postMessage))) : '';
 
-      // Navegação direta reativa se for uma intenção clara de abertura (ex: "abrir whisper", "calcular stop bang")
-      const isDirectNav = /^(abrir|ir|acessar|navegar|calcular|ditar|gravar|laudar|exibir|ver|play|iniciar|run|open|go)\b/i.test(trimmed);
+      // Navegação direta reativa se for uma intenção clara de abertura ou ação de navegação mapeada com boa confiança
+      const isNavAction = ['open_module', 'deep_link', 'handoff_to_pwa'].includes(decision.action.kind);
+      const isDirectNav =
+        /^(abrir|ir|acessar|navegar|calcular|ditar|gravar|laudar|exibir|ver|play|iniciar|run|open|go)\b/i.test(trimmed) ||
+        (isNavAction && decision.confidence >= 0.6);
+
       if (isDirectNav && status === 'ready' && plan.route) {
         setIsProcessing(false);
         addMsg({
@@ -530,16 +550,37 @@ export const OttoConciergeDock: React.FC = () => {
   }, [processCommand]);
 
   const handleAction = useCallback((command: string) => {
-    if (command.startsWith('__navigate__')) {
-      const parts = command.split('__');
-      let route = parts[2] || '/';
-      let url = parts[3] || '';
-      const postMsgEncoded = parts[4] || '';
+    if (command.startsWith('__navigate__') || command.startsWith('__nav:')) {
+      let route = '/';
+      let url = '';
+      let postMsgEncoded = '';
 
-      // Suporte tolerante para links legados do tipo "__navigate__/modules/feedback__"
-      if (parts[1] && parts[1].startsWith('navigate/')) {
-        route = '/' + parts[1].replace('navigate/', '');
-        route = route.replace(/__+$/, '');
+      if (command.startsWith('__nav:')) {
+        // Novo formato JSON robusto: __nav:{"route":"/modules/whisper","url":"..."}
+        try {
+          const payload = JSON.parse(command.slice(6));
+          route = payload.route || '/';
+          url = payload.url || '';
+          postMsgEncoded = payload.postMsg || '';
+        } catch {
+          console.warn('[Concierge] Formato __nav: inválido:', command);
+          return;
+        }
+      } else {
+        // Formato legado: __navigate__/route__url__postMsg__
+        const raw = command.replace(/^__navigate__/, '');
+        // Remove underscores finais e extrai partes
+        const cleaned = raw.replace(/^_+|_+$/g, '');
+
+        // Tenta split por __ (separador duplo)
+        const segments = cleaned.split('__').filter(Boolean);
+        if (segments.length >= 1) {
+          route = segments[0].startsWith('/') ? segments[0] : '/' + segments[0];
+          // Normaliza rotas tipo "navigate/modules/x" → "/modules/x"
+          route = route.replace(/^\/navigate\//, '/');
+        }
+        if (segments.length >= 2) url = segments[1];
+        if (segments.length >= 3) postMsgEncoded = segments[2];
       }
 
       if (postMsgEncoded) {
