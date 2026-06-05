@@ -50,16 +50,20 @@ export const ModuleFrame: React.FC = () => {
 
 
 
-  const getSafeOrigin = () => {
-    try { return new URL(targetUrl || '').origin; } catch { return '*'; }
-  };
+  // SEC-S2: Nunca retornar '*' — se a URL for inválida, não enviar postMessage
+  const getSafeOrigin = useCallback((): string | null => {
+    try { return new URL(targetUrl || '').origin; } catch { return null; }
+  }, [targetUrl]);
 
   const sendContext = useCallback((token = firebaseToken) => {
     const payload = {
       type: 'otto-context',
       payload: { userId, userName, profile, patientId, doctorId, firebaseToken: token }
     };
-    iframeRef.current?.contentWindow?.postMessage(payload, getSafeOrigin());
+    // SEC-S2: Só envia se tiver origin válida
+    const origin = getSafeOrigin();
+    if (!origin) return;
+    iframeRef.current?.contentWindow?.postMessage(payload, origin);
 
     // Check for pending text injection
     const pendingText = sessionStorage.getItem('otto_pending_injection');
@@ -67,7 +71,7 @@ export const ModuleFrame: React.FC = () => {
       iframeRef.current?.contentWindow?.postMessage({
         type: 'otto-receive-injection',
         text: pendingText
-      }, getSafeOrigin());
+      }, origin);
       sessionStorage.removeItem('otto_pending_injection');
     }
 
@@ -76,7 +80,7 @@ export const ModuleFrame: React.FC = () => {
     if (pendingConciergeMessage) {
       try {
         const parsed = JSON.parse(pendingConciergeMessage);
-        iframeRef.current?.contentWindow?.postMessage(parsed, getSafeOrigin());
+        iframeRef.current?.contentWindow?.postMessage(parsed, origin);
         sessionStorage.removeItem('otto_concierge_pending_message');
       } catch (e) {
         console.error('Failed to parse pending concierge message', e);
@@ -87,6 +91,9 @@ export const ModuleFrame: React.FC = () => {
   // Responde ao módulo quando ele pede renovação de token (401 recovery)
   useEffect(() => {
     const handleRefreshRequest = async (event: MessageEvent) => {
+      // SEC-S1: Validar origin antes de processar
+      const expectedOrigin = getSafeOrigin();
+      if (!expectedOrigin || event.origin !== expectedOrigin) return;
       if (event.data?.type !== 'otto-request-refresh') return;
       try {
         const { auth: firebaseAuth } = await import('../lib/firebase');
@@ -103,6 +110,9 @@ export const ModuleFrame: React.FC = () => {
   // Navega para outro módulo quando um iframe filho solicita via postMessage
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      // SEC-S1: Validar origin antes de processar navegação
+      const expectedOrigin = getSafeOrigin();
+      if (!expectedOrigin || event.origin !== expectedOrigin) return;
       // 1. Navegação Simples
       if (event.data?.type === 'otto-navigate') {
         const url = event.data?.url;
@@ -150,6 +160,9 @@ export const ModuleFrame: React.FC = () => {
 
     const handleReady = (event: MessageEvent) => {
       const type = event.data?.type;
+      // SEC-S1: Validar origin do módulo antes de reenviar contexto
+      const expectedOrigin = getSafeOrigin();
+      if (!expectedOrigin || event.origin !== expectedOrigin) return;
       if (typeof type === 'string' && type.match(/^otto-\w+-ready$/)) {
         readyReceived = true;
         sendContext();

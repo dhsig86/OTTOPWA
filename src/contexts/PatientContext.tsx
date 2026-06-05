@@ -24,8 +24,8 @@ export const PatientProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [doctorId, setDoctorId] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedPatient = localStorage.getItem('otto_patient_id');
-    const storedDoctor = localStorage.getItem('otto_doctor_id');
+    const storedPatient = sessionStorage.getItem('otto_patient_id');
+    const storedDoctor = sessionStorage.getItem('otto_doctor_id');
     
     if (storedPatient) setPatientId(storedPatient);
     if (storedDoctor) setDoctorId(storedDoctor);
@@ -35,11 +35,11 @@ export const PatientProvider: React.FC<{ children: ReactNode }> = ({ children })
     setPatientId(patient);
     setDoctorId(doctor);
     
-    if (patient) localStorage.setItem('otto_patient_id', patient);
-    else localStorage.removeItem('otto_patient_id');
+    if (patient) sessionStorage.setItem('otto_patient_id', patient);
+    else sessionStorage.removeItem('otto_patient_id');
     
-    if (doctor) localStorage.setItem('otto_doctor_id', doctor);
-    else localStorage.removeItem('otto_doctor_id');
+    if (doctor) sessionStorage.setItem('otto_doctor_id', doctor);
+    else sessionStorage.removeItem('otto_doctor_id');
   };
 
   return (
