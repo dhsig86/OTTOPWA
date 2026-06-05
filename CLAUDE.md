@@ -486,3 +486,65 @@ Redirect permanente de HTTP → HTTPS para `otto.drdariohart.com`.
 8. Preferir patch cirúrgico a refatoração massiva
 9. Todas as páginas são lazy-loaded — manter esse padrão
 10. O AuthContext é complexo (~250 linhas) — testar regressão após edições
+
+---
+
+## 🔐 Segurança: Padrão postMessage Obrigatório
+
+Todos os módulos do ecossistema OTTO devem seguir este padrão ao comunicar via `postMessage`:
+
+### Receber mensagens (validar origin)
+```typescript
+const ALLOWED_ORIGINS = [
+  'https://otto.drdariohart.com',
+  'https://ottopwa.vercel.app',
+  'https://ottos-plum.vercel.app',
+  'http://localhost:5173',
+];
+
+const handleMessage = (event: MessageEvent) => {
+  // SEC: SEMPRE validar origin antes de aceitar dados
+  if (!ALLOWED_ORIGINS.includes(event.origin)) return;
+  if (event.data?.type === 'otto-context') {
+    // processar token e contexto
+  }
+};
+```
+
+### Enviar mensagens (nunca usar `'*'`)
+```typescript
+// ❌ PROIBIDO — nunca enviar para '*'
+window.parent.postMessage({ type: 'otto-module-ready' }, '*');
+
+// ✅ CORRETO — enviar para cada origin conhecida
+ALLOWED_ORIGINS.forEach(origin => {
+  try { window.parent.postMessage({ type: 'otto-module-ready' }, origin); } catch {}
+});
+```
+
+### Vulnerabilidades corrigidas nesta sprint (05/06/2026)
+- `ModuleFrame.tsx` — origin validation adicionada em todos os handlers
+- `PatientContext.tsx` — migrado de localStorage para sessionStorage (LGPD)
+- `index.html` — OG meta tags corrigidas para domínio custom
+
+---
+
+## 📝 Changelog
+
+### Sprint 05/06/2026 — Hardening de Segurança + UX
+
+**Segurança (10 fixes no ecossistema):**
+- PWA: origin validation em ModuleFrame.tsx, sessionStorage para LGPD
+- WHISPER: postMessage origin validation (`8f29e51`)
+- Atlas: origin validation + rm console.log (`f35f109`)
+- IMUNE: ALLOWED_ORIGINS substitui fallback '*' (`5171475`)
+- LOGBOOK: SSO handler origin check (`0ff9b07`)
+- CASES: token refresh origin validation (`334c082`)
+- CALC-HUB: supabase_password.md removido + .gitignore (`1b67ae6`)
+- LAUDO-IA: firebase-admin removido do frontend (`0caed7c`)
+
+**UX:**
+- Descritores de módulos reescritos como ações orientadas ao usuário (`13bdf8c`)
+  - Exemplos: 'Assistente ORL' → 'Tire dúvidas ORL com IA'
+  - '29 PROMs e escores' em vez de 'Scores Clínicos'
+
