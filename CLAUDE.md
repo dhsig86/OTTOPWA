@@ -19,6 +19,11 @@ e inteligibilidade clínica) e fornece conteúdo embarcado como PeriOp, InfoPage
   npm run build
   # tsc -b && vite build → gera o bundle otimizado em dist/
   ```
+- **Execução de Testes (Vitest):**
+  ```bash
+  npm run test      # Modo interativo (watch)
+  npm run test:run  # Execução única (CI/CD)
+  ```
 - **Linter (ESLint):**
   ```bash
   npm run lint
@@ -530,6 +535,11 @@ ALLOWED_ORIGINS.forEach(origin => {
 ---
 
 ## 📝 Changelog
+
+### Sprint 06/06/2026 — Testes Automatizados (Fase Piloto)
+- **Infraestrutura**: Configuração do Vitest + JSDOM para rodar testes integrados no PWA Shell.
+- **Mocks**: Setup global de mockagem hermética do Firebase SDK (Auth, Firestore, Analytics) para isolamento em testes.
+- **Cobertura**: Criação de `src/App.test.tsx` testando a inicialização do shell, fluxo de login e validações cruciais de segurança contra ataques de hijacking via `postMessage`.
 
 ### Sprint 05/06/2026 — Hardening de Segurança + UX
 
