@@ -48,4 +48,29 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/firebase/')) {
+            return 'firebase-vendor';
+          }
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'framer-motion-vendor';
+          }
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router/') ||
+            id.includes('node_modules/react-router-dom/')
+          ) {
+            return 'react-core-vendor';
+          }
+          if (id.includes('node_modules/lucide-react/')) {
+            return 'lucide-vendor';
+          }
+        }
+      }
+    }
+  }
 })

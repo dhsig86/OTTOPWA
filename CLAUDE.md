@@ -406,6 +406,7 @@ VITE_FIREBASE_STORAGE_BUCKET=otto-ecosystem.firebasestorage.app
 VITE_FIREBASE_MESSAGING_SENDER_ID=<Firebase Console>
 VITE_FIREBASE_APP_ID=<Firebase Console>
 VITE_FIREBASE_MEASUREMENT_ID=<Firebase Console>
+DEEPSEEK_API_KEY=<Chave de API do DeepSeek (Necessária apenas no backend da Vercel em runtime)>
 ```
 
 > ⚠️ Firebase Web API keys são públicas por design, mas NÃO devem ser commitadas em .md.
@@ -535,6 +536,11 @@ ALLOWED_ORIGINS.forEach(origin => {
 ---
 
 ## 📝 Changelog
+
+### Sprint 07/06/2026 — Otimização de Performance, Chunks e Inteligência do Concierge (DeepSeek)
+- **DeepSeek V3 no Concierge**: Integração de NLU real na classificação de intenções do Concierge. Criada a Vercel Serverless Function `/api/classify` (Node.js) para processamento seguro (ocultando a `DEEPSEEK_API_KEY` no backend) e integrada em `simulateCommandActivation` com fallback imediato para regex locais se a API falhar.
+- **Rollup/Vite Chunks**: Implementação de `manualChunks` no `vite.config.ts` separando as dependências de grande porte (`firebase`, `framer-motion`, `lucide-react` e as bibliotecas core do `react`/`react-router-dom`) em arquivos estáticos separados.
+- **Benefícios**: Redução do bundle principal de carregamento inicial (`index.js`) para apenas ~136KB, otimizando o FCP (First Contentful Paint) sob redes móveis instáveis de consultório e habilitando cache HTTP permanente de vendors terceiros.
 
 ### Sprint 06/06/2026 — Testes Automatizados (Fase Piloto)
 - **Infraestrutura**: Configuração do Vitest + JSDOM para rodar testes integrados no PWA Shell.

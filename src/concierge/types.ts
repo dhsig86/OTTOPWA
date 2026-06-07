@@ -96,6 +96,7 @@ export interface ConciergeDecision {
     traceId: string;
     selectedIntent?: string;
     guardrailDecision: 'allow' | 'confirm' | 'handoff' | 'refuse';
+    classifiedBy?: 'local' | 'deepseek';
   };
 }
 

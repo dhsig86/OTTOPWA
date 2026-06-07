@@ -1,4 +1,4 @@
-import { classifyIntent } from './intents';
+import { classifyIntent, classifyIntentWithLLM } from './intents';
 import { runModuleAdapter } from './adapters';
 import { getModuleById } from './registry';
 import { evaluateGuardrails } from './guardrails';
@@ -79,7 +79,78 @@ export function decide(input: ConciergeInput): ConciergeDecision {
 
 export async function simulateCommandActivation(input: ConciergeInput): Promise<CommandSimulationResult> {
   const startedAt = performance.now();
-  const decision = decide(input);
+  const text = input.input.text ?? '';
+  
+  let decision: ConciergeDecision;
+  
+  // 1. Tentar classificação remota com DeepSeek (se o input for de texto)
+  const llmCandidate = input.input.kind === 'text' && text ? await classifyIntentWithLLM(text) : null;
+  
+  if (llmCandidate) {
+    const module = getModuleById(llmCandidate.intent.moduleId);
+    if (module) {
+      const guardrail = evaluateGuardrails(input, llmCandidate.intent, module);
+      const actionKind = mapActionKind(llmCandidate.intent.actionKind, guardrail.decision);
+      const traceId = makeTraceId(input);
+      
+      if (actionKind === 'refuse') {
+        decision = {
+          decisionId: `decision_${traceId}`,
+          intentId: llmCandidate.intent.id,
+          confidence: llmCandidate.confidence,
+          riskLevel: llmCandidate.intent.riskLevel,
+          action: {
+            kind: 'refuse',
+            moduleId: module.id,
+            requiresConfirmation: false
+          },
+          audit: llmCandidate.intent.auditPolicy,
+          userMessage: guardrail.userMessage ?? 'Nao posso executar essa acao.',
+          debug: {
+            traceId,
+            selectedIntent: llmCandidate.intent.id,
+            guardrailDecision: guardrail.decision,
+            classifiedBy: 'deepseek'
+          }
+        };
+      } else {
+        decision = {
+          decisionId: `decision_${traceId}`,
+          intentId: llmCandidate.intent.id,
+          confidence: llmCandidate.confidence,
+          riskLevel: llmCandidate.intent.riskLevel,
+          action: {
+            kind: actionKind,
+            moduleId: module.id,
+            url: module.currentUrl,
+            payload: {
+              adapterStatus: module.adapter.status,
+              matchedTerms: llmCandidate.matchedTerms,
+              guardrailReason: guardrail.reason,
+              identityVerified: input.identity.verification?.status === 'verified',
+              preferencesApplied: input.identity.verification?.status === 'verified' && Boolean(input.identity.preferences)
+            },
+            requiresConfirmation: guardrail.decision === 'confirm'
+          },
+          audit: llmCandidate.intent.auditPolicy,
+          userMessage: guardrail.userMessage ?? defaultMessage(actionKind, module.displayName),
+          debug: {
+            traceId,
+            selectedIntent: llmCandidate.intent.id,
+            guardrailDecision: guardrail.decision,
+            classifiedBy: 'deepseek'
+          }
+        };
+      }
+    } else {
+      // Fallback para decide local se módulo do LLM sumir
+      decision = decide(input);
+    }
+  } else {
+    // Fallback: classificador local tradicional por regras/regex se LLM retornar null ou falhar
+    decision = decide(input);
+  }
+
   const activation = toActivation(decision);
 
   const adapterResponse = activation.shouldActivate && decision.action.moduleId

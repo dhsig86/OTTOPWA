@@ -332,6 +332,41 @@ export function classifyIntent(text: string): IntentCandidate[] {
     .sort((a, b) => b.confidence - a.confidence || matchedSpecificity(b) - matchedSpecificity(a));
 }
 
+export async function classifyIntentWithLLM(text: string): Promise<IntentCandidate | null> {
+  try {
+    const response = await fetch('/api/classify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text })
+    });
+    
+    if (!response.ok) {
+      console.warn('[Concierge] classify API returned error status:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    if (data.intentId && data.confidence >= 0.6) {
+      const intentEntry = CLINICAL_INTENTS.find(i => i.id === data.intentId);
+      if (intentEntry) {
+        return {
+          intent: intentEntry,
+          confidence: data.confidence,
+          matchedTerms: data.extractedEntities?.calculatorName 
+            ? [data.extractedEntities.calculatorName] 
+            : (data.extractedEntities?.searchTerm ? [data.extractedEntities.searchTerm] : [])
+        };
+      }
+    }
+    return null;
+  } catch (e) {
+    console.warn('[Concierge] LLM classification failed. Falling back to local rules.', e);
+    return null;
+  }
+}
+
 function matchedSpecificity(candidate: IntentCandidate): number {
   return candidate.matchedTerms.reduce((total, term) => total + normalizeText(term).length, 0);
 }
