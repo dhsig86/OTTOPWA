@@ -154,7 +154,7 @@ export const OTTO_MODULES: OttoModule[] = [
   {
     id: 'imune',
     name: 'Imunobio.',
-    description: 'Elegibilidade Dupilumabe',
+    description: 'HUB DE IMUNOBIOLÓGICOS',
     icon: Syringe,
     url: 'https://otto-imune.vercel.app/',
     external: true,

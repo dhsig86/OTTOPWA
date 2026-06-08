@@ -133,8 +133,8 @@ export const ModuleFrame: React.FC = () => {
       }
       // 3. Navegação Interna de Módulos (ex: PROTTO -> AutoLaudo)
       else if (event.data?.type === 'otto-navigate-module') {
-        const moduleId = event.data?.moduleId;
-        const params = event.data?.params;
+        const moduleId = event.data?.moduleId || event.data?.payload?.moduleId;
+        const params = event.data?.params || event.data?.payload?.params;
         const targetModule = OTTO_MODULES.find(m => m.id === moduleId);
         if (targetModule) {
           if (params?.template && moduleId === 'autolaudo') {
