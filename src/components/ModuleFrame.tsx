@@ -187,7 +187,22 @@ export const ModuleFrame: React.FC = () => {
               examType: params.template
             }));
           }
-          navigate('/modules/webview', { state: { url: targetModule.url } });
+          
+          let finalUrl = targetModule.url;
+          if (params && typeof params === 'object') {
+            const queryParams = new URLSearchParams();
+            Object.entries(params).forEach(([key, val]) => {
+              if (val !== undefined && val !== null && key !== 'template') {
+                queryParams.append(key, String(val));
+              }
+            });
+            const qStr = queryParams.toString();
+            if (qStr) {
+              finalUrl = finalUrl.includes('?') ? `${finalUrl}&${qStr}` : `${finalUrl}?${qStr}`;
+            }
+          }
+          
+          navigate('/modules/webview', { state: { url: finalUrl } });
         }
       }
     };
