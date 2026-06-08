@@ -537,6 +537,11 @@ ALLOWED_ORIGINS.forEach(origin => {
 
 ## 📝 Changelog
 
+### Sprint 08/06/2026 — Barramento de Mensagens e Injeções Clínicas (Sprint C)
+- **Barramento de Mensagens (ModuleFrame.tsx)**:
+  - Adicionados interceptadores no listener de postMessage do shell para `'otto-inject-scores'` e `'otto-inject-autolaudo'`.
+  - Payloads de injeção são persistidos temporariamente em `sessionStorage` e enviados de forma reativa e segura (com validação estrita de origin) ao iframe correspondente após o carregamento, resolvendo a comunicação indireta de handoff entre o assistente do OTTO IMUNE, o prontuário PROTTO e o AutoLaudo.
+
 ### Sprint 07/06/2026 — Otimização de Performance, Chunks e Inteligência do Concierge (DeepSeek)
 - **DeepSeek V3 no Concierge**: Integração de NLU real na classificação de intenções do Concierge. Criada a Vercel Serverless Function `/api/classify` (Node.js) para processamento seguro (ocultando a `DEEPSEEK_API_KEY` no backend) e integrada em `simulateCommandActivation` com fallback imediato para regex locais se a API falhar.
 - **Rollup/Vite Chunks**: Implementação de `manualChunks` no `vite.config.ts` separando as dependências de grande porte (`firebase`, `framer-motion`, `lucide-react` e as bibliotecas core do `react`/`react-router-dom`) em arquivos estáticos separados.

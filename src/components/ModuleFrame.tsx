@@ -75,6 +75,28 @@ export const ModuleFrame: React.FC = () => {
       sessionStorage.removeItem('otto_pending_injection');
     }
 
+    // Check for pending scores injection
+    const pendingScores = sessionStorage.getItem('otto_pending_scores_injection');
+    if (pendingScores) {
+      iframeRef.current?.contentWindow?.postMessage({
+        type: 'otto-receive-scores',
+        text: pendingScores
+      }, origin);
+      sessionStorage.removeItem('otto_pending_scores_injection');
+    }
+
+    // Check for pending autolaudo injection
+    const pendingAutolaudo = sessionStorage.getItem('otto_pending_autolaudo_injection');
+    if (pendingAutolaudo) {
+      try {
+        iframeRef.current?.contentWindow?.postMessage({
+          type: 'otto-receive-autolaudo-injection',
+          payload: JSON.parse(pendingAutolaudo)
+        }, origin);
+        sessionStorage.removeItem('otto_pending_autolaudo_injection');
+      } catch {}
+    }
+
     // Check for pending concierge postMessage payload
     const pendingConciergeMessage = sessionStorage.getItem('otto_concierge_pending_message');
     if (pendingConciergeMessage) {
@@ -128,6 +150,28 @@ export const ModuleFrame: React.FC = () => {
           const prottoUrl = OTTO_MODULES.find(m => m.id === 'protto')?.url;
           if (prottoUrl) {
             navigate('/modules/webview', { state: { url: prottoUrl } });
+          }
+        }
+      }
+      // 2.1 Injeção de Scores Estruturados no PROTTO
+      else if (event.data?.type === 'otto-inject-scores') {
+        const text = event.data?.text || event.data?.payload?.text;
+        if (text) {
+          sessionStorage.setItem('otto_pending_scores_injection', text);
+          const prottoUrl = OTTO_MODULES.find(m => m.id === 'protto')?.url;
+          if (prottoUrl) {
+            navigate('/modules/webview', { state: { url: prottoUrl } });
+          }
+        }
+      }
+      // 2.2 Injeção de Relatório Estruturado no AutoLaudo
+      else if (event.data?.type === 'otto-inject-autolaudo') {
+        const payload = event.data?.payload;
+        if (payload) {
+          sessionStorage.setItem('otto_pending_autolaudo_injection', JSON.stringify(payload));
+          const autolaudoUrl = OTTO_MODULES.find(m => m.id === 'autolaudo')?.url;
+          if (autolaudoUrl) {
+            navigate('/modules/webview', { state: { url: autolaudoUrl } });
           }
         }
       }
