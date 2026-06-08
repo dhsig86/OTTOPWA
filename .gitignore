@@ -35,3 +35,4 @@ service-account*.json
 
 # Cygwin grep crashes
 *.stackdump
+.vercel
