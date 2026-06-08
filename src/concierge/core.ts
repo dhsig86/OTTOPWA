@@ -105,7 +105,7 @@ export async function simulateCommandActivation(input: ConciergeInput): Promise<
             requiresConfirmation: false
           },
           audit: llmCandidate.intent.auditPolicy,
-          userMessage: guardrail.userMessage ?? 'Nao posso executar essa acao.',
+          userMessage: llmCandidate.reply ?? (guardrail.userMessage ?? 'Nao posso executar essa acao.'),
           debug: {
             traceId,
             selectedIntent: llmCandidate.intent.id,
@@ -133,7 +133,7 @@ export async function simulateCommandActivation(input: ConciergeInput): Promise<
             requiresConfirmation: guardrail.decision === 'confirm'
           },
           audit: llmCandidate.intent.auditPolicy,
-          userMessage: guardrail.userMessage ?? defaultMessage(actionKind, module.displayName),
+          userMessage: llmCandidate.reply ?? (guardrail.userMessage ?? defaultMessage(actionKind, module.displayName)),
           debug: {
             traceId,
             selectedIntent: llmCandidate.intent.id,

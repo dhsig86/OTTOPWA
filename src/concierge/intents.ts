@@ -295,6 +295,14 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'excluir conta',
     'deletar conta',
     'area do usuario'
+  ]),
+  intent('concierge.chat', 'Conversar ou tirar dúvidas', 'concierge', 'respond', 'low',
+    ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'],
+    false, false, 'none', [
+    'conversar',
+    'oi',
+    'ola',
+    'quem e voce'
   ])
 ];
 
@@ -356,7 +364,8 @@ export async function classifyIntentWithLLM(text: string): Promise<IntentCandida
           confidence: data.confidence,
           matchedTerms: data.extractedEntities?.calculatorName 
             ? [data.extractedEntities.calculatorName] 
-            : (data.extractedEntities?.searchTerm ? [data.extractedEntities.searchTerm] : [])
+            : (data.extractedEntities?.searchTerm ? [data.extractedEntities.searchTerm] : []),
+          reply: data.reply
         };
       }
     }

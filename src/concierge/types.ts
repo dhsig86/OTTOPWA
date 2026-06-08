@@ -145,6 +145,7 @@ export interface IntentCandidate {
   intent: IntentRegistryEntry;
   confidence: number;
   matchedTerms: string[];
+  reply?: string;
 }
 
 export interface AdapterRequest {
