@@ -131,6 +131,21 @@ export const ModuleFrame: React.FC = () => {
           }
         }
       }
+      // 3. Navegação Interna de Módulos (ex: PROTTO -> AutoLaudo)
+      else if (event.data?.type === 'otto-navigate-module') {
+        const moduleId = event.data?.moduleId;
+        const params = event.data?.params;
+        const targetModule = OTTO_MODULES.find(m => m.id === moduleId);
+        if (targetModule) {
+          if (params?.template && moduleId === 'autolaudo') {
+            sessionStorage.setItem('otto_concierge_pending_message', JSON.stringify({
+              type: 'otto-autolaudo-open',
+              examType: params.template
+            }));
+          }
+          navigate('/modules/webview', { state: { url: targetModule.url } });
+        }
+      }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
