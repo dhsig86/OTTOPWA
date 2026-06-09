@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useServiceWarmUp } from '../hooks/useServiceWarmUp';
 import { trackProfileFilterChanged } from '../lib/analytics';
+import { Sparkles } from 'lucide-react';
 
 export const Home: React.FC = () => {
   useServiceWarmUp();
@@ -123,11 +124,19 @@ export const Home: React.FC = () => {
                   key={mod.id}
                   disabled={isComingSoon}
                   onClick={() => handleRunModule(mod.url, mod.external, mod.status)}
-                  className={`flex flex-col items-center justify-start text-center outline-none transition-all ${
+                  className={`group flex flex-col items-center justify-start text-center outline-none transition-all ${
                     isComingSoon ? 'opacity-40 cursor-not-allowed grayscale' : ''
                   }`}
                 >
-                  <div className={`relative w-16 h-16 rounded-[22px] flex items-center justify-center mb-2 shadow-sm ${mod.iconBg || 'bg-gray-100 text-gray-600'}`}>
+                  <div className={`relative w-16 h-16 rounded-[22px] flex items-center justify-center mb-2 shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:ring-4 ${
+                    activeFilter === 'medico' 
+                      ? 'group-hover:ring-emerald-500/10' 
+                      : activeFilter === 'estudante' 
+                      ? 'group-hover:ring-blue-500/10' 
+                      : activeFilter === 'profissional'
+                      ? 'group-hover:ring-amber-500/10'
+                      : 'group-hover:ring-purple-500/10'
+                  } ${mod.iconBg || 'bg-gray-100 text-gray-600'}`}>
                     <Icon size={28} strokeWidth={2.2} />
                     {mod.hasIA && (
                       <div className="absolute -top-1 -right-1 bg-otto-teal text-white text-[10px] font-black px-1.5 py-0.5 rounded-md shadow-sm border border-white">
@@ -136,7 +145,7 @@ export const Home: React.FC = () => {
                     )}
                   </div>
                   <div className="flex flex-col items-center w-full px-1">
-                    <span className="text-[13px] font-bold text-gray-800 leading-tight">
+                    <span className="text-[13px] font-bold text-gray-800 leading-tight transition-colors duration-200 group-hover:text-otto-teal">
                       {mod.name}
                     </span>
                     <span className="text-[10px] text-gray-500 leading-tight mt-0.5 line-clamp-2 w-full">
@@ -158,7 +167,8 @@ export const Home: React.FC = () => {
       <div className="flex justify-center items-center px-4 py-4 border-b border-gray-100 bg-white">
         <div className="flex bg-white w-full rounded-full gap-2">
           {(['medico', 'estudante', 'profissional', 'paciente'] as const).map((f) => (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               key={f}
               onClick={() => { setActiveFilter(f); trackProfileFilterChanged(f); }}
               className={`flex-1 py-2.5 px-1.5 rounded-full text-xs font-bold transition-all ${
@@ -170,13 +180,13 @@ export const Home: React.FC = () => {
                       : f === 'profissional'
                       ? 'bg-[#FFF4E6] text-[#D97706] ring-1 ring-[#D97706]/20'
                       : 'bg-[#F2EFFC] text-[#6A47C9] ring-1 ring-[#6A47C9]/20'
-                  : 'bg-transparent text-gray-400 hover:bg-gray-50'
+                  : 'bg-gray-50/70 border border-gray-200/50 hover:bg-gray-100/90 text-gray-500 hover:text-gray-700'
               }`}
             >
               {f === 'medico' ? 'Médico' :
                f === 'estudante' ? 'Estudante' :
                f === 'profissional' ? 'Profis.' : 'Paciente'}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -186,7 +196,7 @@ export const Home: React.FC = () => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-[#E1F7EE] via-[#E8F9F3] to-[#CDF0E3] border border-[#1D9E75]/20 rounded-3xl p-5 shadow-sm relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4"
+          className="bg-gradient-to-r from-[#E1F7EE] via-[#E8F9F3] to-[#CDF0E3] border border-[#1D9E75]/20 rounded-[2rem] p-6 shadow-md shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_12px_24px_-10px_rgba(29,158,117,0.12)] relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4"
         >
           {/* Fundo decorativo premium */}
           <div className="absolute right-0 top-0 w-24 h-24 bg-white/20 rounded-full blur-xl pointer-events-none" />
@@ -209,8 +219,9 @@ export const Home: React.FC = () => {
             </div>
 
             <div className="flex flex-col">
-              <span className="text-xs font-black text-[#0F6E56] uppercase tracking-widest flex items-center gap-1">
-                ✦ Assistente OTTO
+              <span className="text-xs font-black text-[#0F6E56] uppercase tracking-widest flex items-center gap-1.5">
+                <Sparkles size={12} className="text-[#1D9E75] shrink-0" />
+                Assistente OTTO
               </span>
               <h3 className="text-base font-bold text-gray-800 mt-0.5">
                 {greeting}, {localStorage.getItem('otto_user_name')?.split(' ')[0] || 'Doutor'}!
@@ -222,21 +233,25 @@ export const Home: React.FC = () => {
           </div>
 
           <div className="flex flex-row gap-2 shrink-0 self-end md:self-center z-10">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => handleOpenConcierge(actionCommand)}
-              className="px-4 py-2 bg-[#1D9E75] hover:bg-[#0F6E56] text-white text-xs font-extrabold rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1"
+              className="px-4 py-2 bg-[#1D9E75] hover:bg-[#0F6E56] text-white text-xs font-extrabold rounded-xl transition-all shadow-sm flex items-center gap-1"
             >
               <span className="font-bold">{actionLabel}</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={() => handleOpenConcierge()}
-              className="px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-[#1D9E75] text-xs font-bold rounded-xl transition-all shadow-xs active:scale-95 flex items-center gap-1"
+              className="px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 text-[#1D9E75] text-xs font-bold rounded-xl transition-all shadow-xs flex items-center gap-1"
             >
               Falar com IA
-            </button>
+            </motion.button>
           </div>
         </motion.div>
       </div>

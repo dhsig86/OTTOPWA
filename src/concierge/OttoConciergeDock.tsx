@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Send, Sparkles, Share2 } from 'lucide-react';
+import { X, Send, Sparkles, Share2, Calculator, Mic, Tag, FilePen, FolderHeart, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConciergeChatBubble, type ChatAction, type BubbleStyle } from './ConciergeChatBubble';
 import { generateGreeting } from './greetings';
@@ -58,13 +58,19 @@ const OPENER_LINES: Record<string, string> = {
 
 
 
-const QUICK_CHIPS: { label: string; command: string }[] = [
-  { label: '🧮 Calculadoras', command: 'quais calculadoras' },
-  { label: '🎤 Gravar consulta', command: 'abrir whisper' },
-  { label: '🏷️ Codificar TUSS', command: 'abrir procod' },
-  { label: '📝 Laudo-IA', command: 'abrir autolaudo' },
-  { label: '📊 Cases', command: 'abrir cases' },
-  { label: '❓ Ajuda', command: 'ajuda' },
+interface QuickChip {
+  label: string;
+  command: string;
+  icon: React.ComponentType<any>;
+}
+
+const QUICK_CHIPS: QuickChip[] = [
+  { label: 'Calculadoras', command: 'quais calculadoras', icon: Calculator },
+  { label: 'Gravar consulta', command: 'abrir whisper', icon: Mic },
+  { label: 'Codificar TUSS', command: 'abrir procod', icon: Tag },
+  { label: 'Laudo-IA', command: 'abrir autolaudo', icon: FilePen },
+  { label: 'Cases', command: 'abrir cases', icon: FolderHeart },
+  { label: 'Ajuda', command: 'ajuda', icon: HelpCircle },
 ];
 
 function pick<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
@@ -652,7 +658,7 @@ export const OttoConciergeDock: React.FC = () => {
               flex flex-col shadow-2xl"
           >
             {/* Header */}
-            <header className="h-14 bg-gradient-to-r from-[#1D9E75] to-[#15876a] px-4 flex items-center justify-between shrink-0">
+            <header className="h-14 bg-gradient-to-r from-[#1D9E75] to-[#15876a] px-4 flex items-center justify-between shrink-0 shadow-md border-b border-[#15876a]/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shadow-md backdrop-blur-sm">
                   <Sparkles size={16} className="text-white" />
@@ -665,21 +671,25 @@ export const OttoConciergeDock: React.FC = () => {
                 </div>
             </div>
               <div className="flex items-center gap-1">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => processCommand('compartilhar')}
                   className="p-2 hover:bg-white/15 rounded-full transition-all text-emerald-200 hover:text-white"
                   title="Compartilhar OTTO"
                 >
                   <Share2 size={15} />
-                </button>
+                </motion.button>
                 <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
                 <span className="text-[10px] text-emerald-200 font-medium mr-2">Online</span>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setIsOpen(false)}
                   className="p-2 hover:bg-white/15 rounded-full transition-all text-emerald-200 hover:text-white"
                 >
                   <X size={18} />
-                </button>
+                </motion.button>
               </div>
             </header>
 
@@ -714,38 +724,45 @@ export const OttoConciergeDock: React.FC = () => {
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Ex: abrir protto, como funciona calc..."
                   disabled={isProcessing}
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5
+                  className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5
                     text-[13px] text-gray-800 placeholder-gray-400
                     focus:outline-none focus:border-[#1D9E75] focus:ring-2 focus:ring-[#1D9E75]/15 focus:bg-white
-                    disabled:opacity-40 transition-all"
+                    disabled:opacity-40 transition-all duration-200"
                 />
-                <button
+                <motion.button
+                  whileHover={inputValue.trim() && !isProcessing ? { scale: 1.05 } : {}}
+                  whileTap={inputValue.trim() && !isProcessing ? { scale: 0.93 } : {}}
                   type="submit"
                   disabled={!inputValue.trim() || isProcessing}
-                  className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1D9E75] to-teal-700
+                  className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1D9E75] to-teal-700
                     flex items-center justify-center text-white
                     hover:shadow-lg hover:shadow-emerald-500/25
                     disabled:opacity-20 disabled:cursor-not-allowed
-                    transition-all active:scale-90 shadow-md"
+                    transition-all shadow-md"
                 >
-                  <Send size={16} />
-                </button>
+                  <Send size={15} />
+                </motion.button>
               </form>
               <p className="text-[8px] text-gray-400 text-center mt-1.5 tracking-wide">
                 Decisões clínicas são do médico · LGPD compliant
               </p>
               {/* Quick Action Chips */}
               <div className="flex gap-1.5 overflow-x-auto mt-2 pb-0.5 no-scrollbar">
-                {QUICK_CHIPS.map(chip => (
-                  <button
-                    key={chip.command}
-                    onClick={() => { setInputValue(''); processCommand(chip.command); }}
-                    disabled={isProcessing}
-                    className="shrink-0 bg-gray-50 hover:bg-emerald-50 border border-gray-200 hover:border-emerald-300 text-gray-600 hover:text-emerald-700 text-[10px] font-semibold px-2.5 py-1.5 rounded-full transition-all disabled:opacity-40 whitespace-nowrap"
-                  >
-                    {chip.label}
-                  </button>
-                ))}
+                {QUICK_CHIPS.map(chip => {
+                  const Icon = chip.icon;
+                  return (
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      key={chip.command}
+                      onClick={() => { setInputValue(''); processCommand(chip.command); }}
+                      disabled={isProcessing}
+                      className="shrink-0 bg-gray-50 hover:bg-emerald-50 border border-gray-200 hover:border-emerald-300 text-gray-600 hover:text-emerald-700 text-[10px] font-semibold px-3 py-1.5 rounded-full transition-all disabled:opacity-40 whitespace-nowrap flex items-center gap-1.5 group"
+                    >
+                      <Icon size={11} className="text-gray-400 group-hover:text-emerald-600 transition-colors" />
+                      <span>{chip.label}</span>
+                    </motion.button>
+                  );
+                })}
               </div>
             </div>
           </motion.div>
