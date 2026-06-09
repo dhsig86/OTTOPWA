@@ -257,7 +257,7 @@ export const ModuleFrame: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full p-4">
         <p>Módulo não encontrado.</p>
-        <button onClick={() => navigate(-1)} className="mt-4 text-[#1D9E75]">Voltar</button>
+        <button onClick={() => navigate('/')} className="mt-4 text-[#1D9E75]">Voltar ao Painel</button>
       </div>
     );
   }
@@ -266,11 +266,12 @@ export const ModuleFrame: React.FC = () => {
     <div className="fixed inset-0 z-50 bg-white flex flex-col">
       <header className="h-14 bg-[#1D9E75] text-white flex items-center justify-between px-3 shrink-0 shadow-sm relative z-10">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           className="p-2 hover:bg-[#0A865F] rounded-full transition flex items-center gap-1"
         >
           <ArrowLeft size={20} />
-          <span className="text-sm font-medium">Voltar</span>
+          <span className="text-sm font-medium block sm:hidden">Painel</span>
+          <span className="text-sm font-medium hidden sm:block">Voltar ao Painel</span>
         </button>
         <a 
           href={targetUrl}
