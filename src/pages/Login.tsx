@@ -174,7 +174,7 @@ export const Login: React.FC = () => {
                 placeholder="Ex: seunome@email.com"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm text-gray-800"
+                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-base sm:text-sm text-gray-800"
                 required
               />
             </div>
@@ -186,7 +186,7 @@ export const Login: React.FC = () => {
                 placeholder="Digite sua senha..."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm text-gray-800"
+                className="w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-base sm:text-sm text-gray-800"
                 required
               />
             </div>

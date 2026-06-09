@@ -51,7 +51,7 @@ export const Search: React.FC = () => {
           </div>
           <input
             type="text"
-            className="w-full bg-gray-100 border-none rounded-xl py-3 pl-10 pr-4 text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-[#1D9E75] focus:outline-none shadow-inner"
+            className="w-full bg-gray-100 border-none rounded-xl py-3 pl-10 pr-4 text-base sm:text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-[#1D9E75] focus:outline-none shadow-inner"
             placeholder="Buscar ferramentas, cursos..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}

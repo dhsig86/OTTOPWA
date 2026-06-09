@@ -90,7 +90,7 @@ export const PremiumPage: React.FC = () => {
                 <label className="text-xs font-bold text-gray-500 uppercase">Cartão de Crédito</label>
                 <div className="relative">
                   <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                  <input type="text" placeholder="**** **** **** ****" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm outline-none" disabled />
+                  <input type="text" placeholder="**** **** **** ****" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-base sm:text-sm outline-none" disabled />
                 </div>
               </div>
             </div>

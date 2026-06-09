@@ -57,7 +57,7 @@ const InputField = ({ label, icon: Icon, children }: { label: string; icon?: any
   </div>
 );
 
-const inputClass = "w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm text-gray-800";
+const inputClass = "w-full h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-base sm:text-sm text-gray-800";
 const selectClass = `${inputClass} appearance-none cursor-pointer`;
 
 export const CompleteProfile: React.FC = () => {

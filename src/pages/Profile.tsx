@@ -56,7 +56,7 @@ const Toast: React.FC<{ message: string; type: 'success' | 'error'; onClose: () 
 );
 
 // ─── Inline editable field ──────────────────────────────────────────────────
-const inputClass = "w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-sm text-gray-800";
+const inputClass = "w-full h-10 px-3 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:border-[#1D9E75] focus:ring-2 focus:ring-[#CDF0E3] transition-all outline-none text-base sm:text-sm text-gray-800";
 const selectClass = `${inputClass} appearance-none cursor-pointer`;
 
 export const Profile: React.FC = () => {
