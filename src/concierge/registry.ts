@@ -155,7 +155,7 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
   {
     id: 'procod',
     displayName: 'CID & TUSS',
-    currentUrl: 'https://procod.drdariohart.com/',
+    currentUrl: 'https://ottoprocod.vercel.app/',
     category: 'operacional',
     profiles: ['medico', 'estudante'],
     status: 'live',

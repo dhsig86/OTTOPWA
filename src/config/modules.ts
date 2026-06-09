@@ -82,7 +82,7 @@ export const OTTO_MODULES: OttoModule[] = [
     name: 'CID & TUSS',
     description: 'CID + TUSS + OPME rápido',
     icon: Tags,
-    url: 'https://procod.drdariohart.com/',
+    url: 'https://ottoprocod.vercel.app/',
     external: true,
     profiles: ['medico', 'estudante'],
     premium: false,

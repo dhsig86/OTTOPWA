@@ -377,7 +377,7 @@ function procodReadOnlyDeepLink(request: AdapterRequest): AdapterResponse {
   const module = getModuleById(request.moduleId);
   const query = extractProcodQuery(request.input.text ?? '');
   const queryKind = inferProcodQueryKind(request.input.text ?? '');
-  const baseUrl = module?.currentUrl ?? 'https://procod.drdariohart.com/';
+  const baseUrl = module?.currentUrl ?? 'https://ottoprocod.vercel.app/';
   const url = buildProcodUrl(baseUrl, query, queryKind);
 
   return {
