@@ -79,7 +79,8 @@ As intenções possíveis são:
 29. "feedback.open" - Abrir tela de feedback, sugestões ou reportar bug (ex: "reportar erro").
 30. "ocr.open" - Abrir tela principal de OCR para extração (ex: "abrir ocr").
 31. "bottok.open" - Abrir tela do chatbot BOTTOK (ex: "abrir bottok").
-32. "concierge.chat" - Diálogos livres, bate-papo, saudações, conversas gerais ou qualquer texto que não seja um comando claro para abrir outro módulo (ex: "olá", "quem é você?", "boa tarde", "tudo bem?").
+32. "fono.open" - Abrir o módulo de fonoaudiologia OTTO FONO para exercícios vocais, de apneia, disfagia ou labirinto (ex: "abrir fono", "exercicios de fono", "reabilitacao vestibular", "lax vox", "deglutição").
+33. "concierge.chat" - Diálogos livres, bate-papo, saudações, conversas gerais ou qualquer texto que não seja um comando claro para abrir outro módulo (ex: "olá", "quem é você?", "boa tarde", "tudo bem?").
 
 Sobre a chave "reply":
 - Deve ser uma resposta clínica e prestativa, com tom profissional, acolhedor e humanizado (agindo como um Concierge atencioso).
