@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Send, Sparkles, Share2, Calculator, Mic, Tag, FilePen, FolderHeart, HelpCircle } from 'lucide-react';
+import { X, Send, Share2, Calculator, Mic, Tag, FilePen, FolderHeart, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ConciergeChatBubble, type ChatAction, type BubbleStyle } from './ConciergeChatBubble';
 import { generateGreeting } from './greetings';
@@ -660,8 +660,8 @@ export const OttoConciergeDock: React.FC = () => {
             {/* Header */}
             <header className="h-14 bg-gradient-to-r from-[#1D9E75] to-[#15876a] px-4 flex items-center justify-between shrink-0 shadow-md border-b border-[#15876a]/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.25)]">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shadow-md backdrop-blur-sm">
-                  <Sparkles size={16} className="text-white" />
+                <div className="w-9 h-9 rounded-full overflow-hidden shadow-md border border-white/20">
+                  <img src="/otto_concierge_avatar.jpg" alt="OTTO" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <h2 className="text-sm font-extrabold text-white leading-none tracking-tight">
@@ -743,9 +743,15 @@ export const OttoConciergeDock: React.FC = () => {
                   <Send size={15} />
                 </motion.button>
               </form>
-              <p className="text-[8px] text-gray-400 text-center mt-1.5 tracking-wide">
-                Decisões clínicas são do médico · LGPD compliant
-              </p>
+              <div className="flex flex-col items-center gap-1 mt-1.5">
+                <p className="text-[8px] text-gray-400 text-center tracking-wide leading-none">
+                  Decisões clínicas são do médico · LGPD compliant
+                </p>
+                <div className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity">
+                  <span className="text-[7px] text-gray-400 font-bold uppercase tracking-wider">Parceria Oficial:</span>
+                  <img src="/otosig_logo.png" alt="OTOSIG" className="h-2.5 object-contain" />
+                </div>
+              </div>
               {/* Quick Action Chips */}
               <div className="flex gap-1.5 overflow-x-auto mt-2 pb-0.5 no-scrollbar">
                 {QUICK_CHIPS.map(chip => {
