@@ -124,5 +124,10 @@ export const MODULE_CAPABILITIES_DB: Record<string, ModuleCapabilityInfo> = {
     description: 'Canal de feedback, sugestões e relato de bugs para o ecossistema OTTO.',
     targetProfile: 'ambos',
     mainFeatures: ['Envio de sugestões e bug reports', 'Classificação por módulo', 'Acompanhamento de status']
+  },
+  fono: {
+    description: 'OTTO FONO: módulo de reabilitação fonoaudiológica e vestibular domiciliar para voz, disfagia, apneia e tontura.',
+    targetProfile: 'ambos',
+    mainFeatures: ['Exercícios de trato vocal (Lax Vox) interativos', 'Protocolo miofuncional de orofaringe para apneia', 'Manobras de deglutição com triagem e segurança ativa', 'Reabilitação vestibular com metrônomos visuais e Brandt-Daroff']
   }
 };

@@ -308,6 +308,22 @@ export const CLINICAL_INTENTS: IntentRegistryEntry[] = [
     'deletar conta',
     'area do usuario'
   ]),
+  intent('fono.open', 'Abrir OTTO Fono', 'fono', 'open_module', 'low', ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'test'], false, false, 'none', [
+    'abrir fono',
+    'reabilitacao vocal',
+    'exercicio de voz',
+    'fonoaudiologia',
+    'exercicios para apneia',
+    'exercicio orofaringe',
+    'protocolo de guimaraes',
+    'reabilitacao de labirintite',
+    'exercicio de tontura',
+    'brandt-daroff',
+    'lax vox',
+    'masako',
+    'degluticao segura',
+    'treino de fono'
+  ]),
   intent('concierge.chat', 'Conversar ou tirar dúvidas', 'concierge', 'respond', 'low',
     ['medico', 'estudante', 'profissional', 'paciente'], ['pwa', 'zap', 'test'],
     false, false, 'none', [

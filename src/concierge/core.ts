@@ -386,7 +386,8 @@ function handleHelpIntent(input: ConciergeInput, selected: any, traceId: string)
       '- **OTTO CALC-HUB (Calculadoras & PROMs):** Central de calculadoras otorrinolaringológicas, englobando questionários de qualidade de vida (SNOT-22, THI para Zumbido, NOSE para desvio de septo) e estadiamentos oncológicos (TNM) de cabeça e pescoço.\n\n' +
       '**🦻 5. Triagem e Reabilitação de Pacientes**\n' +
       '- **OTTO CHECK (Audiômetro & Zumbido):** Uma ferramenta de triagem auditiva domiciliar rápida, que inclui um gerador de frequências para identificar o pitch/loudness do Zumbido do paciente e prescrever terapia sonora de mascaramento.\n' +
-      '- **OTTO VOICE (Voz Emocional):** Um sintetizador de voz humana com entonação emocional por IA, projetado para auxiliar na comunicação e reabilitação fonológica de pacientes laringectomizados.\n\n' +
+      '- **OTTO VOICE (Voz Emocional):** Um sintetizador de voz humana com entonação emocional por IA, projetado para auxiliar na comunicação e reabilitação fonológica de pacientes laringectomizados.\n' +
+      '- **OTTO FONO (Reabilitação Vocal & Vestibular):** Exercícios domiciliares baseados em evidência científica para voz (Lax Vox), apneia (exercícios de orofaringe), deglutição (manobras de disfagia com segurança) e equilíbrio (VOR, Brandt-Daroff, Cawthorne-Cooksey).\n\n' +
       '**📚 6. Ensino, Imagens e Evidência Científica**\n' +
       '- **OTTO ATLAS (com OTOSCOP-IA):** Um acervo clínico interativo de fotos e vídeos otoscópicos, rinoscópicos e laringoscópicos. Ele embute a IA de triagem de ouvido (OTOSCOP-IA) que auxilia na identificação de patologias timpânicas.\n' +
       '- **OTTO CASES (Relatos de Casos):** Um assistente inteligente para estruturação e formatação de relatos de casos clínicos ORL, voltado para publicação científica ou discussões acadêmicas.\n' +
@@ -401,6 +402,7 @@ function handleHelpIntent(input: ConciergeInput, selected: any, traceId: string)
       '- **CHECK** — Teste sua audição gratuitamente\n' +
       '- **Zumbido** — Terapia sonora para alívio de zumbido\n' +
       '- **VOICE** — Comunicação por voz para laringectomizados\n' +
+      '- **FONO** — Reabilitação vocal, labirintite, apneia e deglutição\n' +
       '- **PeriOp** — Orientações pré e pós-cirúrgicas\n\n' +
       '**🎮 Educação:**\n' +
       '- **Games** — Jogos educativos de saúde ORL\n' +

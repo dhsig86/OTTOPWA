@@ -390,6 +390,20 @@ export const OTTO_MODULES: OttoModule[] = [
     hasIA: true,
   },
   {
+    id: 'fono',
+    name: 'OTTO Fono',
+    description: 'Reabilitação fono e labirinto',
+    icon: AudioLines,
+    url: 'https://otto-fono.vercel.app/',
+    external: true,
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    premium: false,
+    status: 'live',
+    category: 'clinico',
+    tags: ['reabilitacao', 'fono', 'degluticao', 'voz', 'apneia', 'labirinto', 'tontura', 'exercicio', 'brandt', 'lax-vox'],
+    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
+  },
+  {
     id: 'feedback',
     name: 'Feedback',
     description: 'Reporte e sugira',

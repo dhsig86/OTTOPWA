@@ -613,6 +613,26 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
     }
   },
   {
+    id: 'fono',
+    displayName: 'OTTO Fono',
+    currentUrl: 'https://otto-fono.vercel.app/',
+    category: 'clinico',
+    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
+    status: 'live',
+    clinicalRisk: 'medium',
+    dataSensitivity: 'low',
+    capabilities: ['fono.open', 'fono.rehab'],
+    surfaces: ['pwa', 'test'],
+    adapter: { status: 'mock', timeoutMs: 3000 },
+    policies: {
+      requiresAuth: false,
+      allowsIframe: true,
+      supportsDeepLink: true,
+      supportsPostMessage: true,
+      requiresConfirmationForPersist: false
+    }
+  },
+  {
     id: 'profile',
     displayName: 'Meu Perfil',
     currentUrl: '/profile',
