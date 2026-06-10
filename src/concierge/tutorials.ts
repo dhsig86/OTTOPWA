@@ -311,21 +311,6 @@ export const OTTO_TUTORIALS: OttoTutorial[] = [
     shortcutCommand: 'abrir atlas'
   },
   {
-    id: 'ottosig',
-    title: 'Glossário ORL — Minidicionário',
-    emoji: '📖',
-    audience: 'Estudantes e Público Geral',
-    summary: 'Minidicionário de termos ORL com definições claras, ilustrações e pronúncia. Ideal para estudantes e pacientes.',
-    steps: [
-      'Acesse o Glossário pelo menu ou digite "abrir glossario".',
-      'Pesquise o termo desejado na barra de busca.',
-      'Leia a definição, etimologia e aplicação clínica do termo.',
-      'Use os links internos para navegar entre termos relacionados.'
-    ],
-    tip: 'Adicione o Glossário aos seus favoritos para consulta rápida durante os estudos ou antes de consultas.',
-    shortcutCommand: 'abrir glossario'
-  },
-  {
     id: 'periop',
     title: 'PeriOp — Protocolos Pré/Pós-Operatórios',
     emoji: '🏥',

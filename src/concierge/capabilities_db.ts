@@ -35,11 +35,6 @@ export const MODULE_CAPABILITIES_DB: Record<string, ModuleCapabilityInfo> = {
     targetProfile: 'paciente',
     mainFeatures: ['Calculadora de jejum cirúrgico', 'Instruções de pós-operatório', 'Sinais de alerta']
   },
-  ottosig: {
-    description: 'Dicionário clínico explicativo (Minidicionário) de termos médicos em Otorrinolaringologia.',
-    targetProfile: 'ambos',
-    mainFeatures: ['Definições de patologias', 'Busca rápida de termos e abreviações']
-  },
   voice: {
     description: 'Módulo de voz e fonoaudiologia para avaliação e treinamento vocal.',
     targetProfile: 'ambos',

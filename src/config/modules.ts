@@ -17,7 +17,6 @@ import {
   AudioLines,
   FolderHeart,
   Library,
-  BookA,
   PenLine,
   FileSignature,
   FilePen,
@@ -328,21 +327,6 @@ export const OTTO_MODULES: OttoModule[] = [
   },
   // Premium desativado para MVP — reativar quando gateway de pagamento estiver pronto
   // { id: 'premium_access', name: 'Premium', ... }
-  {
-    id: 'ottosig',
-    name: 'OTTO DIC',
-    description: 'Termos e definições',
-    icon: BookA,
-    url: 'https://dhsig86.github.io/minidic/',
-    external: true,
-    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
-    premium: false,
-    status: 'live',
-    category: 'publico',
-    tags: ['glossario', 'dicionario', 'termos', 'definicao', 'vocabulario'],
-    iconBg: 'bg-[#E1F7EE] text-[#1D9E75]',
-    iframeBlocked: true
-  },
   {
     id: 'whisper',
     name: 'OTTO Whisper',

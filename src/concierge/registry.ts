@@ -513,26 +513,6 @@ export const OTTO_MODULE_REGISTRY: ModuleRegistryEntry[] = [
     }
   },
   {
-    id: 'ottosig',
-    displayName: 'OTTO Glossário',
-    currentUrl: 'https://dhsig86.github.io/minidic/',
-    category: 'educacao_paciente',
-    profiles: ['medico', 'estudante', 'profissional', 'paciente'],
-    status: 'live',
-    clinicalRisk: 'low',
-    dataSensitivity: 'none',
-    capabilities: ['ottosig.open'],
-    surfaces: ['pwa', 'test'],
-    adapter: { status: 'mock', timeoutMs: 3000 },
-    policies: {
-      requiresAuth: false,
-      allowsIframe: false,
-      supportsDeepLink: true,
-      supportsPostMessage: false,
-      requiresConfirmationForPersist: false
-    }
-  },
-  {
     id: 'periop',
     displayName: 'Peri-op',
     currentUrl: '/modules/periop',
