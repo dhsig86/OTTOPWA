@@ -371,35 +371,29 @@ function handleHelpIntent(input: ConciergeInput, selected: any, traceId: string)
   let message = '🩺 **OTTO Concierge** — Seu assistente do ecossistema ORL\n\n';
   if (profile === 'medico' || profile === 'estudante') {
     message +=
-      '**🏥 Atendimento Clínico:**\n' +
-      '- **PROTTO** — Prontuário inteligente com IA\n' +
-      '- **Whisper** — Escriba de consulta (transcrição por voz)\n' +
-      '- **Triagem** — Anamnese digital pré-consulta\n' +
-      '- **OCR** — Extrator de laudos e carteirinhas\n\n' +
-      '**🔬 Diagnóstico e IA:**\n' +
-      '- **CALC-HUB** — Calculadoras clínicas (SNOT-22, Epworth, VHI…)\n' +
-      '- **Otoscop.IA** — Classificação de otoscopia por IA\n' +
-      '- **Atlas** — Atlas de imagens otoscópicas + quiz\n' +
-      '- **BOTTOK** — Chatbot ORL com base de conhecimento\n\n' +
-      '**📋 Documentação:**\n' +
-      '- **PROCOD** — Codificação CID/TUSS e faturamento\n' +
-      '- **Laudo-IA** — Editor de laudos com autocompletar\n' +
-      '- **Cases** — Relatos de caso clínico para publicação\n' +
-      '- **LogBook** — Registro cirúrgico e casuística\n\n' +
-      '**🎓 Educação e Referência:**\n' +
-      '- **Acadêmico** — Simulados e questões de residência\n' +
-      '- **Update** — Pílulas científicas diárias\n' +
-      '- **Vídeos** — Acervo educativo ORL\n' +
-      '- **Glossário** — Minidicionário ORL\n\n' +
-      '**🏥 Especialidades:**\n' +
-      '- **Aerodig** — Hub aerodigestivo pediátrico\n' +
-      '- **Imune** — Imunobiológicos (Dupilumabe)\n' +
-      '- **PeriOp** — Protocolos pré/pós-operatórios\n\n' +
-      '**🧒 Para Pacientes:**\n' +
-      '- **Games** — Jogos educativos de saúde\n' +
-      '- **CHECK** — Triagem auditiva digital\n' +
-      '- **Zumbido** — Terapia sonora para tinnitus\n' +
-      '- **VOICE** — Síntese vocal para laringectomizados\n\n' +
+      '**🌐 1. A Estrutura Central**\n' +
+      '- **OTTO PWA (Shell Principal):** É a "nave-mãe" do sistema. Um portal único e seguro que unifica todos os sub-módulos dentro de uma interface fluida, gerenciando a segurança (Firebase Auth) e a comunicação entre telas com privacidade total de dados.\n\n' +
+      '**🩺 2. Prontuário, Escrita e Produtividade Clínica**\n' +
+      '- **OTTO PROTTO (Prontuário Inteligente):** Um assistente de escrita de consultas. Ele sintetiza dados coletados em triagens prévias ou digitação livre e gera rascunhos de evolução clínica estruturada, diagnósticos e receitas médicas em segundos.\n' +
+      '- **OTTO LAUDO-IA (Editor Inteligente):** Um editor de texto para laudos de exames físicos e procedimentos que usa IA para autocompletar termos médicos e descrever estruturas anatômicas de forma ágil e padronizada.\n' +
+      '- **OTTO WHISPER (Escriba Médico):** Serviço que grava o áudio das consultas (com consentimento) e faz a transcrição médica precisa com correções automáticas de nomenclatura anatômica ORL.\n' +
+      '- **OTTO OCR (Leitor de PDFs/Guias):** Microserviço de inteligência visual para ler carteirinhas de planos, exames laboratoriais ou laudos de imagem anexados, extraindo as informações automaticamente.\n\n' +
+      '**✂️ 3. Centro Cirúrgico e Laudos Administrativos**\n' +
+      '- **OTTOPROCOD (Laudos Cirúrgicos):** Auxilia a faturamento e auditoria cirúrgica. Mapeia o procedimento realizado e gera instantaneamente o laudo cirúrgico padrão, associando os códigos TUSS, CID-10 e a solicitação justificada de OPME (órteses, próteses e materiais especiais).\n' +
+      '- **OTTO LOGBOOK (Estatísticas de Casuística):** O registro pessoal das cirurgias do médico. Além de organizar a agenda cirúrgica, ele gera relatórios estatísticos e gráficos sobre a produtividade, complicações e dados de casuística (importante para residentes e prestação de contas de auditoria).\n\n' +
+      '**📊 4. Calculadoras, Decisão Clínica e Imunobiológicos**\n' +
+      '- **OTTO IMUNE (Elegibilidade para Imunobiológicos):** Uma calculadora que avalia se o paciente com Rinossinusite Crônica com Pólipos Nasais (RSCcPN) cumpre os critérios internacionais (EPOS/EUFOREA) ou da ANS para indicação de imunobiológicos (como Dupilumabe, Omalizumabe, Mepolizumabe). Ele gera automaticamente o relatório de justificativa detalhado para liberação no plano de saúde.\n' +
+      '- **OTTO CALC-HUB (Calculadoras & PROMs):** Central de calculadoras otorrinolaringológicas, englobando questionários de qualidade de vida (SNOT-22, THI para Zumbido, NOSE para desvio de septo) e estadiamentos oncológicos (TNM) de cabeça e pescoço.\n\n' +
+      '**🦻 5. Triagem e Reabilitação de Pacientes**\n' +
+      '- **OTTO CHECK (Audiômetro & Zumbido):** Uma ferramenta de triagem auditiva domiciliar rápida, que inclui um gerador de frequências para identificar o pitch/loudness do Zumbido do paciente e prescrever terapia sonora de mascaramento.\n' +
+      '- **OTTO VOICE (Voz Emocional):** Um sintetizador de voz humana com entonação emocional por IA, projetado para auxiliar na comunicação e reabilitação fonológica de pacientes laringectomizados.\n\n' +
+      '**📚 6. Ensino, Imagens e Evidência Científica**\n' +
+      '- **OTTO ATLAS (com OTOSCOP-IA):** Um acervo clínico interativo de fotos e vídeos otoscópicos, rinoscópicos e laringoscópicos. Ele embute a IA de triagem de ouvido (OTOSCOP-IA) que auxilia na identificação de patologias timpânicas.\n' +
+      '- **OTTO CASES (Relatos de Casos):** Um assistente inteligente para estruturação e formatação de relatos de casos clínicos ORL, voltado para publicação científica ou discussões acadêmicas.\n' +
+      '- **OTTO NEWS / UPDATE (Evidências de IA):** Rastreador inteligente que lê bases internacionais (PubMed, arXiv) diariamente, buscando os artigos e diretrizes de otorrino mais recentes, trazendo resumos curados por IA.\n' +
+      '- **TEST_PG (Simulados MCQ):** Banco de questões de múltipla escolha e simulados integrados voltados para o aprendizado e preparação de residentes para provas de título da especialidade.\n' +
+      '- **BOTTOK (Chatbot de Consulta RAG):** Um chatbot inteligente alimentado por RAG (Geração Aumentada por Recuperação) treinado especificamente com livros texto e consensos de Otorrinolaringologia para sanar dúvidas rápidas de conduta terapêutica na beira do leito.\n' +
+      '- **OTTO GAMES (Pediatria Lúdica):** Jogos educativos simples para ensinar conceitos de higiene nasal e cuidados auditivos para crianças de forma lúdica no consultório.\n\n' +
       '_Diga "abrir [módulo]", "como funciona [módulo]" ou pergunte algo!_ 💬';
   } else {
     message +=
