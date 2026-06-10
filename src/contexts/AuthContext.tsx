@@ -24,6 +24,8 @@ interface AuthContextType {
   updatePremiumStatus: (isPremium: boolean, plan: string) => void;
   markProfileCompleted: (name: string, profileType: UserProfile) => void;
   markOnboardingCompleted: () => Promise<void>;
+  userSettings: { locaisFrequentes?: string[], contatosFrequentes?: string[] } | null;
+  saveUserSettings: (settings: { locaisFrequentes: string[], contatosFrequentes: string[] }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -46,6 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading]               = useState(true);
   const [profileCompleted, setProfileCompleted] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+  const [userSettings, setUserSettings] = useState<{ locaisFrequentes?: string[], contatosFrequentes?: string[] } | null>(null);
 
   const isAuthenticated = !!userId;
 
@@ -75,6 +78,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
             setIsPremium(!!d.premiumActive);
             setSubscriptionPlan(d.subscriptionPlan || null);
+            setUserSettings(d.autolaudoSettings || null);
             // Trust Firestore OR localStorage — handles case where Firestore write
             // succeeded but previous session cleared localStorage on logout
             const pc = !!d.profileCompleted || localStorage.getItem('otto_profile_completed') === 'true';
@@ -154,6 +158,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setProfileCompleted(!!d.profileCompleted);
         setOnboardingCompleted(!!d.onboardingCompleted);
         setIsPremium(!!d.premiumActive);
+        setUserSettings(d.autolaudoSettings || null);
         if (d.profileCompleted) localStorage.setItem('otto_profile_completed', 'true');
         if (d.onboardingCompleted) localStorage.setItem('otto_onboarding_completed', 'true');
       } else {
@@ -193,6 +198,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSubscriptionPlan(null);
     setProfileCompleted(false);
     setOnboardingCompleted(false);
+    setUserSettings(null);
     localStorage.removeItem('otto_user_id');
     localStorage.removeItem('otto_user_name');
     localStorage.removeItem('otto_profile');
@@ -252,6 +258,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const saveUserSettings = async (settings: { locaisFrequentes: string[], contatosFrequentes: string[] }) => {
+    setUserSettings(settings);
+    if (userId) {
+      try {
+        await setDoc(doc(db, 'users', userId), {
+          autolaudoSettings: settings,
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      } catch (e) {
+        console.error('saveUserSettings Firestore error:', e);
+      }
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       isAuthenticated,
@@ -272,6 +292,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updatePremiumStatus,
       markProfileCompleted,
       markOnboardingCompleted,
+      userSettings,
+      saveUserSettings,
     }}>
       {children}
     </AuthContext.Provider>

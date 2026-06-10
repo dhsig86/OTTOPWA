@@ -22,6 +22,10 @@ export const WAKE_ENDPOINTS: { url: string; label: string }[] = [
   },
   // ── Render ───────────────────────────────────────────────────────────────
   {
+    url: 'https://otto-atlas.onrender.com/health',
+    label: 'OTTO Atlas API',
+  },
+  {
     url: 'https://otto-protto.onrender.com/health',
     label: 'OTTO PROTTO API',
   },

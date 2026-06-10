@@ -11,7 +11,7 @@ import { AnimatePresence } from 'framer-motion';
 export const ModuleFrame: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userId, userName, profile, firebaseToken } = useAuth();
+  const { userId, userName, profile, firebaseToken, userSettings, saveUserSettings } = useAuth();
   const { patientId, doctorId } = usePatient();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [showFallback, setShowFallback] = useState(false);
@@ -58,7 +58,7 @@ export const ModuleFrame: React.FC = () => {
   const sendContext = useCallback((token = firebaseToken) => {
     const payload = {
       type: 'otto-context',
-      payload: { userId, userName, profile, patientId, doctorId, firebaseToken: token }
+      payload: { userId, userName, profile, patientId, doctorId, firebaseToken: token, settings: userSettings }
     };
     // SEC-S2: Só envia se tiver origin válida
     const origin = getSafeOrigin();
@@ -108,7 +108,7 @@ export const ModuleFrame: React.FC = () => {
         console.error('Failed to parse pending concierge message', e);
       }
     }
-  }, [firebaseToken, userId, userName, profile, patientId, doctorId, targetUrl]);
+  }, [firebaseToken, userId, userName, profile, patientId, doctorId, targetUrl, userSettings]);
 
   // Responde ao módulo quando ele pede renovação de token (401 recovery)
   useEffect(() => {
@@ -173,6 +173,13 @@ export const ModuleFrame: React.FC = () => {
           if (autolaudoUrl) {
             navigate('/modules/webview', { state: { url: autolaudoUrl } });
           }
+        }
+      }
+      // 2.3 Sincronização de configurações do usuário (AutoLaudo)
+      else if (event.data?.type === 'otto-save-settings') {
+        const settings = event.data?.settings || event.data?.payload?.settings;
+        if (settings) {
+          saveUserSettings(settings);
         }
       }
       // 3. Navegação Interna de Módulos (ex: PROTTO -> AutoLaudo)
