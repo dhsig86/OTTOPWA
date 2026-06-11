@@ -1,6 +1,6 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Bot, User, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { User, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -93,12 +93,16 @@ export const ConciergeChatBubble: React.FC<ConciergeBubbleProps> = ({
     >
       {/* Avatar */}
       {!isSystem && (
-        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-1 transition-all ${
+        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-1 transition-all overflow-hidden ${
           isUser
             ? 'bg-[#1D9E75]/15'
             : 'bg-gradient-to-br from-emerald-600 to-teal-700 shadow-md shadow-emerald-900/30'
         }`}>
-          {isUser ? <User size={13} className="text-[#1D9E75]" /> : <Bot size={13} className="text-white" />}
+          {isUser ? (
+            <User size={13} className="text-[#1D9E75]" />
+          ) : (
+            <img src="/otto_concierge_avatar.jpg" alt="OTTO" className="w-full h-full object-cover" />
+          )}
         </div>
       )}
 
