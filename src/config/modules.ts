@@ -21,7 +21,8 @@ import {
   FileSignature,
   FilePen,
   Ear,
-  Gamepad2
+  Gamepad2,
+  GitMerge
 } from 'lucide-react';
 
 import type { LucideIcon } from 'lucide-react';
@@ -386,6 +387,20 @@ export const OTTO_MODULES: OttoModule[] = [
     category: 'clinico',
     tags: ['reabilitacao', 'fono', 'degluticao', 'voz', 'apneia', 'labirinto', 'tontura', 'exercicio', 'brandt', 'lax-vox'],
     iconBg: 'bg-[#E1F7EE] text-[#1D9E75]'
+  },
+  {
+    id: 'flow',
+    name: 'OTTO Flow',
+    description: 'Funil cirúrgico e captação',
+    icon: GitMerge,
+    url: 'https://otto-protto.vercel.app/?view=flow',
+    external: true,
+    profiles: ['medico'],
+    premium: true,
+    status: 'beta',
+    category: 'clinico',
+    tags: ['crm', 'leads', 'funil', 'cirurgia', 'pipeline', 'flow'],
+    iconBg: 'bg-[#EEF1FB] text-[#4B68D8]'
   },
   {
     id: 'feedback',
