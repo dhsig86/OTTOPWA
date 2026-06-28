@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 // Serviços monitorados durante o aquecimento
 const SERVICES = [
   { label: 'OTTO Triagem',   url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/health' },
-  { label: 'OTTO PROTTO',    url: 'https://otto-protto.onrender.com/health' },
-  { label: 'OTTO OCR',       url: 'https://otto-ocr-api.onrender.com/health' },
+  { label: 'OTTO API Hub',   url: 'https://otto-api-hub.onrender.com/health' },
   { label: 'BOTTOK',         url: 'https://OtoAi-bottok-orl-api.hf.space/status' },
 ];
 

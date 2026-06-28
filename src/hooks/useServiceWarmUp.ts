@@ -20,27 +20,16 @@ export const WAKE_ENDPOINTS: { url: string; label: string }[] = [
     url: 'https://otto-ai-triagem-1fc48c3c292e.herokuapp.com/health',
     label: 'OTTO Triagem',
   },
-  // ── Render ───────────────────────────────────────────────────────────────
+  // ── Render (API Hub centralizado) ────────────────────────────────────────
   {
-    url: 'https://otto-atlas.onrender.com/health',
-    label: 'OTTO Atlas API',
-  },
-  {
-    url: 'https://otto-protto.onrender.com/health',
-    label: 'OTTO PROTTO API',
-  },
-  {
-    url: 'https://otto-ocr-api.onrender.com/health',
-    label: 'OTTO OCR',
+    url: 'https://otto-api-hub.onrender.com/health',
+    label: 'OTTO API Hub',
   },
   // ── HuggingFace Space ────────────────────────────────────────────────────
   {
     url: 'https://OtoAi-bottok-orl-api.hf.space/status',
     label: 'BOTTOK (HuggingFace)',
   },
-  // NOTA: OTTO Whisper (otto-whisper.onrender.com) removido do warm-up —
-  // serviço suspenso no Render free tier, gera CORS 404 desnecessários.
-  // Reativar quando o serviço for migrado ou reativado.
 ];
 
 /** Dispara pings fire-and-forget em todos os backends. Seguro para chamar a qualquer momento. */
