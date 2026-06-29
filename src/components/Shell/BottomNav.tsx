@@ -2,8 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Home, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import * as _anime from 'animejs';
-const anime = (_anime as any).default || _anime;
+import { animate } from 'animejs';
 
 export const BottomNav: React.FC = () => {
   const navigate = useNavigate();
@@ -14,12 +13,11 @@ export const BottomNav: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       if (conciergeRef.current) {
-        anime({
-          targets: conciergeRef.current,
+        animate(conciergeRef.current, {
           translateY: [0, -6, 0],
           scale: [1, 1.05, 1],
           duration: 900,
-          easing: 'elastic(1, .5)',
+          ease: 'elastic(1, .5)',
         });
       }
     }, 10000); // Executa a cada 10 segundos
@@ -29,12 +27,11 @@ export const BottomNav: React.FC = () => {
 
   const triggerClickAnimation = () => {
     if (conciergeRef.current) {
-      anime({
-        targets: conciergeRef.current,
+      animate(conciergeRef.current, {
         rotate: '1turn',
         scale: [1, 1.2, 1],
         duration: 850,
-        easing: 'spring(1, 80, 10, 0)',
+        ease: 'spring(1, 80, 10, 0)',
       });
     }
   };
